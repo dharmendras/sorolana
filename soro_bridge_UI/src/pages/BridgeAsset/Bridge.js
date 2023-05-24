@@ -50,26 +50,29 @@ function Bridge() {
                                 <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}> From (Source)</Typography>
 
                                 <TextField
-
-
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
                                         borderRadius: 3,
                                         width: 400,
                                         height: 40,
-                                        '&.MuiFormControl-root-MuiTextField-root': {
-                                            color: 'white'
+                                        '& .MuiInput-underline:after': {
+                                            border: 'none',
                                         },
-                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
-                                            '&.focused': {
-                                                border: 'none'
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': {
+                                                border: 'none',
                                             },
-
+                                            '&:hover fieldset': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                border: 'none',
+                                            },
                                         }
 
-
-                                    }}
+                                    }
+                                    }
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -89,25 +92,29 @@ function Bridge() {
                                 <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>To (Destination)</Typography>
 
                                 <TextField
-
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
                                         borderRadius: 3,
                                         width: 400,
                                         height: 40,
-                                        '&.MuiFormControl-root-MuiTextField-root': {
-                                            color: 'white'
+                                        '& .MuiInput-underline:after': {
+                                            border: 'none',
                                         },
-                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
-                                            '&.focused': {
-                                                border: 'none'
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': {
+                                                border: 'none',
                                             },
-
+                                            '&:hover fieldset': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                border: 'none',
+                                            },
                                         }
 
-
-                                    }}
+                                    }
+                                    }
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -134,18 +141,23 @@ function Bridge() {
                                         borderRadius: 3,
                                         width: 400,
                                         height: 40,
-                                        '&.MuiFormControl-root-MuiTextField-root': {
-                                            color: 'white'
+                                        '& .MuiInput-underline:after': {
+                                            border: 'none',
                                         },
-                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
-                                            '&.focused': {
-                                                border: 'none'
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': {
+                                                border: 'none',
                                             },
-
+                                            '&:hover fieldset': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                border: 'none',
+                                            },
                                         }
 
-
-                                    }}
+                                    }
+                                    }
                                 >
 
                                 </TextField>
@@ -166,18 +178,23 @@ function Bridge() {
                                         borderRadius: 3,
                                         width: 400,
                                         height: 40,
-                                        '&.MuiFormControl-root-MuiTextField-root': {
-                                            color: 'white'
+                                        '& .MuiInput-underline:after': {
+                                            border: 'none',
                                         },
-                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
-                                            '&.focused': {
-                                                border: 'none'
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': {
+                                                border: 'none',
                                             },
-
+                                            '&:hover fieldset': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                border: 'none',
+                                            },
                                         }
 
-
-                                    }}
+                                    }
+                                    }
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -199,25 +216,29 @@ function Bridge() {
                                 <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Relayer </Typography>
 
                                 <TextField
-
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
                                         borderRadius: 3,
                                         width: 400,
                                         height: 40,
-                                        '&.MuiFormControl-root-MuiTextField-root': {
-                                            color: 'white'
+                                        '& .MuiInput-underline:after': {
+                                            border: 'none',
                                         },
-                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
-                                            '&.focused': {
-                                                border: 'none'
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': {
+                                                border: 'none',
                                             },
-
+                                            '&:hover fieldset': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                border: 'none',
+                                            },
                                         }
 
-
-                                    }}
+                                    }
+                                    }
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -235,30 +256,30 @@ function Bridge() {
                                 <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Destination</Typography>
 
                                 <TextField
-
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
                                         borderRadius: 3,
                                         width: 400,
                                         height: 40,
-                                        "& fieldset":
-                                            { border: 'none' },
 
-
-                                        '&.MuiFormControl-root-MuiTextField-root': {
-                                            color: 'white'
-
+                                        '& .MuiInput-underline:after': {
+                                            border: 'none',
                                         },
-                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
-                                            '&.focused': {
-                                                border: 'none'
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': {
+                                                border: 'none',
                                             },
-
+                                            '&:hover fieldset': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                border: 'none',
+                                            },
                                         }
 
-
-                                    }}
+                                    }
+                                    }
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
