@@ -31,7 +31,13 @@ function Bridge() {
         <>
             <Container sx={{ background: 'black', mt: 10 }}>
 
-                <Card sx={{ border: 1, borderColor: 'blue', backgroundColor: 'transparent', borderRadius: 5 }}>
+                <Card sx={{
+                    border: 1,
+                    borderColor: 'blue',
+                    backgroundColor: 'transparent',
+                    borderRadius: 5,
+                    color: 'white'
+                }}>
 
                     <Typography variannt='h6' sx={{ color: 'white', fontSize: '30px', textAlign: 'center' }}> Bridge Asset</Typography>
 
@@ -84,11 +90,6 @@ function Bridge() {
 
                                 <TextField
 
-                                    id="filled-select-currency"
-                                    select
-                                    label="Select"
-                                    defaultValue="EUR"
-                                    variant="filled"
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
@@ -127,11 +128,6 @@ function Bridge() {
 
                                 <TextField
 
-                                    id="filled-select-currency"
-                                    select
-                                    label="Select"
-                                    defaultValue="EUR"
-                                    variant="filled"
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
@@ -164,11 +160,6 @@ function Bridge() {
 
                                 <TextField
 
-                                    id="filled-select-currency"
-                                    select
-                                    label="Select"
-                                    defaultValue="EUR"
-                                    variant="filled"
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
@@ -209,11 +200,6 @@ function Bridge() {
 
                                 <TextField
 
-                                    id="filled-select-currency"
-                                    select
-                                    label="Select"
-                                    defaultValue="EUR"
-                                    variant="filled"
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
@@ -250,19 +236,19 @@ function Bridge() {
 
                                 <TextField
 
-                                    id="filled-select-currency"
-                                    select
-                                    label="Select"
-                                    defaultValue="EUR"
-                                    variant="filled"
                                     sx={{
                                         border: 1,
                                         borderColor: 'white',
                                         borderRadius: 3,
                                         width: 400,
                                         height: 40,
+                                        "& fieldset":
+                                            { border: 'none' },
+
+
                                         '&.MuiFormControl-root-MuiTextField-root': {
                                             color: 'white'
+
                                         },
                                         '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
                                             '&.focused': {
