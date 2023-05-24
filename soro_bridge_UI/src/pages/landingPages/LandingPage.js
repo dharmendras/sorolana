@@ -5,7 +5,7 @@ import React from 'react'
 function LandingPage() {
     return (
         <>
-            <Container>
+            <Container sx={{ background: 'black', height: '100vh' }}>
                 <Typography variant='h6' sx={{ color: 'white', fontSize: '45px', textAlign: 'center' }}>Trustless Bridge
                 </Typography>
                 <Typography variant='h6' sx={{ color: 'white', fontSize: '45px', textAlign: 'center' }}>
