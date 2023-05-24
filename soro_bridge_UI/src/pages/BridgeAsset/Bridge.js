@@ -29,7 +29,7 @@ const currencies = [
 function Bridge() {
     return (
         <>
-            <Container sx={{ background: 'transparent', mt: 10 }}>
+            <Container sx={{ background: 'black', mt: 10 }}>
 
                 <Card sx={{ border: 1, borderColor: 'blue', backgroundColor: 'transparent', borderRadius: 5 }}>
 
@@ -45,12 +45,25 @@ function Bridge() {
 
                                 <TextField
 
-                                    id="filled-select-currency"
-                                    select
-                                    label="Select"
-                                    defaultValue="EUR"
-                                    variant="filled"
-                                    sx={{ border: 1, borderColor: 'white', borderRadius: 3, width: 400, height: 50, paddingTop: 2 }}
+
+                                    sx={{
+                                        border: 1,
+                                        borderColor: 'white',
+                                        borderRadius: 3,
+                                        width: 400,
+                                        height: 40,
+                                        '&.MuiFormControl-root-MuiTextField-root': {
+                                            color: 'white'
+                                        },
+                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
+                                            '&.focused': {
+                                                border: 'none'
+                                            },
+
+                                        }
+
+
+                                    }}
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -76,7 +89,24 @@ function Bridge() {
                                     label="Select"
                                     defaultValue="EUR"
                                     variant="filled"
-                                    sx={{ border: 1, borderColor: 'white', borderRadius: 3, width: 400, height: 50, paddingTop: 2 }}
+                                    sx={{
+                                        border: 1,
+                                        borderColor: 'white',
+                                        borderRadius: 3,
+                                        width: 400,
+                                        height: 40,
+                                        '&.MuiFormControl-root-MuiTextField-root': {
+                                            color: 'white'
+                                        },
+                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
+                                            '&.focused': {
+                                                border: 'none'
+                                            },
+
+                                        }
+
+
+                                    }}
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -102,13 +132,26 @@ function Bridge() {
                                     label="Select"
                                     defaultValue="EUR"
                                     variant="filled"
-                                    sx={{ border: 1, borderColor: 'white', borderRadius: 3, width: 400, height: 50, paddingTop: 2 }}
+                                    sx={{
+                                        border: 1,
+                                        borderColor: 'white',
+                                        borderRadius: 3,
+                                        width: 400,
+                                        height: 40,
+                                        '&.MuiFormControl-root-MuiTextField-root': {
+                                            color: 'white'
+                                        },
+                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
+                                            '&.focused': {
+                                                border: 'none'
+                                            },
+
+                                        }
+
+
+                                    }}
                                 >
-                                    {/* {currencies.map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                                    </MenuItem>
-                                      ))} */}
+
                                 </TextField>
                             </Box>
                         </Grid>
@@ -126,7 +169,24 @@ function Bridge() {
                                     label="Select"
                                     defaultValue="EUR"
                                     variant="filled"
-                                    sx={{ border: 1, borderColor: 'white', borderRadius: 3, width: 400, height: 50, paddingTop: 2 }}
+                                    sx={{
+                                        border: 1,
+                                        borderColor: 'white',
+                                        borderRadius: 3,
+                                        width: 400,
+                                        height: 40,
+                                        '&.MuiFormControl-root-MuiTextField-root': {
+                                            color: 'white'
+                                        },
+                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
+                                            '&.focused': {
+                                                border: 'none'
+                                            },
+
+                                        }
+
+
+                                    }}
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -154,7 +214,24 @@ function Bridge() {
                                     label="Select"
                                     defaultValue="EUR"
                                     variant="filled"
-                                    sx={{ border: 1, borderColor: 'white', borderRadius: 3, width: 400, height: 50, paddingTop: 2 }}
+                                    sx={{
+                                        border: 1,
+                                        borderColor: 'white',
+                                        borderRadius: 3,
+                                        width: 400,
+                                        height: 40,
+                                        '&.MuiFormControl-root-MuiTextField-root': {
+                                            color: 'white'
+                                        },
+                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
+                                            '&.focused': {
+                                                border: 'none'
+                                            },
+
+                                        }
+
+
+                                    }}
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -178,7 +255,24 @@ function Bridge() {
                                     label="Select"
                                     defaultValue="EUR"
                                     variant="filled"
-                                    sx={{ border: 1, borderColor: 'white', borderRadius: 3, width: 400, height: 50, paddingTop: 2 }}
+                                    sx={{
+                                        border: 1,
+                                        borderColor: 'white',
+                                        borderRadius: 3,
+                                        width: 400,
+                                        height: 40,
+                                        '&.MuiFormControl-root-MuiTextField-root': {
+                                            color: 'white'
+                                        },
+                                        '&.MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled': {
+                                            '&.focused': {
+                                                border: 'none'
+                                            },
+
+                                        }
+
+
+                                    }}
                                 >
                                     {/* {currencies.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>

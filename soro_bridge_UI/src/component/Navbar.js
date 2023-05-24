@@ -36,7 +36,7 @@ function Navbar() {
   };
 
   return (
-    <AppBar sx={{ background: 'transparent' }}>
+    <AppBar sx={{ background: 'black' }}>
       <Container >
         <Toolbar disableGutters sx={{ borderBottom: '1', borderColor: 'white' }}>
           <Box

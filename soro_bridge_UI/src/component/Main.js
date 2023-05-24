@@ -7,7 +7,6 @@ function Main() {
         <>
             <Box sx={{ pt: 10 }}>
                 <LandingPage />
-
             </Box>
 
         </>
