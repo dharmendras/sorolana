@@ -36,11 +36,11 @@ function Navbar() {
   };
 
   return (
-    <AppBar sx={{ background: 'black' }}>
-      <Container >
-        <Toolbar disableGutters sx={{ borderBottom: '1', borderColor: 'white' }}>
+    <AppBar sx={{ background: 'black', paddingX: 2, borderBottom: 1, borderBottomColor: 'white' }}>
+      <Container>
+        <Toolbar disableGutters >
           <Box
-            component="img"
+            component='img'
             alt="Sorolana"
             src='logo/SorolanaLogo.png'
           />

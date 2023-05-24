@@ -5,6 +5,7 @@ import React from 'react'
 import Checkbox from '@mui/material/Checkbox';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Modal from '@mui/material/Modal';
+import BridgeAssetNavbar from '@/component/BridgeAssetNavbar';
 
 
 
@@ -29,12 +30,14 @@ const currencies = [
 
 const style = {
     position: 'absolute',
-    top: '50%',
+    top: '45%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
+    bgcolor: 'black',
+    border: 1,
+    borderColor: 'blue',
+    borderRadius: 3,
     boxShadow: 24,
     p: 4,
 };
@@ -44,26 +47,30 @@ function Bridge() {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+
+
     return (
         <>
             <Box sx={{ background: 'black', height: '100vh' }}>
-                <Container sx={{ mt: 10 }}>
+                <BridgeAssetNavbar />
+                <Container sx={{ pt: 13 }}>
 
                     <Card sx={{
                         border: 1,
                         borderColor: 'blue',
                         backgroundColor: 'transparent',
                         borderRadius: 5,
-                        color: 'white'
+                        paddingX: 10
                     }}>
 
-                        <Typography variannt='h6' sx={{ color: 'white', fontSize: '30px', textAlign: 'center' }}> Bridge Asset</Typography>
+                        <Typography variannt='h6' sx={{ color: 'white', fontSize: '30px', textAlign: 'center', pt: 5 }}> Bridge Asset</Typography>
 
                         {/* 1st row */}
 
                         <Grid container sx={{ paddingTop: 3 }}>
 
-                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'end' }}>
                                 <Box>
                                     <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}> From (Source)</Typography>
 
@@ -74,6 +81,8 @@ function Bridge() {
                                             borderRadius: 3,
                                             width: 400,
                                             height: 40,
+                                            color: 'white',
+
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
@@ -105,7 +114,7 @@ function Bridge() {
                             <Grid xs={2} sx={{ display: 'flex', justifyContent: 'center', paddingTop: 2 }}>
                                 <SwapHorizontalCircleIcon sx={{ color: 'white', fontSize: 50 }} />
                             </Grid>
-                            <Grid item xs={5}>
+                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'start' }}>
                                 <Box>
                                     <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>To (Destination)</Typography>
 
@@ -116,6 +125,8 @@ function Bridge() {
                                             borderRadius: 3,
                                             width: 400,
                                             height: 40,
+                                            color: 'white',
+
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
@@ -144,10 +155,11 @@ function Bridge() {
                             </Grid>
 
                         </Grid>
+
                         {/* 2nd row */}
 
                         <Grid container sx={{ paddingTop: 3 }}>
-                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'center' }} >
+                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'end' }} >
                                 <Box>
                                     <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Assets (You had like to bridge)</Typography>
 
@@ -159,6 +171,8 @@ function Bridge() {
                                             borderRadius: 3,
                                             width: 400,
                                             height: 40,
+                                            color: 'white',
+
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
@@ -184,7 +198,7 @@ function Bridge() {
                             <Grid xs={2}>
 
                             </Grid>
-                            <Grid item xs={5}>
+                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'start' }}>
                                 <Box>
                                     <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Amount</Typography>
 
@@ -196,6 +210,8 @@ function Bridge() {
                                             borderRadius: 3,
                                             width: 400,
                                             height: 40,
+                                            color: 'white',
+
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
@@ -229,7 +245,7 @@ function Bridge() {
                         {/* 3rd row */}
 
                         <Grid container sx={{ paddingTop: 3 }}>
-                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'end' }}>
                                 <Box>
                                     <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Relayer </Typography>
 
@@ -240,6 +256,8 @@ function Bridge() {
                                             borderRadius: 3,
                                             width: 400,
                                             height: 40,
+                                            color: 'white',
+
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
@@ -269,7 +287,7 @@ function Bridge() {
                             <Grid xs={2}>
 
                             </Grid>
-                            <Grid item xs={5}>
+                            <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'start' }}>
                                 <Box>
                                     <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Destination</Typography>
 
@@ -280,6 +298,7 @@ function Bridge() {
                                             borderRadius: 3,
                                             width: 400,
                                             height: 40,
+                                            color: 'white',
 
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
@@ -357,12 +376,206 @@ function Bridge() {
                                 aria-describedby="modal-modal-description"
                             >
                                 <Box sx={style}>
-                                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                                        Text in a modal
-                                    </Typography>
-                                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                                    </Typography>
+                                    <Typography variannt='h6'
+                                        sx={{ color: 'white', fontSize: '25px', textAlign: 'center', pt: 1 }}>Transection Details</Typography>
+
+                                    <Grid container sx={{ pt: 2 }}>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'start',
+                                                    pt: 1
+                                                }}>
+                                                Transection Hash
+                                            </Typography>
+
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'center',
+                                                    pt: 1
+                                                }}>
+                                                123456789
+                                            </Typography>
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Grid container sx={{ pt: 2 }}>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'start',
+                                                    pt: 1
+                                                }}>
+                                                status
+                                            </Typography>
+
+                                        </Grid>
+                                        <Grid item xs={6} sx={{ textAlign: 'center' }}>
+                                            <Button variant="outlined"
+                                                sx={{
+                                                    backgroundColor: '#4da14d',
+                                                    color: 'black',
+                                                    width: 50,
+                                                    height: 20,
+                                                    fontSize: '10px',
+                                                    border: 2,
+                                                    borderColor: 'green'
+                                                }}>success</Button>
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Grid container sx={{ pt: 2 }}>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'start',
+                                                    pt: 1
+                                                }}>
+                                                To :
+                                            </Typography>
+
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'center',
+                                                    pt: 1
+                                                }}>
+                                                023456789
+                                            </Typography>
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Grid container sx={{ pt: 2 }}>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'start',
+                                                }}>
+                                                From
+                                            </Typography>
+
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'center',
+                                                }}>
+                                                123456789098
+                                            </Typography>
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Grid container sx={{ pt: 2 }}>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'start',
+                                                }}>
+                                                Value :
+                                            </Typography>
+
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'center',
+                                                }}>
+                                                123456789
+                                            </Typography>
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Grid container sx={{ pt: 2 }}>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'start',
+                                                    pt: 1
+                                                }}>
+                                                Transection Fee :
+                                            </Typography>
+
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'center',
+                                                    pt: 1
+                                                }}>
+                                                123456789
+                                            </Typography>
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Grid container sx={{ pt: 2 }}>
+                                        <Grid item xs={6} >
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'start',
+                                                }}>
+                                                Gas Price :
+                                            </Typography>
+
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Typography variannt='body2'
+                                                sx={{
+                                                    color: 'white',
+                                                    fontSize: '12px',
+                                                    textAlign: 'center',
+                                                }}>
+                                                0.345678
+                                            </Typography>
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Box sx={{ textAlign: 'center', pt: 2 }}>
+                                        <Button variant='contained' sx={{
+                                            width: 200,
+                                            height: 30,
+                                            textAlign: 'center',
+                                            backgroundColor: 'transparent',
+                                            border: 1,
+                                            borderColor: 'white'
+                                        }}
+                                            onClick={handleClose}
+                                        >Done</Button>
+                                    </Box>
+
                                 </Box>
                             </Modal>
                         </Box>
