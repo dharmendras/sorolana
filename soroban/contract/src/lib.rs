@@ -42,7 +42,7 @@ impl SorobanSoloanaBridge {
 
         let token_client = token::Client::new(&env, &token_id);
 
-       //token_client.xfer(&user, &env.current_contract_address(), &amount);
+       token_client.xfer(&user, &env.current_contract_address(), &amount);
 
               
          let result  = env.storage().get(&DataKey::Transfer);
