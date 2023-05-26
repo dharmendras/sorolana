@@ -36,69 +36,75 @@ function Navbar() {
   };
 
   return (
-    <AppBar sx={{ background: 'black', paddingX: 2, borderBottom: 1, borderBottomColor: 'white' }}>
-      <Container>
-        <Toolbar disableGutters >
-          <Box
-            component='img'
-            alt="Sorolana"
-            src='logo/SorolanaLogo.png'
-          />
+    <AppBar
+      sx={{
+        background: 'black',
+        paddingX: 2,
+        borderBottom: 1,
+        borderBottomColor: 'white',
+        display: 'flex',
+        alignContent: 'center'
+      }}>
+      <Toolbar disableGutters >
+        <Box
+          component='img'
+          alt="Sorolana"
+          src='logo.png'
+        />
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: 'block', md: 'none' },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+        <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleOpenNavMenu}
+            color="inherit"
+          >
+            <MenuIcon />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorElNav}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
+            sx={{
+              display: { xs: 'block', md: 'none' },
+            }}
+          >
             {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
+              <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">{page}</Typography>
+              </MenuItem>
             ))}
-          </Box>
+          </Menu>
+        </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Button href='BridgeAsset/Bridge' variant='contained' sx={{ borderRadius: 2, backgroundColor: 'transparent', border: 1, borderColor: 'white' }}>Get started</Button>
-          </Box>
-        </Toolbar>
-      </Container>
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          {pages.map((page) => (
+            <Button
+              key={page}
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              {page}
+            </Button>
+          ))}
+        </Box>
+
+        <Box sx={{ flexGrow: 0 }}>
+          <Button href='BridgeAsset/Bridge' variant='outlined' sx={{ borderRadius: 2, backgroundColor: 'transparent', border: 1, borderColor: 'white', color: 'white' }}>Get started</Button>
+        </Box>
+      </Toolbar>
     </AppBar>
   );
 }

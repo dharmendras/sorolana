@@ -6,13 +6,16 @@ import Checkbox from '@mui/material/Checkbox';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Modal from '@mui/material/Modal';
 import BridgeAssetNavbar from '@/component/BridgeAssetNavbar';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import InputAdornment from '@mui/material/InputAdornment';
+import InputLabel from '@mui/material/InputLabel';
 
 
 
 const currencies = [
     {
-        value: 'USD',
-        label: '$',
+        img: '../solana.png',
+        label: 'solana',
     },
     {
         value: 'EUR',
@@ -54,14 +57,15 @@ function Bridge() {
         <>
             <Box sx={{ background: 'black', height: '100vh' }}>
                 <BridgeAssetNavbar />
-                <Container sx={{ pt: 13 }}>
+                <Container sx={{ pt: 13, display: 'flex', justifyContent: 'center' }}>
 
                     <Card sx={{
                         border: 1,
                         borderColor: 'blue',
                         backgroundColor: 'transparent',
                         borderRadius: 5,
-                        paddingX: 10
+                        // paddingX: 10,
+                        width: '60rem'
                     }}>
 
                         <Typography variannt='h6' sx={{ color: 'white', fontSize: '30px', textAlign: 'center', pt: 5 }}> Bridge Asset</Typography>
@@ -72,15 +76,28 @@ function Bridge() {
 
                             <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'end' }}>
                                 <Box>
-                                    <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}> From (Source)</Typography>
+                                    <Typography variant='body2'
+                                        sx={{ color: 'white', fontSize: '12px', paddingBottom: 1, paddiingLeft: 1 }}> From (Source)</Typography>
 
                                     <TextField
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Box
+                                                        sx={{ paddingBottom: 2.5 }}
+                                                        component='img'
+                                                        alt='solana'
+                                                        src='../solana.png'
+                                                    />
+                                                </InputAdornment>
+                                            ),
+                                        }}
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
                                             borderRadius: 3,
-                                            width: 400,
-                                            height: 40,
+                                            width: 300,
+                                            height: 35,
                                             color: 'white',
 
                                             '& .MuiInput-underline:after': {
@@ -89,6 +106,7 @@ function Bridge() {
                                             '& .MuiOutlinedInput-root': {
                                                 '& fieldset': {
                                                     border: 'none',
+
                                                 },
                                                 '&:hover fieldset': {
                                                     border: 'none',
@@ -101,30 +119,42 @@ function Bridge() {
                                         }
                                         }
                                     >
-                                        {/* {currencies.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                {option.label}
-                    </MenuItem>
-                      ))} */}
+
                                     </TextField>
                                 </Box>
 
 
                             </Grid>
                             <Grid xs={2} sx={{ display: 'flex', justifyContent: 'center', paddingTop: 2 }}>
-                                <SwapHorizontalCircleIcon sx={{ color: 'white', fontSize: 50 }} />
+                                <SwapHorizontalCircleIcon sx={{ color: 'white', fontSize: 30 }} />
                             </Grid>
                             <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'start' }}>
                                 <Box>
-                                    <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>To (Destination)</Typography>
+                                    <Typography variant='body2'
+                                        sx={{ color: 'white', fontSize: '12px', paddingBottom: 1, paddiingLeft: 1 }}>
+                                        To (Destination)</Typography>
 
                                     <TextField
+                                        select
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Box
+                                                        width={20}
+                                                        sx={{ paddingBottom: 2.5 }}
+                                                        component='img'
+                                                        alt='solana'
+                                                        src='../steller.png'
+                                                    />
+                                                </InputAdornment>
+                                            ),
+                                        }}
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
                                             borderRadius: 3,
-                                            width: 400,
-                                            height: 40,
+                                            width: 300,
+                                            height: 35,
                                             color: 'white',
 
                                             '& .MuiInput-underline:after': {
@@ -133,6 +163,7 @@ function Bridge() {
                                             '& .MuiOutlinedInput-root': {
                                                 '& fieldset': {
                                                     border: 'none',
+                                                    color: 'white'
                                                 },
                                                 '&:hover fieldset': {
                                                     border: 'none',
@@ -145,11 +176,12 @@ function Bridge() {
                                         }
                                         }
                                     >
-                                        {/* {currencies.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                {option.label}
-                    </MenuItem>
-                      ))} */}
+                                        {currencies.map((option) => (
+                                            <MenuItem sx={{ color: 'white' }}
+                                                key={option.value} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))}
                                     </TextField>
                                 </Box>
                             </Grid>
@@ -161,7 +193,7 @@ function Bridge() {
                         <Grid container sx={{ paddingTop: 3 }}>
                             <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'end' }} >
                                 <Box>
-                                    <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Assets (You had like to bridge)</Typography>
+                                    <Typography variant='body2' sx={{ color: 'white', fontSize: '12px', paddingBottom: 1, paddiingLeft: 1 }}>Assets (You had like to bridge)</Typography>
 
                                     <TextField
 
@@ -169,8 +201,8 @@ function Bridge() {
                                             border: 1,
                                             borderColor: 'white',
                                             borderRadius: 3,
-                                            width: 400,
-                                            height: 40,
+                                            width: 300,
+                                            height: 35,
                                             color: 'white',
 
                                             '& .MuiInput-underline:after': {
@@ -200,16 +232,32 @@ function Bridge() {
                             </Grid>
                             <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'start' }}>
                                 <Box>
-                                    <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Amount</Typography>
+                                    <Typography variant='body2'
+                                        sx={{ color: 'white', fontSize: '12px', paddingBottom: 1, paddiingLeft: 1 }}>Amount</Typography>
 
                                     <TextField
 
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment sx={{ paddingBottom: 3, paddingLeft: 27 }}>
+                                                    <Button
+                                                        sx={{
+                                                            height: 25,
+                                                            border: 1,
+                                                            color: 'white',
+                                                            borderColor: 'white',
+                                                            backgroundColor: 'transparent'
+                                                        }}>
+                                                        Max</Button>
+                                                </InputAdornment>
+                                            ),
+                                        }}
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
                                             borderRadius: 3,
-                                            width: 400,
-                                            height: 40,
+                                            width: 300,
+                                            height: 35,
                                             color: 'white',
 
                                             '& .MuiInput-underline:after': {
@@ -230,11 +278,11 @@ function Bridge() {
                                         }
                                         }
                                     >
-                                        {/* {currencies.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                {option.label}
-                    </MenuItem>
-                      ))} */}
+                                        {currencies.map((option) => (
+                                            <MenuItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))}
                                     </TextField>
                                 </Box>
                             </Grid>
@@ -247,15 +295,16 @@ function Bridge() {
                         <Grid container sx={{ paddingTop: 3 }}>
                             <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'end' }}>
                                 <Box>
-                                    <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Relayer </Typography>
+                                    <Typography variant='body2'
+                                        sx={{ color: 'white', fontSize: '12px', paddingBottom: 1, paddingLeft: 1 }}>Relayer </Typography>
 
                                     <TextField
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
                                             borderRadius: 3,
-                                            width: 400,
-                                            height: 40,
+                                            width: 300,
+                                            height: 35,
                                             color: 'white',
 
                                             '& .MuiInput-underline:after': {
@@ -276,11 +325,11 @@ function Bridge() {
                                         }
                                         }
                                     >
-                                        {/* {currencies.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                {option.label}
-                    </MenuItem>
-                      ))} */}
+                                        {currencies.map((option) => (
+                                            <MenuItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))}
                                     </TextField>
                                 </Box>
                             </Grid>
@@ -289,15 +338,16 @@ function Bridge() {
                             </Grid>
                             <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'start' }}>
                                 <Box>
-                                    <Typography variant='body2' sx={{ color: 'white', fontSize: '15px' }}>Destination</Typography>
+                                    <Typography variant='body2'
+                                        sx={{ color: 'white', fontSize: '12px', paddingBottom: 1, paddiingLeft: 1 }}>Destination</Typography>
 
                                     <TextField
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
                                             borderRadius: 3,
-                                            width: 400,
-                                            height: 40,
+                                            width: 300,
+                                            height: 35,
                                             color: 'white',
 
                                             '& .MuiInput-underline:after': {
@@ -334,10 +384,10 @@ function Bridge() {
 
                         <Grid container sx={{ paddingTop: 3 }}>
                             <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingLeft: 5 }}>
 
-                                    <WarningAmberIcon sx={{ color: 'red', fontSize: 30 }} />
-                                    <Typography sx={{ color: 'white' }}>Bridge charges 0.07% upon every transection </Typography>
+                                    <WarningAmberIcon sx={{ color: 'red', fontSize: 20 }} />
+                                    <Typography sx={{ color: 'white', fontSize: '11px' }}>Bridge charges 0.07% upon every transection </Typography>
 
                                 </Box>
 

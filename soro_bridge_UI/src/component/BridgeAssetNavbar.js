@@ -12,6 +12,9 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+// import { useSorobanReact } from "@soroban-react/core";
+// import frieghter from '@stellar/freighter-api'
+
 
 const pages = ['Bridge', 'History', 'Claim'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -19,6 +22,27 @@ const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 function BridgeAssetNavbar() {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
+    // const { connect, disconnect, address, activeWallet, autoconnect } = useSorobanReact();
+
+
+
+    // connect wallet
+
+    // const handleWalletConnect = async () => {
+    //     console.log("activeWallet?.isConnected", frieghter.isConnected())
+    //     try {
+    //         let _networkDetails = await activeWallet?.getNetworkDetails();
+    //         if (_networkDetails?.network) {
+    //             await connect();
+    //             let wallet = await activeWallet?.getPublicKey()
+    //             console.log("🚀 ~ handleWalletConnect ~ wallet", wallet)
+
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // };
+
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -96,7 +120,10 @@ function BridgeAssetNavbar() {
                 </Box>
 
                 <Box sx={{ flexGrow: 0 }}>
-                    <Button variant='contained' sx={{ borderRadius: 2, backgroundColor: 'transparent', border: 1, borderColor: 'white' }}>Connect</Button>
+                    <Button variant='contained'
+                        sx={{ borderRadius: 2, backgroundColor: 'transparent', border: 1, borderColor: 'white' }}
+                    // onClick={handleWalletConnect}
+                    >Connect</Button>
                 </Box>
             </Toolbar>
         </AppBar>
