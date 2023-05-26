@@ -36,3 +36,25 @@ app.post('/Message', (req, res) => {
     })
     client.end;
 })
+//signature
+app.get('/Signature', (req , res) => { 
+
+    client.query(`SELECT * FROM signature` ,(err , result) => { 
+        if(!err) { 
+            res.send(result.rows)
+        }
+    } );
+    client.end;
+ })
+app.post('/Signature' , (req , res) => { 
+    let insertQuery = `insert into signature (signature) values('sign')`
+    client.query(insertQuery , (err , result) => { 
+        if(!err) { 
+            res.send("Inserction successful")
+        }
+        else{ 
+            console.log(err.message)
+        }
+    })
+    client.end;
+})
