@@ -89,7 +89,7 @@ function Navbar() {
           </Menu>
         </Box>
 
-        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, mt: 1 }}>
           {pages.map((page) => (
             <Button
               key={page}

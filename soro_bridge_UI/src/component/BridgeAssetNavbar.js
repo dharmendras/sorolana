@@ -13,8 +13,9 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 // import { useSorobanReact } from "@soroban-react/core";
-// import frieghter from '@stellar/freighter-api'
-
+// import freighterApi from "@stellar/freighter-api";
+import frieghter from '@stellar/freighter-api'
+// import { freighter } from '@soroban-react/freighter';
 
 const pages = ['Bridge', 'History', 'Claim'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -63,11 +64,9 @@ function BridgeAssetNavbar() {
         <AppBar sx={{ background: 'black', paddingX: 2, borderBottom: 1, borderBottomColor: 'white' }}>
             <Toolbar disableGutters>
                 <Box
-                    width={20}
-                    height={20}
                     component='img'
-                    // alt="soroban"
-                    src='steller.png'
+                    alt="soroban"
+                    src='../logo.png'
                 />
 
                 <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -99,29 +98,51 @@ function BridgeAssetNavbar() {
                             display: { xs: 'block', md: 'none' },
                         }}
                     >
-                        {pages.map((page) => (
-                            <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                <Typography textAlign="center">{page}</Typography>
-                            </MenuItem>
-                        ))}
+
+                        <MenuItem onClick={handleCloseNavMenu}>
+                            Bridge
+                        </MenuItem>
+                        <MenuItem onClick={handleCloseNavMenu}>
+                            History
+                        </MenuItem>
+                        <MenuItem>
+                            <Button href='BridgeAsset/Claim'>
+                                Claim
+                            </Button>
+
+                        </MenuItem>
+
                     </Menu>
                 </Box>
 
-                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                    {pages.map((page) => (
-                        <Button
-                            key={page}
-                            onClick={handleCloseNavMenu}
-                            sx={{ my: 2, color: 'white', display: 'block' }}
-                        >
-                            {page}
-                        </Button>
-                    ))}
+                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, mt: 1 }}>
+                    <Button
+                        href='Bridge'
+                        onClick={handleCloseNavMenu}
+                        sx={{ color: 'white', display: 'block' }}
+                    >
+                        Bridge
+                    </Button>
+
+                    <Button
+                        href='TransactioHistory'
+                        onClick={handleCloseNavMenu}
+                        sx={{ color: 'white', display: 'block' }}
+                    >
+                        History
+                    </Button>
+                    <Button
+                        href='Claim'
+                        onClick={handleCloseNavMenu}
+                        sx={{ color: 'white', display: 'block' }}
+                    >
+                        Claim
+                    </Button>
                 </Box>
 
                 <Box sx={{ flexGrow: 0 }}>
-                    <Button variant='contained'
-                        sx={{ borderRadius: 2, backgroundColor: 'transparent', border: 1, borderColor: 'white' }}
+                    <Button variant='outlined'
+                        sx={{ borderRadius: 2, backgroundColor: 'transparent', border: 1, borderColor: 'white', color: 'white' }}
                     // onClick={handleWalletConnect}
                     >Connect</Button>
                 </Box>

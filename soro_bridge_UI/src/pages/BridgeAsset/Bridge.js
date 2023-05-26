@@ -9,26 +9,23 @@ import BridgeAssetNavbar from '@/component/BridgeAssetNavbar';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
-
+import { shortAddress } from '@/component/utils/Utils';
 
 
 const currencies = [
     {
-        img: '../solana.png',
+        img: 'solana.png',
         label: 'solana',
     },
     {
-        value: 'EUR',
-        label: '€',
+        img: '',
+        label: 'steller',
     },
     {
         value: 'BTC',
-        label: '฿',
+        label: 'soroban',
     },
-    {
-        value: 'JPY',
-        label: '¥',
-    },
+
 ];
 
 const style = {
@@ -36,7 +33,7 @@ const style = {
     top: '45%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 550,
     bgcolor: 'black',
     border: 1,
     borderColor: 'blue',
@@ -84,7 +81,7 @@ function Bridge() {
                                             startAdornment: (
                                                 <InputAdornment position="start">
                                                     <Box
-                                                        sx={{ paddingBottom: 2.5 }}
+                                                        sx={{ paddingBottom: 0.5 }}
                                                         component='img'
                                                         alt='solana'
                                                         src='../solana.png'
@@ -95,15 +92,16 @@ function Bridge() {
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
-                                            borderRadius: 3,
-                                            width: 300,
-                                            height: 35,
+                                            borderRadius: 2,
                                             color: 'white',
+                                            '& .MuiTextField-root': { width: 300 },
 
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
                                             '& .MuiOutlinedInput-root': {
+                                                height: 30,
+
                                                 '& fieldset': {
                                                     border: 'none',
 
@@ -135,7 +133,7 @@ function Bridge() {
                                         To (Destination)</Typography>
 
                                     <TextField
-                                        select
+
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
@@ -152,18 +150,19 @@ function Bridge() {
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
-                                            borderRadius: 3,
-                                            width: 300,
-                                            height: 35,
+                                            borderRadius: 2,
                                             color: 'white',
+                                            '& .MuiTextField-root': { width: 300 },
 
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
                                             '& .MuiOutlinedInput-root': {
+                                                height: 30,
+
                                                 '& fieldset': {
                                                     border: 'none',
-                                                    color: 'white'
+
                                                 },
                                                 '&:hover fieldset': {
                                                     border: 'none',
@@ -176,12 +175,12 @@ function Bridge() {
                                         }
                                         }
                                     >
-                                        {currencies.map((option) => (
-                                            <MenuItem sx={{ color: 'white' }}
+                                        {/* {currencies.map((option) => (
+                                            <MenuItem sx={{ backgroundColor: 'transparent' }}
                                                 key={option.value} value={option.value}>
                                                 {option.label}
                                             </MenuItem>
-                                        ))}
+                                        ))} */}
                                     </TextField>
                                 </Box>
                             </Grid>
@@ -195,22 +194,25 @@ function Bridge() {
                                 <Box>
                                     <Typography variant='body2' sx={{ color: 'white', fontSize: '12px', paddingBottom: 1, paddiingLeft: 1 }}>Assets (You had like to bridge)</Typography>
 
-                                    <TextField
 
+                                    <TextField
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
-                                            borderRadius: 3,
-                                            width: 300,
-                                            height: 35,
+                                            borderRadius: 2,
                                             color: 'white',
+                                            width: 270,
+                                            '& .MuiTextField-root': { width: 300 },
 
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
                                             '& .MuiOutlinedInput-root': {
+                                                height: 30,
+
                                                 '& fieldset': {
                                                     border: 'none',
+
                                                 },
                                                 '&:hover fieldset': {
                                                     border: 'none',
@@ -223,8 +225,14 @@ function Bridge() {
                                         }
                                         }
                                     >
-
+                                        {/* {currencies.map((option) => (
+                                            <MenuItem sx={{ backgroundColor: 'transparent' }}
+                                                key={option.value} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))} */}
                                     </TextField>
+
                                 </Box>
                             </Grid>
                             <Grid xs={2}>
@@ -239,7 +247,7 @@ function Bridge() {
 
                                         InputProps={{
                                             startAdornment: (
-                                                <InputAdornment sx={{ paddingBottom: 3, paddingLeft: 27 }}>
+                                                <InputAdornment >
                                                     <Button
                                                         sx={{
                                                             height: 25,
@@ -255,17 +263,20 @@ function Bridge() {
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
-                                            borderRadius: 3,
-                                            width: 300,
-                                            height: 35,
+                                            borderRadius: 2,
                                             color: 'white',
+                                            width: 263,
+                                            '& .MuiTextField-root': { width: 300 },
 
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
                                             '& .MuiOutlinedInput-root': {
+                                                height: 30,
+
                                                 '& fieldset': {
                                                     border: 'none',
+
                                                 },
                                                 '&:hover fieldset': {
                                                     border: 'none',
@@ -302,17 +313,20 @@ function Bridge() {
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
-                                            borderRadius: 3,
-                                            width: 300,
-                                            height: 35,
+                                            borderRadius: 2,
                                             color: 'white',
+                                            width: 270,
+                                            '& .MuiTextField-root': { width: 300 },
 
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
                                             '& .MuiOutlinedInput-root': {
+                                                height: 30,
+
                                                 '& fieldset': {
                                                     border: 'none',
+
                                                 },
                                                 '&:hover fieldset': {
                                                     border: 'none',
@@ -345,17 +359,21 @@ function Bridge() {
                                         sx={{
                                             border: 1,
                                             borderColor: 'white',
-                                            borderRadius: 3,
-                                            width: 300,
-                                            height: 35,
+                                            borderRadius: 2,
                                             color: 'white',
+                                            width: 270,
+
+                                            '& .MuiTextField-root': { width: 300 },
 
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
                                             },
                                             '& .MuiOutlinedInput-root': {
+                                                height: 30,
+
                                                 '& fieldset': {
                                                     border: 'none',
+
                                                 },
                                                 '&:hover fieldset': {
                                                     border: 'none',
@@ -408,12 +426,13 @@ function Bridge() {
 
 
                         <Box sx={{ textAlign: 'center', paddingY: 5 }}>
-                            <Button variant='contained' sx={{
+                            <Button variant='outlined' sx={{
                                 width: 350,
                                 textAlign: 'center',
                                 backgroundColor: 'transparent',
                                 border: 1,
-                                borderColor: 'white'
+                                borderColor: 'white',
+                                color: 'white'
                             }}
                                 onClick={handleOpen}
                             >Bridge Token</Button>
@@ -447,10 +466,11 @@ function Bridge() {
                                                 sx={{
                                                     color: 'white',
                                                     fontSize: '12px',
-                                                    textAlign: 'center',
+                                                    textAlign: 'end',
                                                     pt: 1
                                                 }}>
-                                                123456789
+                                                {shortAddress('098765432')}
+
                                             </Typography>
                                         </Grid>
 
@@ -469,7 +489,7 @@ function Bridge() {
                                             </Typography>
 
                                         </Grid>
-                                        <Grid item xs={6} sx={{ textAlign: 'center' }}>
+                                        <Grid item xs={6} sx={{ textAlign: 'end' }}>
                                             <Button variant="outlined"
                                                 sx={{
                                                     backgroundColor: '#4da14d',
@@ -502,10 +522,10 @@ function Bridge() {
                                                 sx={{
                                                     color: 'white',
                                                     fontSize: '12px',
-                                                    textAlign: 'center',
+                                                    textAlign: 'end',
                                                     pt: 1
                                                 }}>
-                                                023456789
+                                                {shortAddress('098765432')}
                                             </Typography>
                                         </Grid>
 
@@ -528,9 +548,9 @@ function Bridge() {
                                                 sx={{
                                                     color: 'white',
                                                     fontSize: '12px',
-                                                    textAlign: 'center',
+                                                    textAlign: 'end',
                                                 }}>
-                                                123456789098
+                                                {shortAddress('098765432')}
                                             </Typography>
                                         </Grid>
 
@@ -553,7 +573,7 @@ function Bridge() {
                                                 sx={{
                                                     color: 'white',
                                                     fontSize: '12px',
-                                                    textAlign: 'center',
+                                                    textAlign: 'end',
                                                 }}>
                                                 123456789
                                             </Typography>
@@ -579,7 +599,7 @@ function Bridge() {
                                                 sx={{
                                                     color: 'white',
                                                     fontSize: '12px',
-                                                    textAlign: 'center',
+                                                    textAlign: 'end',
                                                     pt: 1
                                                 }}>
                                                 123456789
@@ -605,7 +625,7 @@ function Bridge() {
                                                 sx={{
                                                     color: 'white',
                                                     fontSize: '12px',
-                                                    textAlign: 'center',
+                                                    textAlign: 'end',
                                                 }}>
                                                 0.345678
                                             </Typography>
@@ -614,13 +634,14 @@ function Bridge() {
                                     </Grid>
 
                                     <Box sx={{ textAlign: 'center', pt: 2 }}>
-                                        <Button variant='contained' sx={{
+                                        <Button variant='outlined' sx={{
                                             width: 200,
                                             height: 30,
                                             textAlign: 'center',
                                             backgroundColor: 'transparent',
                                             border: 1,
-                                            borderColor: 'white'
+                                            borderColor: 'white',
+                                            color: 'white'
                                         }}
                                             onClick={handleClose}
                                         >Done</Button>
@@ -635,7 +656,7 @@ function Bridge() {
 
                     </Card>
                 </Container>
-            </Box>
+            </Box >
 
         </>
     )
