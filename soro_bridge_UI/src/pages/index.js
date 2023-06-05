@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import Navbar from '@/component/Navbar'
 import Main from '@/component/Main'
-import FreighterProvider from './wallet/FrighterProvider'
+// import FreighterProvider from './wallet/FrighterProvider'
 
 export default function Home() {
   return (
