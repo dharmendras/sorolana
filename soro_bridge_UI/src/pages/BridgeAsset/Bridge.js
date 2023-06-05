@@ -139,7 +139,7 @@ function Bridge() {
                                                 <InputAdornment position="start">
                                                     <Box
                                                         width={20}
-                                                        sx={{ paddingBottom: 2.5 }}
+                                                        sx={{ paddingBottom: 0.5 }}
                                                         component='img'
                                                         alt='solana'
                                                         src='../steller.png'
@@ -202,7 +202,8 @@ function Bridge() {
                                             borderRadius: 2,
                                             color: 'white',
                                             width: 270,
-                                            '& .MuiTextField-root': { width: 300 },
+                                            '& .MuiTextField-root':
+                                                { width: 300 },
 
                                             '& .MuiInput-underline:after': {
                                                 border: 'none',
@@ -248,15 +249,18 @@ function Bridge() {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment >
-                                                    <Button
-                                                        sx={{
-                                                            height: 25,
-                                                            border: 1,
-                                                            color: 'white',
-                                                            borderColor: 'white',
-                                                            backgroundColor: 'transparent'
-                                                        }}>
-                                                        Max</Button>
+                                                    <Box sx={{ paddingLeft: 22.5, paddingBottom: 0.3 }}>
+                                                        <Button
+                                                            sx={{
+                                                                height: 24,
+                                                                border: 1,
+                                                                color: 'white',
+                                                                borderColor: 'white',
+                                                                backgroundColor: 'transparent'
+                                                            }}>
+                                                            Max</Button>
+                                                    </Box>
+
                                                 </InputAdornment>
                                             ),
                                         }}
@@ -402,7 +406,7 @@ function Bridge() {
 
                         <Grid container sx={{ paddingTop: 3 }}>
                             <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingLeft: 5 }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingLeft: 15 }}>
 
                                     <WarningAmberIcon sx={{ color: 'red', fontSize: 20 }} />
                                     <Typography sx={{ color: 'white', fontSize: '11px' }}>Bridge charges 0.07% upon every transection </Typography>
