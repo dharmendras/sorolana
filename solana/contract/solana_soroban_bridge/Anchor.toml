@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-solana_soroban_bridge = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+solana_soroban_bridge = "9inMRAuig1bbuLXbLXTEpTG4Km5aCU3DctamwhjH5fQ5"
 
 [registry]
 url = "https://api.apr.dev"
