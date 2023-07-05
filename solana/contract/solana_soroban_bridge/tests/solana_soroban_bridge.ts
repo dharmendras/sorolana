@@ -27,7 +27,7 @@ describe("solana_soroban_bridge", () => {
   //anchor.setProvider(anchor.AnchorProvider.env());
   const provider = anchor.AnchorProvider.env();
    anchor.setProvider(provider)
-   const MSG = Uint8Array.from(Buffer.from("Hello Solana"));
+   const MSG = Uint8Array.from(Buffer.from(" this is such a good message to sign"));
    let signature: Uint8Array;
 
   async function myFunction() {
@@ -64,32 +64,35 @@ describe("solana_soroban_bridge", () => {
 let signatureString = Buffer.from(signature).toString('hex') // convert uint8array in string
 console.log("signature String" , signatureString) // console signature as a string
 
-let edtx = new anchor.web3.Transaction().add( 
-  // Ed25519 instruction
-   anchor.web3.Ed25519Program.createInstructionWithPublicKey( 
-     { 
-      instructionIndex: 0, // The index of the instruction within the program
-       publicKey: keypair.publicKey.toBytes(), // The public key associated with the instruction (as bytes)
-       message: MSG,  // The message to be included in the instruction (as a Buffer)
-       signature: signature // The signature associated with the instruction (as a Buffer)
-     }
-   )
- )
+const { blockhash } = await connection.getLatestBlockhash()
+
+    let ix01 = // Ed25519 instruction
+      anchor.web3.Ed25519Program.createInstructionWithPublicKey(
+        {
+          instructionIndex: 0,
+          publicKey: keypair.publicKey.toBytes(), // The public key associated with the instruction (as bytes)
+          message: MSG,  // The message to be included in the instruction (as a Buffer)
+          signature: signature // The signature associated with the instruction (as a Buffer)
+        }
+      )
+      let ix02 =  await program.methods.verifyEd25519("A67BBEvwooNmYqxjieS12EUMCGC6potVYtsK9fy7dLaL",
+     "this is such a good message to sign",
+     signatureString).accounts({
+       sender: keypair.publicKey,
+       ixSysvar: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+     }).instruction()
  console.log(" Tx Line Number 44 " , tx)
  // this is our program instruction
-   const methodTx = await program.methods.verifyEd25519("A67BBEvwooNmYqxjieS12EUMCGC6potVYtsK9fy7dLaL" ,
-    "Hello Solana" , 
-   "4e37dca6186b6f7ad81f5ec9f310600b0f7390b7d6f3becdf7550d7cb0068e980fa9fb12ce62e02e965a54d929f700036d66df600dd84bcd4375dd180106f105").accounts({
-     sender: keypair.publicKey,
-     ixSysvar: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
-   }).signers([keypair]).rpc();
+ let Ed25519tx = new anchor.web3.Transaction().add(
+  ix01 , ix02
+ )
 
    let result;
   try {
     result = await anchor.web3.sendAndConfirmTransaction(
  //    program.provider.connection,
       connection,
-      edtx,
+      Ed25519tx,
     [keypair]
   );
    } catch (error) {
