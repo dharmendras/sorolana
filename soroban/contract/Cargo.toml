@@ -3,45 +3,28 @@ name = "contract"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [lib]
-# crate-type = ["cdylib", "rlib"]
-crate-type = ["cdylib"]
-doctest = false
+    crate-type = ["cdylib"]
+    doctest = false
 
+    [dependencies]
+    soroban-sdk = { version = "0.9.2" }
 
+    [dev_dependencies]
+    soroban-sdk = { version = "0.9.2", features = ["testutils"] }
 
-#[features]
-#testutils = ["soroban-sdk/testutils",  "soroban-auth/testutils"]
+    [profile.release]
+    opt-level = "z"
+    overflow-checks = true
+    debug = 0
+    strip = "symbols"
+    debug-assertions = false
+    panic = "abort"
+    codegen-units = 1
+    lto = true
 
-[features]
-testutils = ["soroban-sdk/testutils"]
+    [profile.release-with-logs]
+    inherits = "release"
+    debug-assertions = true
 
-[dependencies]
-soroban-sdk = "0.7.0"
-soroban-auth = "0.7.0"
-stellar-strkey = "0.0.7"
-ed25519-dalek = "1.0.1"
-dotenv_codegen = "0.15.0"
-
-# stellar_sdk = "*"
-
-[dev_dependencies]
-soroban-sdk = { version = "0.7.0", features = ["testutils"] }
-soroban-auth = { version = "0.7.0"}
-
-[profile.release]
-opt-level = "z"
-overflow-checks = true
-debug = 0
-strip = "symbols"
-debug-assertions = false
-panic = "abort"
-codegen-units = 1
-lto = true
-
-[profile.release-with-logs]
-inherits = "release"
-debug-assertions = true
 
