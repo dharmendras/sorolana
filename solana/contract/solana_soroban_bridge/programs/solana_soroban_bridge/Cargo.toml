@@ -24,6 +24,6 @@ winnow = "=0.4.1"
 spl-token = "3.5.0"
 toml_datetime = "=0.6.1"
 spl-associated-token-account = "1.0.5"
-ed25519-dalek = "1.0.1"
+
 hex = "0.4"
 bs58 = "0.5"

@@ -1,15 +1,15 @@
 [features]
-seeds = false
+seeds = true
 skip-lint = false
 [programs.localnet]
-solana_soroban_bridge = "9inMRAuig1bbuLXbLXTEpTG4Km5aCU3DctamwhjH5fQ5"
+solana_soroban_bridge = "4w3iT8iTfRGUpdA1hz4gDfnCv2SiZ8YeGUthGi6dMSfS"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "Localnet"
-wallet = "/home/dell/.config/solana/id.json"
+wallet = "./keys/deployer.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
