@@ -27,7 +27,7 @@ pub mod solana_soroban_bridge {
     msg!("Hii Zafar You can do");
     Ok(())
   }
-    pub fn deposite(ctx: Context<Deposit> , amount: u64) -> Result<()> {
+    pub fn deposit(ctx: Context<Deposit> , amount: u64) -> Result<()> {
 
         
         let from_account = &ctx.accounts.from;
@@ -50,9 +50,9 @@ pub mod solana_soroban_bridge {
         );
         emit!(DepositEvent {
             amount: 12,
-            token_address: "9ZJdKLk57wS3NDPqHNybYX8aoApzZXmRhCKzZ3fLhZpo".to_string(),
+            token_address: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".to_string(),
             token_chain: 123,
-            to: "ALeMyZqeNSzZKTrcwHU1EJnBkxTnWXHc22iCvhyzZ3f".to_string(),
+            to: "GAA6YOQZPDWMBXYIOW4LZFHXI4WRCFGBW4PM2ATVQBYMEZPWVNU77Z2T".to_string(),
             to_chain: 456,
             fee: 100,
         });

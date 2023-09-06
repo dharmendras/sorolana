@@ -9,10 +9,11 @@ const { Keypair } = require('@solana/web3.js')
 const { EventParser, BorshCoder } = require('@coral-xyz/anchor')
 const bs58 = require('bs58')
 const StellarSdk = require('stellar-sdk');
-
+const ed25519 = require('ed25519');
+const util = require('tweetnacl-util');
 //const PublicKey = require('@coral-xyz/anchor')
 const idl = require('./idl.json')
-
+//const Message = require('../DataBase/message.js')
 const nacl = require('tweetnacl')
 const { anchor } = require("@coral-xyz/anchor");
 const { assert } = require("chai")
@@ -22,41 +23,42 @@ const { AnchorProvider } = require('@coral-xyz/anchor')
 
 const dotenv = require('dotenv')
 dotenv.config();
-//fetchContractValue();
-async function fetchContractValue() {
+sorobanToSolana();
+async function sorobanToSolana() {
     const server = new SorobanClient.Server(SOROBAN_RPC_URL, { allowHttp: true });
-    try {
-        let res = await server.getEvents({
-            startLedger: 802779,
-            filters: [],
-            limit: 1,
-        });
+    // try {
+    //     let res = await server.getEvents({
+    //         startLedger: 802779,
+    //         filters: [],
+    //         limit: 1,
+    //     });
 
-        console.log("line number 71 ", res);
-        console.log("line number 72 ", JSON.parse(JSON.stringify(res)).events[0].value);
+    //     console.log("line number 71 ", res);
+    //     console.log("line number 72 ", JSON.parse(JSON.stringify(res)).events[0].value);
 
-    } catch (error) {
-        console.log(error)
-    }
-    try {
+    // } catch (error) {
+    //     console.log(error)
+    // }
+    // try {
 
-        let hash = "8e67f1a59cec3490bda3bcb7e8a3a4f43dc9b50a722cbc96fcad43b120975e5c";
-        let res = await server.getTransaction(hash);
-        console.log("line number 28 ", res)
-    } catch (error) {
-        console.log(error)
-    }
-
+    //     let hash = "8e67f1a59cec3490bda3bcb7e8a3a4f43dc9b50a722cbc96fcad43b120975e5c";
+    //     let res = await server.getTransaction(hash);
+    //     console.log("line number 28 ", res)
+    // } catch (error) {
+    //     console.log(error)
+    // }
+    const MSG = Uint8Array.from(Buffer.from("this is such a good message to sign"));
     const keypair = solanaWeb3.Keypair.generate();
     const publicKey = keypair.publicKey.toBase58();
     const privateKey = keypair.secretKey;
 
-    console.log('public key:', publicKey);
+    console.log('solana public key:', publicKey);
     console.log('private key:', privateKey);
     const uint8Array = Buffer.from("str", 'utf-8');
-    let sign = nacl.sign(uint8Array, privateKey);
+    let sign = nacl.sign.detached(MSG , keypair.secretKey)
     console.log(" ====> Line Nmber 15  <======", sign);
-
+    let signatureString = Buffer.from(sign).toString('hex') // convert uint8array in string
+    console.log("signature String", signatureString) // console signature as a string
 
 }
 
@@ -64,30 +66,16 @@ async function fetchContractValue() {
 solanaToSoroban();
 async function solanaToSoroban() {
      const network = "http://127.0.0.1:8899"
-  //  const network = "https://api.testnet.solana.com";
-    // const network = "https://api.devnet.solana.com"
-    //var server = new StellarSdk.server("https://horizon-testnet.stellar.org")
-    // var sourceKeys = StellarSdk.keypair.f
-    // Generate key pair
-   
+  
+      // Generate key pair
+      const keypair = nacl.sign.keyPair();
+      console.log("======>keypair<=======" , keypair)
+      const publicKey = Buffer.from(keypair.publicKey).toString('base64');
+      console.log("=====>public ke<======" , publicKey)
 //const keyPair = StellarSdk.Keypair.random();
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org/');
 
-//const sourcePrivateKey = keyPair.secret();
-console.log("public key" , process.env.PUBLICKEY)
-console.log(" private key" , process.env.PRIVATEKEY)
-const str = "str";
-const message = 'Hello, world!';
 
-//const buffer = Buffer.from(str, 'utf-8');
- const encoder = new TextEncoder();
- const buffer = encoder.encode(str);
- console.log("82" , buffer)
- //const buffer1 = encoder.encode(sourcePrivateKey)
- //console.log("buffer1" , buffer1)
- 
- //const uint8Array = Buffer.from("str", 'utf-8');
- //let sign = nacl.sign(uint8Array);
     const opts = {
         preflightCommitment: "processed",
     };
@@ -98,6 +86,7 @@ const message = 'Hello, world!';
 
 
     const programID = new PublicKey(idl.metadata.address)
+    console.log("=====> program id <=======" , programID)
     const provider = new AnchorProvider(
         connection, opts.preflightCommitment,
     )
@@ -105,17 +94,37 @@ const message = 'Hello, world!';
     let listener = null;
     const program = new Program(idl, programID, provider);
 
+    // 1 Listen message
     let event = await new Promise((resolve, _reject) => {
         listener = program.addEventListener("DepositEvent", (event, slot, signature) => {
             resolve([event, slot]);
         })
     })
+    const str1 = "Never give up ";
+   const message = str1;
+   // const messageUint8 = util.decodeUTF8(message);
     console.log("event ", event);
-    console.log("event ", event[0].amount);
+    console.log("event ", event[0]);
+
+    let jsonString = JSON.stringify(event[0])
+    console.log("====>jsonString<=====" , jsonString)
+    let string = jsonString.toString();
+    console.log("=======> string <==========" , string)
+    const messageUint8 = util.decodeUTF8(string);
+    // 2) verify message
     if (event[0].amount == 12){ 
         console.log("matched")
-        const keypair = StellarSdk.Keypair.fromSecret(process.env.PRIVATEKEY);
-        keypair.sign(message)
+
+        // 3 sign message
+        const sign = ed25519.Sign(messageUint8, keypair.secretKey);
+        console.log("======>signatureUint8 line number 11 <=======" , sign)
+
+         const signString = Buffer.from(sign).toString('base64');
+        console.log("signString base 64 " , signString)
+
+        // 4) Database
+        //   Message.saveMessage(string) // pass message
+        //   Message.saveSignature(signString , publicKey) // pass signature & pubkey
         
     }
     else { 

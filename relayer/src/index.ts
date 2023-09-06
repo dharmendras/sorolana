@@ -27,14 +27,14 @@ const {
 
 
 //2Z8h4KGK9E5mkBj3BxJ9CFu2nE1rWdpNiF7LWWoAUvVx
-getData()
+//getData()
  async function getData() {
   client.query(`SELECT * FROM transaction` ,(err , result) => { 
     if(!err) { 
      // result.send(result.rows)
      console.log("result" , result.rows)
      console.log("result typeOf" , typeof result.rows)
-     invokeMethod(result.rows)
+  //   invokeMethod(result.rows)
      
     }
     else { 
@@ -43,7 +43,8 @@ getData()
   } );
  }
 //  invokeMethod()
-async function invokeMethod(obj : Object) { 
+invokeMethod()
+async function invokeMethod() { 
   
   const keypair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync('/home/imentus/imentus_project/sorolana/relayer/key.json').toString())));
  console.log("public key " , keypair.publicKey)
@@ -72,8 +73,10 @@ const buffer = Buffer.from(objString, 'utf-8');
 const uint8Array = new Uint8Array(buffer);
  const MSG = Uint8Array.from(Buffer.from("this is such a good message to sign"));
  let publicKey = Buffer.from("2Z8h4KGK9E5mkBj3BxJ9CFu2nE1rWdpNiF7LWWoAUvVx" , "utf8")
+ let publicKey1 = "CsB3APUthSoXTq3bufyMwyHuxAUwRRo1rMw3Nccc1YbE";
 // let signString = "P208fHVT5nZPXbBbSInwSBM8zioRysEGYMKszhaa4OmuSeek7gd5yiPvx5V8PQt+zjzoFub5WbstfkreL4NADA=="
 let signString = "YIS9dH5kYWLykOpk8hw7QPqKnwNZMcSMk+c4L3xPO8S72hvxskPjnKZxmw5Sq9c8qd5UuZfEzaWq9fDiwC1KAw=="
+let signString1 = "HV92+o5SemAsXkhBCaXhzOvMBDysZKQdySAjAp69pPVVKx4Y1gtGQpq87/BVyx6U9tHfRa+HIo9QwQXcmzJXCg=="
 //const signString = Buffer.from(x).toString('base64');
 const signUint8Array = new Uint8Array(Buffer.from(signString, 'base64'));
 //YIS9dH5kYWLykOpk8hw7QPqKnwNZMcSMk+c4L3xPO8S72hvxskPjnKZxmw5Sq9c8qd5UuZfEzaWq9fDiwC1KAw==

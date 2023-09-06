@@ -2,59 +2,85 @@ const client = require('./connection.js')
 const express = require('express');
 const req = require('express/lib/request');
 const res = require('express/lib/response');
+const app = require('./server.js')
 
-const app = express();
-
-app.listen(3300 , ()=> { 
-
-    console.log("server is now listning at port 3300");
-})
 client.connect();
 
- app.get('/Message', (req , res) => { 
 
-    client.query(`SELECT * FROM Transfer` ,(err , result) => { 
-        if(!err) { 
-            res.send(result.rows)
+//message
+function saveMessage(message) {
+    console.log("=======>save message<======", message)
+    app.app.post('/Message', (req, res) => {
+        try {
+            const { rows } = client.query(
+                "INSERT INTO test_message (message) VALUES ($1)",
+                [message]
+            );
+            res.status(201).send({
+                message: "Message added successfully!",
+                // body: {
+                //   employee: { name, job_role, salary, birth, employee_registration },
+                // },
+            });
+        } catch (error) {
+            console.error('Error', error);
+            res.status(500).send({
+                message: "something went wrong"
+            });
         }
-    } );
-    client.end;
- })
- 
-
-app.post('/Message', (req, res) => {
-    const user = req.body;
-    // console.log("========> line number 32 <========", user.name)
-    let insertQuery = `insert into Transfer(  amount, token_address , token_chain , to_destination_chain , to_chain , fee) 
-                       values( 1000 , 'NoP890ILKL', 123 , 'PILkV89B768Jj0Tio' , 678 , 200)`
-
-    client.query(insertQuery, (err, result) => {
-        if (!err) {
-            res.send('Insertion was successful')
-        }
-        else { console.log(err.message) }
     })
     client.end;
-})
+
+}
+
+
+
+     app.app.get('/Message', (req, res) => {
+
+        client.query(`SELECT * FROM test_message`, (err, result) => {
+            if (!err) {
+                res.send(result.rows)
+            }
+        });
+        client.end;
+    })
+
+
 //signature
-app.get('/Signature', (req , res) => { 
+function saveSignature(signature, publicKey) {
 
-    client.query(`SELECT * FROM signature` ,(err , result) => { 
-        if(!err) { 
-            res.send(result.rows)
-        }
-    } );
-    client.end;
- })
-app.post('/Signature' , (req , res) => { 
-    let insertQuery = `insert into signature (signature) values('sign')`
-    client.query(insertQuery , (err , result) => { 
-        if(!err) { 
-            res.send("Inserction successful")
-        }
-        else{ 
-            console.log(err.message)
+    app.app.post('/Signature', (req, res) => {
+        try {
+            const { rows } = client.query(
+                "INSERT INTO signature (mid , signature , public_key) VALUES ($1 , $2)",
+                [1, signature, publicKey]
+            );
+            res.status(201).send({
+                message: "Signature  added successfully!",
+                // body: {
+                //   employee: { name, job_role, salary, birth, employee_registration },
+                // },
+            });
+        } catch (error) {
+            console.error('Error', error);
+            res.status(500).send({
+                message: "something went wrong"
+            });
         }
     })
     client.end;
-})
+}
+
+    app.app.get('/Signature', (req, res) => {
+
+        client.query(`SELECT * FROM signature`, (err, result) => {
+            if (!err) {
+                res.send(result.rows)
+            }
+        });
+        client.end;
+    })
+
+
+
+module.exports = { saveMessage, saveSignature} 
