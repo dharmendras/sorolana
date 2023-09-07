@@ -23,7 +23,7 @@ const { AnchorProvider } = require('@coral-xyz/anchor')
 
 const dotenv = require('dotenv')
 dotenv.config();
-sorobanToSolana();
+//sorobanToSolana();
 async function sorobanToSolana() {
     const server = new SorobanClient.Server(SOROBAN_RPC_URL, { allowHttp: true });
     
@@ -48,18 +48,41 @@ async function sorobanToSolana() {
     // } catch (error) {
     //     console.log(error)
     // }
-    const MSG = Uint8Array.from(Buffer.from("this is such a good message to sign"));
-    const keypair = solanaWeb3.Keypair.generate();
-    const publicKey = keypair.publicKey.toBase58();
-    const privateKey = keypair.secretKey;
+    const data = {
+        amount: 12,
+        tokenAddress: 'CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U',
+        tokenChain: 123,
+        to: 'GAA6YOQZPDWMBXYIOW4LZFHXI4WRCFGBW4PM2ATVQBYMEZPWVNU77Z2T',
+        toChain: 456,
+        fee: 100
+      } 
+       const jsonString = JSON.stringify(data);
+       let encoder = new  TextEncoder();
+       const binaryData = encoder.encode(jsonString);
 
-    console.log('solana public key:', publicKey);
+      const MSG = new Uint8Array(binaryData);
+
+   //  console.log("======>Data<=======>" , uint8array)
+   //const MSG = Uint8Array.from(Buffer.from("Never give up "));
+   // const keypair1 = anchor.web3.Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync('/home/imentus/imentus_project/sorolana/relayer/key.json').toString())));
+
+    const keypair = solanaWeb3.Keypair.generate();
+    const publicKey = keypair.publicKey.toBytes();
+    const base64String = Buffer.from(publicKey).toString('base64');
+    console.log("====>base64String<====" , base64String)
+
+    console.log("====>keypair<====" , keypair)
+    const privateKey = keypair.secretKey;
+    console.log("MSG" , MSG)
+    console.log('solana public key 1:', publicKey);
     console.log('private key:', privateKey);
     const uint8Array = Buffer.from("str", 'utf-8');
     let sign = nacl.sign.detached(MSG , keypair.secretKey)
     console.log(" ====> Line Nmber 15  <======", sign);
+    const buffer = Buffer.from(sign);
+   const base64string =  buffer.toString('base64');
     let signatureString = Buffer.from(sign).toString('hex') // convert uint8array in string
-    console.log("signature String", signatureString) // console signature as a string
+    console.log("signature String", base64string) // console signature as a string
 
 }
 
@@ -111,6 +134,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org/');
     console.log("====>jsonString<=====" , jsonString)
     let string = jsonString.toString();
     console.log("=======> string <==========" , string)
+    console.log("=======> message length <==========" , string.length)
     const messageUint8 = util.decodeUTF8(string);
     // 2) verify message
     if (event[0].amount == 12){ 
