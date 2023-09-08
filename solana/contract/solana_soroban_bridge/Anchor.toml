@@ -8,7 +8,7 @@ solana_soroban_bridge = "4w3iT8iTfRGUpdA1hz4gDfnCv2SiZ8YeGUthGi6dMSfS"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "devnet"
 wallet = "./keys/deployer.json"
 
 [scripts]

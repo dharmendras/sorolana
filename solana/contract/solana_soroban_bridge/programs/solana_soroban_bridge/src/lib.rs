@@ -27,12 +27,18 @@ pub mod solana_soroban_bridge {
     msg!("Hii Zafar You can do");
     Ok(())
   }
-    pub fn deposit(ctx: Context<Deposit> , amount: u64) -> Result<()> {
+    pub fn deposit(ctx: Context<Deposit> , amount: u64 , to: String) -> Result<()> {
 
-        
+        let program_id = ctx.program_id;
+
+        // Derive the program's address using the program's ID
+        let program_address = Pubkey::create_with_seed(&program_id, "MyProgramAddress", &program_id);
+
+        msg!("Program Address: {:?}", program_address);
         let from_account = &ctx.accounts.from;
         let to_account = &ctx.accounts.to;
-
+     
+        msg!("to_account:{:?}" , to_account);
         //  transfer instruction
        let transfer_instruction = system_instruction::transfer(
         from_account.key , 
@@ -52,7 +58,8 @@ pub mod solana_soroban_bridge {
             amount: 12,
             token_address: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".to_string(),
             token_chain: 123,
-            to: "GAA6YOQZPDWMBXYIOW4LZFHXI4WRCFGBW4PM2ATVQBYMEZPWVNU77Z2T".to_string(),
+           
+             to: to,
             to_chain: 456,
             fee: 100,
         });
@@ -63,6 +70,7 @@ pub mod solana_soroban_bridge {
         msg: Vec<u8>,
         sig: [u8; 64],) -> Result<()>  { 
       msg!("claim method star executing");
+      msg!("message{:?}" , msg);
     let ix: Instruction = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;
     utils::verify_ed25519_ix(&ix, &pubkey, &msg, &sig)?;
     msg!("varify done");
@@ -221,6 +229,8 @@ pub struct Deposit<'info> {
    #[account(mut)]
    /// CHECK:` doc comment explaining why no checks through types are necessary
    pub to : AccountInfo<'info>,
+    /// CHECK:` doc comment explaining why no checks through types are necessary
+ 
    pub system_program: Program<'info, System>,
 }
 #[derive(Accounts)]

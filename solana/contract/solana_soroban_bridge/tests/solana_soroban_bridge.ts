@@ -10,7 +10,7 @@ import { clusterApiUrl, Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, Transa
 // import { TOKEN_PROGRAM_ID , MINT_SIZE , createAssociatedTokenAccountInstruction ,
 //          createInitializeMintInstruction , getAssociatedTokenAddress} from "@solana/spl-token";
 import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
-const con = new Connection("http://127.0.0.1:8899");
+const con = new Connection("https://api.devnet.solana.com");
 import { 
   TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
@@ -28,9 +28,15 @@ describe("solana_soroban_bridge", () => {
   const keypair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync('/home/imentus/imentus_project/sorolana/solana/contract/solana_soroban_bridge/tests/key.json').toString())));
   // const newAccountKP2 = anchor.web3.Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync('/home/dell/imentus_project/sorolana/solana/contract/soroban-soloana-bridge/tests/key2.json').toString())));
   console.log("public key 25" , keypair.publicKey)
+  //3WRhoDxLc261EQyykrdq84hYcTQRdomQNGNJyCQGZ1tx
+  //c
   //anchor.setProvider(anchor.AnchorProvider.env());
+  let depositContractAddress = 'AHobZ9kj6PTH6kxyCzxwTvbK7SHF3jgJSL6MNqGxeAV2';
+  const destinationAddress: anchor.web3.Keypair = anchor.web3.Keypair.generate();
+  console.log("keypair" , destinationAddress.publicKey)
   const provider = anchor.AnchorProvider.env();
   const signer = provider.wallet as anchor.Wallet;
+  const depositContractPubkey = new PublicKey(depositContractAddress);
 
   anchor.setProvider(provider)
   const MSG = Uint8Array.from(Buffer.from(" this is such a good message to sign"));
@@ -40,8 +46,8 @@ describe("solana_soroban_bridge", () => {
     // Some asynchronous operation that returns a promise
     console.log("key 17 ", keypair.publicKey)
     // Code here will wait for the promise to resolve before continuing
-    let persion = await con.getBalance(keypair.publicKey);
-    console.log("person one ", persion)
+    // let persion = await con.getBalance(keypair.publicKey);
+    // console.log("person one ", persion)
 
     // let persion2 = await con.getBalance(newAccountKP2.publicKey)
     // console.log("person two " , persion2)
@@ -52,15 +58,19 @@ describe("solana_soroban_bridge", () => {
   it("Is initialized!", async () => {
     // Add your test here.
     let listener = null;
-
-    const transferAmount = new BN(1000000);
-
-    await program.methods.deposit(transferAmount).accounts({
+//CSgAJQ5prWg9NMaTWBjAj4ZRVFoFdBkKZiFuZzduEFK9
+    const transferAmount = new BN(0.000779);
+  let to = destinationAddress.publicKey.toString();
+    let tx = await program.methods.deposit(transferAmount , to).accounts({
       from: keypair.publicKey,
-      to: "CSgAJQ5prWg9NMaTWBjAj4ZRVFoFdBkKZiFuZzduEFK9",
+      to: depositContractPubkey,
+   
       systemProgram: anchor.web3.SystemProgram.programId,
     }).signers([keypair]).rpc()
-  
+    console.log("=======>tx<======" , tx);
+    //const sm_add_bal = new PublicKey(depositContractAd);
+    let person = await con.getBalance(depositContractPubkey);
+    console.log("=======>sm_contract balance <=====" , person);
     // await program.methods.deposit(transferAmount).accounts({ 
     //     from: keypair.publicKey,
     //     to: "CSgAJQ5prWg9NMaTWBjAj4ZRVFoFdBkKZiFuZzduEFK9",
