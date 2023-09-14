@@ -3,11 +3,6 @@
   "name": "solana_soroban_bridge",
   "instructions": [
     {
-      "name": "hello",
-      "accounts": [],
-      "args": []
-    },
-    {
       "name": "deposit",
       "accounts": [
         {
@@ -30,45 +25,10 @@
         {
           "name": "amount",
           "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "claim",
-      "accounts": [
-        {
-          "name": "sender",
-          "isMut": false,
-          "isSigner": true
         },
         {
-          "name": "ixSysvar",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "pubkey",
-          "type": {
-            "array": [
-              "u8",
-              32
-            ]
-          }
-        },
-        {
-          "name": "msg",
-          "type": "bytes"
-        },
-        {
-          "name": "sig",
-          "type": {
-            "array": [
-              "u8",
-              64
-            ]
-          }
+          "name": "to",
+          "type": "string"
         }
       ]
     },
@@ -104,37 +64,6 @@
       "args": []
     },
     {
-      "name": "mintToken",
-      "accounts": [
-        {
-          "name": "mint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
       "name": "withdraw",
       "accounts": [
         {
@@ -162,6 +91,65 @@
         {
           "name": "amount",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "claim",
+      "accounts": [
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "to",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ixSysvar",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "pubkey",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "msg",
+          "type": "bytes"
+        },
+        {
+          "name": "sig",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
         }
       ]
     },

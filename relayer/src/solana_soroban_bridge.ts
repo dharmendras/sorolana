@@ -3,12 +3,7 @@ export type SolanaSorobanBridge = {
   "name": "solana_soroban_bridge",
   "instructions": [
     {
-      "name": "hello",
-      "accounts": [],
-      "args": []
-    },
-    {
-      "name": "deposite",
+      "name": "deposit",
       "accounts": [
         {
           "name": "from",
@@ -30,6 +25,72 @@ export type SolanaSorobanBridge = {
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "to",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "initializeMint",
+      "accounts": [
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "withdraw",
+      "accounts": [
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "to",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "fromAuthority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
         }
       ]
     },
@@ -37,9 +98,29 @@ export type SolanaSorobanBridge = {
       "name": "claim",
       "accounts": [
         {
-          "name": "sender",
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "to",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "ixSysvar",
@@ -69,6 +150,37 @@ export type SolanaSorobanBridge = {
               64
             ]
           }
+        }
+      ]
+    },
+    {
+      "name": "burnToken",
+      "accounts": [
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
         }
       ]
     }
@@ -124,12 +236,7 @@ export const IDL: SolanaSorobanBridge = {
   "name": "solana_soroban_bridge",
   "instructions": [
     {
-      "name": "hello",
-      "accounts": [],
-      "args": []
-    },
-    {
-      "name": "deposite",
+      "name": "deposit",
       "accounts": [
         {
           "name": "from",
@@ -151,6 +258,72 @@ export const IDL: SolanaSorobanBridge = {
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "to",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "initializeMint",
+      "accounts": [
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "withdraw",
+      "accounts": [
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "to",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "fromAuthority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
         }
       ]
     },
@@ -158,9 +331,29 @@ export const IDL: SolanaSorobanBridge = {
       "name": "claim",
       "accounts": [
         {
-          "name": "sender",
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "to",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "ixSysvar",
@@ -190,6 +383,37 @@ export const IDL: SolanaSorobanBridge = {
               64
             ]
           }
+        }
+      ]
+    },
+    {
+      "name": "burnToken",
+      "accounts": [
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
         }
       ]
     }

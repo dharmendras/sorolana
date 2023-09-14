@@ -4,11 +4,12 @@ import { SolanaSorobanBridge , IDL } from './solana_soroban_bridge';
 import { PublicKey } from '@solana/web3.js'
 import findConfig from 'find-config'
 import dotenv from 'dotenv'
-import { publicKey } from '@project-serum/anchor/dist/cjs/utils';
+import {MINT_SIZE , TOKEN_PROGRAM_ID ,createInitializeMintInstruction, getAssociatedTokenAddress , createAssociatedTokenAccountInstruction} from "@solana/spl-token"
+//import { publicKey } from '@project-serum/anchor/dist/cjs/utils';
 import solanaWeb3  from '@solana/web3.js'
 import fs from "fs";
 import  client  from './connection.ts';
-import { Connection } from '@solana/web3.js';
+import { Connection  } from '@solana/web3.js';
 
 dotenv.config()
 // let x = process.env.SIGNATURE
@@ -28,82 +29,94 @@ const {
 
 //2Z8h4KGK9E5mkBj3BxJ9CFu2nE1rWdpNiF7LWWoAUvVx
 //getData()
- async function getData() {
-  client.query(`SELECT * FROM transaction` ,(err , result) => { 
-    if(!err) { 
-     // result.send(result.rows)
-     console.log("result" , result.rows)
-     console.log("result typeOf" , typeof result.rows)
-  //   invokeMethod(result.rows)
-     
-    }
-    else { 
-      console.log("=====> error <======" , err)
-    }
-  } );
- }
+
 //  invokeMethod()
 invokeMethod()
 async function invokeMethod() { 
   
   const keypair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync('/home/imentus/imentus_project/sorolana/relayer/key.json').toString())));
  console.log("public key " , keypair.publicKey)
+ const data = {
+  amount: 12,
+  tokenAddress: 'CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U',
+  tokenChain: 123,
+  to: 'GAA6YOQZPDWMBXYIOW4LZFHXI4WRCFGBW4PM2ATVQBYMEZPWVNU77Z2T',
+  toChain: 456,
+  fee: 100
+} 
+const jsonString = JSON.stringify(data);
+let encoder = new  TextEncoder();
+const binaryData = encoder.encode(jsonString);
+
+const MSG = new Uint8Array(binaryData);
+let publicKey = "rEOqOTduMitzZJT1hUIdIH1mG4M3zMw/zU4Ye6eP/BQ="
+ const buffer1 = Buffer.from(publicKey, 'base64');
+ const uint8Array1 = new Uint8Array(buffer1);
+console.log("======>uint8Array1<======" , uint8Array1)
   // let publicKey: solanaWeb3.PublicKey
   //let your_pubkey = Pubkey::from_str("base58_pubkey").unwrap();
  // publicKey = PublicKey::from_str("base58_pubkey").unwrap();
+ let signString = "5H0QEk6gDjhReZzVCNW3IBIFyozQe8H7WFKM7h6wsdzjxfvvAteYOO9CDj3v7MyyBIvz9Sk6oe6Dla4YHSjKCA=="
 
- let msg =  [
-  {
-    amount: 12,
-    tokenAddress: '9ZJdKLk57wS3NDPqHNybYX8aoApzZXmRhCKzZ3fLhZpo',
-    tokenChain: 123,
-    to: 'ALeMyZqeNSzZKTrcwHU1EJnBkxTnWXHc22iCvhyzZ3f',
-    toChain: 456,
-    fee: 100
-  },
-  109515
-]
-// Convert the object to a string
-const objString = JSON.stringify(msg);
-
-// Convert the string to a Buffer
-const buffer = Buffer.from(objString, 'utf-8');
-
-// Convert the Buffer to a Uint8Array
-const uint8Array = new Uint8Array(buffer);
- const MSG = Uint8Array.from(Buffer.from("this is such a good message to sign"));
- let publicKey = Buffer.from("2Z8h4KGK9E5mkBj3BxJ9CFu2nE1rWdpNiF7LWWoAUvVx" , "utf8")
- let publicKey1 = "CsB3APUthSoXTq3bufyMwyHuxAUwRRo1rMw3Nccc1YbE";
-// let signString = "P208fHVT5nZPXbBbSInwSBM8zioRysEGYMKszhaa4OmuSeek7gd5yiPvx5V8PQt+zjzoFub5WbstfkreL4NADA=="
-let signString = "YIS9dH5kYWLykOpk8hw7QPqKnwNZMcSMk+c4L3xPO8S72hvxskPjnKZxmw5Sq9c8qd5UuZfEzaWq9fDiwC1KAw=="
-let signString1 = "HV92+o5SemAsXkhBCaXhzOvMBDysZKQdySAjAp69pPVVKx4Y1gtGQpq87/BVyx6U9tHfRa+HIo9QwQXcmzJXCg=="
-//const signString = Buffer.from(x).toString('base64');
-const signUint8Array = new Uint8Array(Buffer.from(signString, 'base64'));
-//YIS9dH5kYWLykOpk8hw7QPqKnwNZMcSMk+c4L3xPO8S72hvxskPjnKZxmw5Sq9c8qd5UuZfEzaWq9fDiwC1KAw==
-//console.log(" signature " ,  signature)
-//let signature: Uint8Array;
-
-   let ix01 = anchor.web3.Ed25519Program.createInstructionWithPublicKey( {  
-     publicKey: keypair.publicKey.toBytes() ,
-     message : MSG ,
-     signature : signUint8Array
-   })
-  console.log("=======>ix01<=========" , ix01)
-  
+ const signUint8Array = Buffer.from(signString, 'base64');
+ const uint8Array2 = new Uint8Array(signUint8Array);
+ console.log("======>uint8Array2<======" , uint8Array2)
  
-let ix02 = await  program.methods.claim(
-  //@ts-ignore
-  keypair.publicKey.toBuffer() ,
-  Buffer.from(MSG),
-  Buffer.from(signUint8Array)
-   ).accounts({ 
-    sender: keypair.publicKey,
-    ixSysvar: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY
-   }).instruction()
-console.log("======>tx02<======" , ix02)
+ 
+const lamports: number = await program.provider.connection.getMinimumBalanceForRentExemption(
+  MINT_SIZE
+);
+console.log("====>Program id<=====" , process.env.DEFIOS_PROGRAM_ID )
+let token_address = new web3.PublicKey("EuCHwX8mqvXjdDFsSzdpq5NPk9Af5thcKTkvg5AA15jx")
+let m = process.env.MINT_KEY;
+console.log("===>m<====" , m)
+const mintKey: anchor.web3.Keypair = anchor.web3.Keypair.generate();
 
-let tx =  new  anchor.web3.Transaction().add( 
-    ix01 , ix02
+const mintkey_add = new PublicKey("7LjzDrohLRCFSWNz9CfYSab3mPufXwTC6mfTRQHGiUvf")
+const token_add = new PublicKey("ELwbXoZtmh3PTQUTD7KSCos89aLd44dC8Hv8Kpp5okyn");
+console.log("=======>mintkey_add<=======" , mintkey_add)
+console.log("=======>token_add<=========" , token_add)
+const key =  anchor.AnchorProvider.env().wallet.publicKey;
+const myWallet = anchor.AnchorProvider.env().wallet.publicKey;
+const toWallet: anchor.web3.Keypair = anchor.web3.Keypair.generate();
+   const toATA = await getAssociatedTokenAddress(
+      mintkey_add,
+      toWallet.publicKey
+    );
+      const mint_tx1 = new anchor.web3.Transaction().add(
+          // Create the ATA account that is associated with our To wallet
+          createAssociatedTokenAccountInstruction(
+            myWallet, toATA, toWallet.publicKey, mintkey_add
+          )
+        );
+    await anchor.AnchorProvider.env().sendAndConfirm(mint_tx1, []);
+
+let ix01 = anchor.web3.Ed25519Program.createInstructionWithPublicKey({ 
+  publicKey: uint8Array1,
+  message: MSG,
+
+  signature: uint8Array2
+})
+console.log("======>ix01<=======" , ix01)
+ 
+
+    let ix02 =  await program.methods.claim( 
+      //@ts-ignore
+   uint8Array1,
+   Buffer.from(MSG),
+   Buffer.from(uint8Array2)
+    ).accounts({
+      mint: mintkey_add,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      tokenAccount: token_add,
+      to: toATA,
+      authority: key,
+      ixSysvar: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY
+    }).rpc()
+
+    console.log("======>tx02<======" , ix02)
+    let tx =  new  anchor.web3.Transaction().add( 
+    ix01 
 )
 tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
@@ -121,49 +134,49 @@ try {
   console.log("🚀 ~ file: ed25519_poc.ts:85 ~ it ~ error:", error);
   // assert.fail(`Should not have failed with the following error:\n${error}`);
 }
+let associatedTokenAccount = undefined;
+
+associatedTokenAccount = await getAssociatedTokenAddress(
+  mintKey.publicKey,
+  key
+);
+console.log("====>associatedTokenAccount<=====" , associatedTokenAccount)
+console.log("====>associatedTokenAccount toBase58<=====" , associatedTokenAccount.toBase58())
+
+const mint_tx = new anchor.web3.Transaction().add(
+  // Use anchor to create an account from the mint key that we created
+  anchor.web3.SystemProgram.createAccount({
+    fromPubkey: key,
+    newAccountPubkey: mintKey.publicKey,
+    space: MINT_SIZE,
+    programId: TOKEN_PROGRAM_ID,
+    lamports,
+  }),
+  // Fire a transaction to create our mint account that is controlled by our anchor wallet
+  createInitializeMintInstruction(
+    mintKey.publicKey, 8, key, key
+  ),
+  // Create the ATA account that is associated with our mint on our anchor wallet
+  createAssociatedTokenAccountInstruction(
+    key, associatedTokenAccount, key, mintKey.publicKey
+  )
+);
+
+  // sends and create the transaction
+  const res = await anchor.AnchorProvider.env().sendAndConfirm(mint_tx, [mintKey]);
+
+  console.log(
+    await program.provider.connection.getParsedAccountInfo(mintKey.publicKey)
+  );
+
+  console.log("Account: ", res);
+    console.log("Mint key: ", mintKey.publicKey.toString());
+    console.log("Mint key Details: ", mintKey);
+
+    console.log("Key : ", key);
+    console.log("Key: ", key.toString());
+
+
+
+      
  }
-// //invokeMethod()
-// //7e19c86a1a26d4a4fcf994208dddfccfccd3a491f025812359c4460b4aa0806f6b015678fbe43a32b81a4bfb87b37dd7790eac4afd6f6b31eea4618540d3dc0f
-// //GBKHPSI4AUQYJZC3DM22WZ7MDW6TG2TAV6QCCJMNE3D22B7CHQMMYBSY
-
-
-// invokeMethod()
-// async function invokeMethod() { 
-//   let tx = await program.methods.hello().rpc()
-//   console.log("tx" , tx)
-// }
-
-// const con = new Connection("http://127.0.0.1:8899");
-// console.log("hiii")
-// import express, { Request, Response } from 'express';
-// let invoker = anchor.web3.Keypair.generate()
-// const MSG = Uint8Array.from(Buffer.from("this is such a good message to sign"));
-
-// //getdata
-// const app = express();
-// const port = 3000;
-
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
-// });
-// client.connect();
-// app.get('/Message', (req: Request, res: Response) => {
-//   client.query(`SELECT * FROM message` ,(err , result) => { 
-//     if(!err) { 
-//         res.send(result.rows)
-//       //  invokeMethod(result.rows)
-        
-//     }
-// } );
-// client.end;
-// });
-// app.get('/Signature', (req: Request, res: Response) => {
-//   client.query(`SELECT * FROM signature` ,(err , result) => { 
-//     if(!err) { 
-//         res.send(result.rows)
-//        // invokeMethod(result.rows)
-        
-//     }
-// } );
-// client.end;
-// });
