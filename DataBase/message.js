@@ -15,7 +15,7 @@ function saveMessage(message) {
         console.log("message id " ,res );
         try {
             const { rows } = client.query(
-                "INSERT INTO message (message) VALUES ($1)",
+                "INSERT INTO message (message_info) VALUES ($1)",
                 [message]
             );
             res.status(201).send({

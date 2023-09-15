@@ -1,17 +1,31 @@
 
+const {Client} =  require("pg")
 
-const { Client } = require("pg");
+ const client = new Client({ 
+   // host: "postgres://postgres:imentus123@3.110.150.81:5432/sorobandb",
+    host: "3.110.150.81",
+    user: "postgres",
+    port: 5432,
+    password: "imentus123",
+    database: "sorolanadb",
+    ssl: {
+            rejectUnauthorized: false, // This option might be needed for self-signed certificates
+          },
+ })
+ module.exports = client
+ //console.log("====>connection<======" , client.connect())
+// const { Client } = require("pg");
 
-const client = new Client({
-   host: "sorolanadb.ceyrwh5vrqgt.ap-south-1.rds.amazonaws.com",
-   user: "postgres",
-   port: 5432,
-   password: "abcd1234",
-   database: "postgres",
-   ssl: {
-      rejectUnauthorized: false, // This option might be needed for self-signed certificates
-    },
-});
+// const client = new Client({
+//    host: "sorolanadb.ceyrwh5vrqgt.ap-south-1.rds.amazonaws.com",
+//    user: "postgres",
+//    port: 5432,
+//    password: "abcd1234",
+//    database: "postgres",
+//    ssl: {
+//       rejectUnauthorized: false, // This option might be needed for self-signed certificates
+//     },
+// });
 
 // client.connect()
 //    .then(() => {
@@ -21,7 +35,7 @@ const client = new Client({
 //       console.error("Error connecting to PostgreSQL database:", err);
 //    });
 
-module.exports = client;
+//module.exports = client;
 
 
 
