@@ -17,7 +17,7 @@ import fs from "fs";
 //anchor test --skip-local-validator --skip-build --skip-deploy
 
 const PROGRAM_SEED_PREFIX = "soroban_solana";
-const amount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+const amount = new anchor.BN(1 * LAMPORTS_PER_SOL);
 const destination_address =
   "GDUUZPJFLI6BHGUHH32L7UMAJQHCI5VTHETE3PNRXS554W3OV7HBFIVR";
 let user_kp = Keypair.fromSecretKey(
@@ -119,6 +119,7 @@ describe("sorolan_bridge", () => {
     if (isRunTestCase) {
       try {
         const [program_pda, player_bump] = await getProgramPda();
+        console.log("🚀 ~ file: sorolan_bridge.ts:122 ~ it ~ program_pda:", program_pda.toBase58())
         console.log("User: ", user_kp.publicKey.toBase58());
 
         const depositTx = await program.methods
@@ -142,7 +143,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Listen events at the time of deposit the funds: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         const depositListener = program.addEventListener(
           "DepositEvent",
@@ -177,7 +178,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Verfiy and mint method: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       console.log(
         "🚀 ~ file: sorolan_bridge.ts:145 ~ it ~ Soroban_msg:",
         Soroban_msg
@@ -275,7 +276,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Burn the token from the user's wallet", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         console.log(
           "🚀 ~ file: sorolan_bridge.ts:286 ~ it ~ await getAta(mint_kp.publicKey, user_kp.publicKey, false):",
@@ -314,7 +315,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("release the funds into the user's wallet: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         const message = JSON.stringify(Soroban_msg);
         const messageBytes = Buffer.from(message, "utf-8");

@@ -1,14 +1,14 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.localnet]
+[programs.devnet]
 sorolan_bridge = "5w7LLcjXEwmzh3W8yhsxZxrPx6Xo83pa69kSf4mRZAUp"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/imentus/.config/solana/id.json"
 
 [scripts]
