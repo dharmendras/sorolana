@@ -11,9 +11,16 @@ name = "sorolan_bridge"
 [features]
 no-entrypoint = []
 no-idl = []
+# metadata = ["mpl-token-metadata"]
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = "0.27.0"
+# anchor-lang = "0.27.0"
+anchor-lang = { git = "https://github.com/coral-xyz/anchor",features=["init-if-needed"] }
+spl-token = "3.5.0"
+# bincode = "1.4"
+# anchor-spl = "0.27.0"
+anchor-spl = { git = "https://github.com/coral-xyz/anchor" }
+mpl-token-metadata = {version ="3.0.1"}
