@@ -17,7 +17,7 @@ use constants::AUTHORITY;
 
 use ins::*;
 use state::{CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("5w7LLcjXEwmzh3W8yhsxZxrPx6Xo83pa69kSf4mRZAUp");
+declare_id!("7mq4zw63J2cABg3g37UxJx9eq5oErtmRVDEjtTCbUU8a");
 
 #[program]
 pub mod sorolan_bridge {
@@ -27,7 +27,16 @@ pub mod sorolan_bridge {
     use super::*;
 
     #[access_control(authorized_admin(&ctx.accounts.authority))]
-    pub fn init_token_mint(ctx: Context<AccountsInvolvedInInitTokenMint>) -> Result<()> {
+    pub fn init_authority_pda(ctx: Context<AccountsForInitAuthorityPda>, bump: u8) -> Result<()>{
+        let authority_pda_account = &mut ctx.accounts.authority_pda;
+        authority_pda_account.authority = ctx.accounts.authority.key();
+        authority_pda_account.bump = bump;
+        msg!("Authority pda created successfully: {}", authority_pda_account.key());
+        Ok(())
+    }
+
+    #[access_control(authorized_admin(&ctx.accounts.authority))]
+    pub fn init_token_mint(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {
         let program_authority = &mut ctx.accounts.authority;
         msg!(
             "Program Pda is initialized successfully, the authority of the pda is : {}",
@@ -85,6 +94,8 @@ pub mod sorolan_bridge {
     ) -> Result<()> {
         msg!("claim method start executing");
         msg!("message{:?}", msg);
+        msg!("pubKey{:?}", pubkey);
+        msg!("sign of validator{:?}", sig);
         let ix: Instruction = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;
         msg!("ix: {:?}", ix);
         utils::verify_ed25519_ix(&ix, &pubkey, &msg, &sig)?;
@@ -97,17 +108,26 @@ pub mod sorolan_bridge {
         let amt: u64 = amount.parse().unwrap();
         msg!("Amount to be mint: {}", amt);
         // Create the MintTo struct for our context
+        
+        let authority_account = &mut ctx.accounts.authority_pda;
 
+        let signer_seed = [
+            constants::AUTHORITY_SEED_PREFIX.as_bytes(),
+            authority_account.authority.as_ref(),
+            &[authority_account.bump],
+        ];
         let cpi_accounts = MintTo {
             mint: ctx.accounts.mint.to_account_info(),
             to: ctx.accounts.token_account.to_account_info(),
-            authority: ctx.accounts.authority.to_account_info(),
+            authority: authority_account.to_account_info(),
         };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        // Create the CpiContext we need for the request
-        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        let binding = [&signer_seed[..]];
+        let cpi_ctx = CpiContext::new_with_signer(ctx.accounts.token_program.to_account_info(), cpi_accounts, &binding);
+        // let cpi_program = ctx.accounts.token_program.to_account_info();
+        // // Create the CpiContext we need for the request
+        // let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-        // Execute anchor's helper function to mint tokens
+        // // Execute anchor's helper function to mint tokens
         let a = mint_to(cpi_ctx, amt * 1000000000)?;
         msg!("a: {:?}", a);
 

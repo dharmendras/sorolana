@@ -2,17 +2,47 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar::instructions::ID as IX_ID;
 use anchor_spl::token:: {Mint, Token, TokenAccount};
 use anchor_spl::associated_token::AssociatedToken;
+
+use crate::constants::AUTHORITY_SEED_PREFIX;
+use crate::state::AuthorityPda;
+
 #[derive(Accounts)]
-pub struct AccountsInvolvedInInitTokenMint<'info> 
+pub struct AccountsForInitAuthorityPda<'info>{
+  #[account(mut)]
+  pub authority: Signer<'info>,
+  #[account(
+    init, 
+    payer = authority, 
+    space = AuthorityPda::LEN + 8,
+    seeds = [
+      AUTHORITY_SEED_PREFIX.as_bytes(),
+      authority.key().as_ref()
+    ],
+    bump
+  )]
+  pub authority_pda: Account<'info, AuthorityPda>,
+  pub system_program: Program<'info, System>,
+}
+#[derive(Accounts)]
+pub struct AccountsInvolvedInInitMintToken<'info> 
 {
     #[account(mut)]
     pub authority: Signer<'info>,
     #[account(
+      mut,
+      seeds = [
+        AUTHORITY_SEED_PREFIX.as_bytes(),
+        authority_pda.authority.as_ref(),
+      ],
+      bump = authority_pda.bump,
+    )]
+    pub authority_pda: Account<'info, AuthorityPda>,
+    #[account(
       init,
       payer = authority,
       mint::decimals = 9,
-      mint::authority = authority,
-      mint::freeze_authority = authority,
+      mint::authority = authority_pda,
+      mint::freeze_authority = authority_pda,
     )]
     pub mint: Account<'info, Mint>,
     pub rent: Sysvar<'info, Rent>,
@@ -39,6 +69,15 @@ pub struct AccountsInvolvedInMint<'info>{
   #[account(mut)]
   pub user: Signer<'info>,
   #[account(
+    mut,
+    seeds = [
+      AUTHORITY_SEED_PREFIX.as_bytes(),
+      authority_pda.authority.as_ref(),
+    ],
+    bump = authority_pda.bump,
+  )]
+  pub authority_pda: Account<'info, AuthorityPda>,
+  #[account(
     init_if_needed,
     payer = user, 
     associated_token::mint = mint, // the mint constraint has to be an account field for token initializations (not a public key)
@@ -52,9 +91,6 @@ pub struct AccountsInvolvedInMint<'info>{
   pub mint: Account<'info, Mint>,
   pub token_program: Program<'info, Token>,
   pub associated_token_program: Program<'info, AssociatedToken>,
-  /// CHECK:
-  #[account(mut)]
-  pub authority: AccountInfo<'info>,
   /// CHECK:` doc comment explaining why no checks through types are necessary
   #[account(address = IX_ID)]
   pub ix_sysvar: AccountInfo<'info>,

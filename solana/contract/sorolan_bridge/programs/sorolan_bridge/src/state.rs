@@ -1,7 +1,15 @@
 use anchor_lang::prelude::*;
 
 #[account]
-pub struct ProgramPda {}
+pub struct AuthorityPda {
+    pub authority: Pubkey, // game_authority
+    pub bump: u8, // bump used to create this game_pda
+}
+
+impl AuthorityPda
+{
+    pub const LEN: usize =  std::mem::size_of::<AuthorityPda>();
+}
 
 // 5. Define the init token params
 #[derive(AnchorSerialize, AnchorDeserialize, Debug, Clone)]
