@@ -1,100 +1,179 @@
+//! This is a translation of `fuzz_target_1.rs`
+//! into a reusable property test,
+//! using the `proptest` and `proptest-arbitrary-interop` crates.
+
 #![cfg(test)]
+
+// #[derive(Arbitrary)] expects `std` to be in scope,
+// but the contract is a no_std crate.
 extern crate std;
-
-
+extern crate base64;
 use super::*;
-use soroban_sdk::{
-    symbol_short,
-    testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation },
-    token, Address, Env, IntoVal,String , Vec
-};
 
-use soroban_sdk::testutils::Logs;
-//use token_contract::AdminClient as TokenAdminClient;
+use soroban_sdk::testutils::{Address as _, Ledger, LedgerInfo};
+//use soroban_sdk::token::Client as TokenClient;
+use soroban_sdk::token::StellarAssetClient as TokenAdminClient;
+use soroban_sdk::xdr::Asset;
+use soroban_sdk::xdr::ContractIdPreimage;
+use soroban_sdk::xdr::WriteXdr;
+use soroban_sdk::{Address, Env};
 use token_contract::Client as TokenClient;
-///home/imentus/imentus_project/sorolana/soroban/contract/token/soroban_token_contract.wasm
 mod contract {
     soroban_sdk::contractimport!(
         file =
-            "/home/imentus/imentus_project/sorolana/soroban/contract/token/soroban_token_contract.wasm"
+            "/home/imentus/Documents/sorolana/soroban/contract/token/soroban_token_contract.wasm"
     );
 }
-
-
 fn create_token_contract<'a>(e: &Env, admin: &Address) -> TokenClient<'a> {
     TokenClient::new(e, &e.register_stellar_asset_contract(admin.clone()))
 }
-
-fn SorobanSoloanaBridge_contract(e: &Env) -> SorobanSoloanaBridgeClient {
-    SorobanSoloanaBridgeClient::new(e, &e.register_contract(None, SorobanSoloanaBridge {}))
-}
-
-
+//#[derive(Arbitrary, Debug, Clone)]
+// 1) Test Case For Deposit
 #[test]
 fn test() {
     let env = Env::default();
+
     env.mock_all_auths();
 
-    let user = Address::random(&env);
- //   println!("hii");
-    // let b = Address::random(&env);
+    // Turn off the CPU/memory budget for testing.
 
+    let depositor_address = Address::random(&env);
+    let claimant_address = Address::random(&env);
     let token_admin = Address::random(&env);
+    let user = Address::random(&env);
+    let token_admin = Address::random(&env);
+    let token_a_admin = create_token_contract(&env, &token_admin);
+    token_a_admin.mint(&user, &1000);
 
-    let  token_a_admin = create_token_contract(&env, &token_admin);
+    // let token_contract_id = env.register_stellar_asset_contract(token_admin.clone());
+    // let token_client = TokenClient::new(&env, &token_contract_id);
+    // let token_admin_client = TokenAdminClient::new(&env, &token_contract_id);
+
+    let timelock_contract_id = env.register_contract(None, SorobanSoloanaBridge {});
+    let timelock_client = SorobanSoloanaBridgeClient::new(&env, &timelock_contract_id);
+    let user_balance = token_a_admin.balance(&user);
+    std::println!("===>USER balance Before DEPOSIT <==={:?}", user_balance);
+    //   token_admin_client.mint(&depositor_address, &i128::max_value());
+     let balance = timelock_client.deposit(&user, &token_a_admin.address, &10);
+     std::println!("===>balance<==={:?}" , balance );
+     let user_balance1 = token_a_admin.balance(&user);
+     std::println!("===>USER balance AFTER DEPOSIT <==={:?}" , user_balance1 );
+
+    //2) W
     let wasm_hash = env.deployer().upload_contract_wasm(contract::WASM);
     let salt = BytesN::from_array(&env, &[0; 32]);
-   // let (token_b, token_b_admin) = create_token_contract(&env, &token_admin);
-    token_a_admin.mint(&user, &1000);
-    //token_b_admin.mint(&b, &5000);
-    std::println!("user balance before deposit{:?}" , token_a_admin.balance(&user));
-    let contract = SorobanSoloanaBridge_contract(&env);
-    std::println!("========><======={:?}" , token_a_admin.address);
-   let result =  contract.deposit(
-        &user,
-       
-        &token_a_admin.address,
-        
-        &1000,
-        
-    );
-    std::println!("Contract Address Balance {:?}" , result);
-//     std::println!("user balance after deposit{:?}" , token_a_admin.balance(&user));
 
-  let a = Address:: random(&env);
-  let b = Address::random(&env);
-  let user = Address::random(&env);
-  contract.set_admin(&a , &b);
-  let balance = contract.claim(&wasm_hash , &salt , &user);
-  std::println!("balance{:?}" , balance);
-//contract.test();
+    let wAddress = timelock_client.create_wrapped_Token(&wasm_hash, &salt);
 
-// std::println!("=====>tmp<======{:?}" , temp);
-
-
-
-
-// let logs = env.logs().all();
-//     //assert_eq!logs, std::vec!["[Diagnostic Event] contract:0808080808080808080808080808080808080808080808080808080808080808, topics:[log], data:[\"Hello {}\", Dev]"]);
-//     std::println!("{}", logs.join("\n"));
-     //claim
-//      let mut str1 ="This is a test of the Ed25519 signature in Rust.";
-
-
-//      let args: Vec<String> = env::args(collect;
-     
-//      if args.len >1 { str1 = args[1].as_str();
    
-   
-//    let keypair: Keypair = Keypair::generate(&mut OsRng);
-// let mut str1 ="This is a test of the Ed25519 signature in Rust.";
-// let message: &u8 = str1.as_bytes;
-// let input_string = "2d0CE7hfsbM04onvWtwZD0TmQZqCN/L28sh+XFa/xEVvzvacva4bNsC+uBTGmZctppnWnnkuY8PZtk2WalAZAw==";
-// let input_bytes = input_string.as_bytes();
-// let base64_string = base64::encode(input_bytes);
-// let decoded_bytes = base64::decode(base64_string).expect("Failed to decode base64");
-// let decoded_string = String::from_utf8(decoded_bytes).expect("Invalid UTF-8 sequence");
-//std::println!("Base64 decoded_string: ", base64_string);
+    //3) C
+       let user_balance = timelock_client.claim(&user);
+        std::println!("===>USER_BALANCE<==={:?}" ,user_balance);
 
-//contract.claim();
+        //4) W
+        // let withdraw_balance = timelock_client.withdraw(&10, &user);
+        // std::println!("===>WITHDRAW_BALANCE<==={:?}" , withdraw_balance);
+
+
+        // let to_address_str = String::from_utf8(user_balance.to_vec()).unwrap();
+        // println!(" to address {}", to_address_str);
+    //     let mut s: [u8; 100] = [0; 100];
+    //      let ( sl, _) = s.split_at_mut(user_balance.len() as usize);
+    //      user_balance.copy_into_slice(sl);
+    //      std::println!("sl{:?}" , sl);
+    //      let mystr = core::str::from_utf8(sl).unwrap();
+    //     // let encoded_string1 = base64::encode(sl);
+    //     let decoded_bytes = base64::decode(mystr).unwrap();
+
+    //       std::println!("mystr{:?}" , mystr);
+    //    //  std::println!("mystr{:?}" , mystr);
+        
+    //     // let decoded_bytes = base64::decode(mystr).unwrap();
+    //      std::println!("decoded_bytes line number 81 {:?}" , decoded_bytes);
+     //  let to_address = Address::from_contract_id(&env.crypto().sha256(&decoded_bytes));
+    
+
+}
+// 2) Test Case For setAdmin
+#[test]
+fn test1() {
+    let env = Env::default();
+    let native_asset = Asset::Native;
+    let contract_id_preimage = ContractIdPreimage::Asset(native_asset);
+    let pubkey1: Bytes = [
+        24, 18, 128, 96, 212, 184, 67, 190, 208, 92, 160, 143, 32, 99, 152, 36, 3, 70, 28, 144,
+        247, 33, 37, 88, 91, 179, 136, 39, 181, 248, 223, 164, 198, 232, 20, 86, 56, 93, 149, 52,
+        133, 18,
+    ]
+    .into_val(&env);
+    let bytes = Bytes::from_slice(&env, &contract_id_preimage.to_xdr().unwrap());
+    let native_asset_address = Address::from_contract_id(&env.crypto().sha256(&pubkey1));
+    std::println!("===>native_asset_address<==={:?}", native_asset_address);
+    //CDF3YSDVBXV3QU2QSOZ55L4IVR7UZ74HIJKXNJMN4K5MOVFM3NDBNMLY
+    // env.mock_all_auths();
+
+    // // Turn off the CPU/memory budget for testing.
+
+    // let admin_address = Address::random(&env);
+    // let claimant_address = Address::random(&env);
+    // let token_admin = Address::random(&env);
+
+    // let token_contract_id = env.register_stellar_asset_contract(token_admin.clone());
+    // let token_client = TokenClient::new(&env, &token_contract_id);
+    // let token_admin_client = TokenAdminClient::new(&env, &token_contract_id);
+
+    // let timelock_contract_id = env.register_contract(None, SorobanSoloanaBridge {});
+    // let timelock_client = SorobanSoloanaBridgeClient::new(&env, &timelock_contract_id);
+    //     let store_admin_add = timelock_client.set_admin(&admin_address);
+    //     std::println!("===>store_admin_add<==={:?}" , store_admin_add );
+}
+
+// 3) Test Case For custom token
+#[test]
+fn test2() {
+    let env = Env::default();
+
+    // env.mock_all_auths();
+
+    // Turn off the CPU/memory budget for testing.
+
+    let admin_address = Address::random(&env);
+    let claimant_address = Address::random(&env);
+    let token_admin = Address::random(&env);
+
+    let token_contract_id = env.register_stellar_asset_contract(token_admin.clone());
+    let token_client = TokenClient::new(&env, &token_contract_id);
+    let token_admin_client = TokenAdminClient::new(&env, &token_contract_id);
+
+    let timelock_contract_id = env.register_contract(None, SorobanSoloanaBridge {});
+    let timelock_client = SorobanSoloanaBridgeClient::new(&env, &timelock_contract_id);
+    //     let wasm_hash = env.deployer().upload_contract_wasm(contract::WASM);
+    //     let salt = BytesN::from_array(&env, &[0; 32]);
+
+    //    let wAddress =  timelock_client.create_wrapped_Token(&wasm_hash , &salt);
+    //std::println!("===>wAddress<==={:?}" ,wAddress );
+}
+
+// 4) Test Case For claim
+#[test]
+fn test3() {
+    let env = Env::default();
+
+    env.mock_all_auths();
+
+    // Turn off the CPU/memory budget for testing.
+
+    let user = Address::random(&env);
+    let claimant_address = Address::random(&env);
+    let token_admin = Address::random(&env);
+
+    let token_contract_id = env.register_stellar_asset_contract(token_admin.clone());
+    let token_client = TokenClient::new(&env, &token_contract_id);
+    let token_admin_client = TokenAdminClient::new(&env, &token_contract_id);
+
+    let timelock_contract_id = env.register_contract(None, SorobanSoloanaBridge {});
+    let timelock_client = SorobanSoloanaBridgeClient::new(&env, &timelock_contract_id);
+
+    // let user_balance = timelock_client.claim();
+    // std::println!("===>user_balance<==={:?}" ,user_balance);
 }

@@ -1,13 +1,13 @@
-use soroban_sdk::{contracttype, Address, Symbol};
+use soroban_sdk::{contracttype, Address, Symbol , String};
 
 #[derive(Clone, Debug)]
 #[contracttype]
 
 pub struct Transfer {
     pub amount: i128,
-    pub token_address: Symbol,
+    pub token_address: Address,
     pub token_chain: i128,
-    pub to: Symbol,
+    pub to: String,
     pub to_chain: i128,
     pub fee: u32,
 }
