@@ -1,11 +1,5 @@
 #![no_std]
-use soroban_sdk::xdr::Asset;
-use soroban_sdk::xdr::ContractIdPreimage;
-use soroban_sdk::xdr::WriteXdr;
-use soroban_sdk::FromVal;
-use soroban_sdk::xdr::ContractIdPreimageType;
-use core::u8;
-use std::format;
+
 use soroban_sdk::{
     contract, contractimpl, contracttype, token,vec, Address,Val, Bytes,Vec, BytesN, Env, IntoVal, String,
     Symbol,
@@ -13,9 +7,9 @@ use soroban_sdk::{
 mod token_contract {
     soroban_sdk::contractimport!(file = "./token/soroban_token_contract.wasm");
 }
-extern crate base64;
+
 //use stellar_strkey::*;
-extern crate std;
+// extern crate std;
 mod types;
 use types::*;
 mod error;
@@ -85,57 +79,57 @@ impl SorobanSoloanaBridge {
         balance
     }
 
-    pub fn set_admin(env: Env, admin: Address) -> Address {
-        set_contract_deployer_address(&env, admin);
-        let admin_address = get_contract_deployer(&env);
-        //   std::println!(" admin address {:?}" , admin_address);
-        admin_address
-    }
-    pub fn create_wrapped_Token(env: Env, wasm_hash: BytesN<32>, salt: BytesN<32>) -> Address {
-        // let admin_address = get_contract_deployer(&env);
-        // let admin_address1 = get_contract_deployer(&env);
-        let wrapped_token = env
-            .deployer()
-            .with_address(env.current_contract_address(), salt)
-            .deploy(wasm_hash);
-        let add1: Address = wrapped_token;
-        //  std::println!("wrapped_token {:?}", wrapped_token);
-        let name: String = "Zafar".into_val(&env);
-        let symbol: String = "zaf".into_val(&env);
-        let token_client = token_contract::Client::new(&env, &add1);
-        let current_contract_address = env.current_contract_address();
-        token_client.initialize(&current_contract_address, &10, &name, &symbol);
-        env.storage()
-            .persistent()
-            .set(&Globals::TokenAddress, &add1);
+    // pub fn set_admin(env: Env, admin: Address) -> Address {
+    //     set_contract_deployer_address(&env, admin);
+    //     let admin_address = get_contract_deployer(&env);
+    //     //   std::println!(" admin address {:?}" , admin_address);
+    //     admin_address
+    // }
+    // pub fn create_wrapped_Token(env: Env, wasm_hash: BytesN<32>, salt: BytesN<32>) -> Address {
+    //     // let admin_address = get_contract_deployer(&env);
+    //     // let admin_address1 = get_contract_deployer(&env);
+    //     let wrapped_token = env
+    //         .deployer()
+    //         .with_address(env.current_contract_address(), salt)
+    //         .deploy(wasm_hash);
+    //     let add1: Address = wrapped_token;
+    //     //  std::println!("wrapped_token {:?}", wrapped_token);
+    //     let name: String = "Zafar".into_val(&env);
+    //     let symbol: String = "zaf".into_val(&env);
+    //     let token_client = token_contract::Client::new(&env, &add1);
+    //     let current_contract_address = env.current_contract_address();
+    //     token_client.initialize(&current_contract_address, &10, &name, &symbol);
+    //     env.storage()
+    //         .persistent()
+    //         .set(&Globals::TokenAddress, &add1);
 
-        add1
-    }
+    //     add1
+    // }
 //pub fn claim(env: Env, public_key: BytesN<32>, message: Bytes, signature: BytesN<64>) -> Bytes
-    pub fn claim( env: Env , user: Address ){
+    // pub fn claim( env: Env , user: Address ){
       
-            let add: Address = env
-                .storage()
-                .persistent()
-                .get(&Globals::TokenAddress)
-                .unwrap();
-            let token_client = token_contract::Client::new(&env, &add);
-            token_client.mint(&user, &20);
-           let balance = token_client.balance(&user);
+    //         let add: Address = env
+    //             .storage()
+    //             .persistent()
+    //             .get(&Globals::TokenAddress)
+    //             .unwrap();
+    //         let token_client = token_contract::Client::new(&env, &add);
+    //         token_client.mint(&user, &20);
+    //        let balance = token_client.balance(&user);
         
-    }
-    pub fn withdraw(env: Env, amount: i128, user: Address) -> i128 {
-        let add: Address = env
-            .storage()
-            .persistent()
-            .get(&Globals::TokenAddress)
-            .unwrap();
-        let token_client = token_contract::Client::new(&env, &add);
-        token_client.burn(&user, &10);
-        let balance = token_client.balance(&env.current_contract_address());
+    // }
+    // pub fn withdraw(env: Env, amount: i128, user: Address) -> i128 {
+    //     let add: Address = env
+    //         .storage()
+    //         .persistent()
+    //         .get(&Globals::TokenAddress)
+    //         .unwrap();
+    //     let token_client = token_contract::Client::new(&env, &add);
+    //     token_client.burn(&user, &10);
+    //     let balance = token_client.balance(&env.current_contract_address());
 
-        balance
-    }
+    //     balance
+    // }
 }
 
 mod test;
