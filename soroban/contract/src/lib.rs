@@ -72,6 +72,26 @@ impl SorobanSoloanaBridge {
         let x = token::Client::new(&env, &token);
         x.transfer(&from, &env.current_contract_address(), &amount);
         x.balance(&from);
+          //message
+          let amount: i128 = amount;
+          let token_address: Address = token;
+          let token_chain: i128 = 1234;
+          let to: String = to;
+          let to_chain: i128 = 6789;
+          let fee: u32 = 100;
+  
+          let transfer = Transfer {
+              amount,
+              token_address,
+              token_chain,
+              to,
+              to_chain,
+              fee,
+          };
+          env.storage().instance().set(&DataKey::Transfer, &transfer);
+  
+          env.events()
+              .publish((DataKey::Transfer, Symbol::short("deposit")), transfer);
     }
     pub fn set_admin(env: Env, admin: Address) -> Address {
         set_contract_deployer_address(&env, admin);

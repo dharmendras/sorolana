@@ -5,11 +5,11 @@ use soroban_sdk::{contracttype, Address, Symbol , String};
 
 pub struct Transfer {
     pub amount: i128,
-    pub token_address: String,
-    pub token_chain: String,
+    pub token_address: Address,
+    pub token_chain: i128,
     pub to: String,
-    pub to_chain: String,
-    pub fee: String,
+    pub to_chain: i128,
+    pub fee: u32,
 }
 
 #[derive(Clone)]
