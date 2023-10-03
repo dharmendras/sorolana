@@ -98,7 +98,7 @@ impl SorobanSoloanaBridge {
             .get(&Globals::TokenAddress)
             .unwrap();
         let token_client = token_contract::Client::new(&env, &add);
-        token_client.mint(&user, &20);
+        token_client.mint(&user, &amount);
         let balance = token_client.balance(&user);
     }
     pub fn withdraw(env: Env, amount: i128, user: Address) -> i128 {
