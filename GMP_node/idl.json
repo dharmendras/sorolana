@@ -1,22 +1,84 @@
 {
   "version": "0.1.0",
-  "name": "solana_soroban_bridge",
+  "name": "sorolan_bridge",
   "instructions": [
     {
-      "name": "hello",
-      "accounts": [],
+      "name": "initAuthorityPda",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authorityPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "initTokenMint",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authorityPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
       "args": []
     },
     {
       "name": "deposit",
       "accounts": [
         {
-          "name": "from",
+          "name": "user",
           "isMut": true,
           "isSigner": true
         },
         {
-          "name": "to",
+          "name": "authority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "programPda",
           "isMut": true,
           "isSigner": false
         },
@@ -30,6 +92,10 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "to",
+          "type": "string"
         }
       ]
     },
@@ -37,12 +103,42 @@
       "name": "claim",
       "accounts": [
         {
-          "name": "sender",
-          "isMut": false,
+          "name": "user",
+          "isMut": true,
           "isSigner": true
         },
         {
+          "name": "authorityPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "ixSysvar",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         }
@@ -73,39 +169,13 @@
       ]
     },
     {
-      "name": "initializeMint",
+      "name": "withdraw",
       "accounts": [
         {
-          "name": "mint",
+          "name": "user",
           "isMut": true,
           "isSigner": true
         },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "mintToken",
-      "accounts": [
         {
           "name": "mint",
           "isMut": true,
@@ -120,11 +190,6 @@
           "name": "tokenAccount",
           "isMut": true,
           "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": false
         }
       ],
       "args": [
@@ -135,66 +200,102 @@
       ]
     },
     {
-      "name": "withdraw",
+      "name": "releaseFunds",
       "accounts": [
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "fromAuthority",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "burnToken",
-      "accounts": [
-        {
-          "name": "mint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "programPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "receiver",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ixSysvar",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "amount",
-          "type": "u64"
+          "name": "pubkey",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "msg",
+          "type": "bytes"
+        },
+        {
+          "name": "sig",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
         }
       ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AuthorityPda",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "InitTokenParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          }
+        ]
+      }
     }
   ],
   "events": [
@@ -203,13 +304,13 @@
       "fields": [
         {
           "name": "amount",
-          "type": "u16",
+          "type": "u64",
           "index": false
         },
         {
           "name": "tokenAddress",
           "type": "string",
-          "index": true
+          "index": false
         },
         {
           "name": "tokenChain",
@@ -217,7 +318,7 @@
           "index": false
         },
         {
-          "name": "to",
+          "name": "recieverAddress",
           "type": "string",
           "index": false
         },
@@ -228,7 +329,42 @@
         },
         {
           "name": "fee",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "WithdrawEvent",
+      "fields": [
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "tokenAddress",
+          "type": "string",
+          "index": false
+        },
+        {
+          "name": "tokenChain",
           "type": "u16",
+          "index": false
+        },
+        {
+          "name": "withdrawerAddress",
+          "type": "string",
+          "index": false
+        },
+        {
+          "name": "toChain",
+          "type": "u16",
+          "index": false
+        },
+        {
+          "name": "fee",
+          "type": "u64",
           "index": false
         }
       ]
@@ -239,9 +375,14 @@
       "code": 6000,
       "name": "SigVerificationFailed",
       "msg": "Signature verification failed."
+    },
+    {
+      "code": 6001,
+      "name": "WrongAdmin",
+      "msg": "Signature verification failed."
     }
   ],
   "metadata": {
-    "address": "4w3iT8iTfRGUpdA1hz4gDfnCv2SiZ8YeGUthGi6dMSfS"
+    "address": "7mq4zw63J2cABg3g37UxJx9eq5oErtmRVDEjtTCbUU8a"
   }
 }

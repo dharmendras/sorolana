@@ -3,8 +3,8 @@ use anchor_lang::solana_program::sysvar::instructions::ID as IX_ID;
 use anchor_spl::token:: {Mint, Token, TokenAccount};
 use anchor_spl::associated_token::AssociatedToken;
 
-use crate::constants::AUTHORITY_SEED_PREFIX;
-use crate::state::AuthorityPda;
+use crate::constants::{AUTHORITY_SEED_PREFIX, USER_SEED_PREFIX};
+use crate::state::{AuthorityPda, UserPda};
 
 #[derive(Accounts)]
 pub struct AccountsForInitAuthorityPda<'info>{
@@ -64,39 +64,6 @@ pub struct AccountsForDeposit<'info> {
   pub system_program: Program<'info, System>,
 }
 
-#[derive(Accounts)]
-pub struct AccountsInvolvedInMint<'info>{ 
-  #[account(mut)]
-  pub user: Signer<'info>,
-  #[account(
-    mut,
-    seeds = [
-      AUTHORITY_SEED_PREFIX.as_bytes(),
-      authority_pda.authority.as_ref(),
-    ],
-    bump = authority_pda.bump,
-  )]
-  pub authority_pda: Account<'info, AuthorityPda>,
-  #[account(
-    init_if_needed,
-    payer = user, 
-    associated_token::mint = mint, // the mint constraint has to be an account field for token initializations (not a public key)
-    associated_token::authority = user,
-    // mut, // mut cannot be provided with init
-    constraint = token_account.owner == user.key()
-  )]
-  pub token_account: Account<'info, TokenAccount>,
-  /// CHECK: This is the token that we want to mint
-  #[account(mut)]
-  pub mint: Account<'info, Mint>,
-  pub token_program: Program<'info, Token>,
-  pub associated_token_program: Program<'info, AssociatedToken>,
-  /// CHECK:` doc comment explaining why no checks through types are necessary
-  #[account(address = IX_ID)]
-  pub ix_sysvar: AccountInfo<'info>,
-  pub system_program: Program<'info, System>,
-  }
-
   #[derive(Accounts)]
   pub struct BurnToken<'info> {
     #[account(mut)]
@@ -111,17 +78,54 @@ pub struct AccountsInvolvedInMint<'info>{
   }
 
   #[derive(Accounts)]
-  pub struct AccountsForReleaseFunds<'info> {
+  pub struct AccountsForClaim<'info>{ 
     #[account(mut)]
-    pub authority: Signer<'info>,
+    pub claimer: Signer<'info>,                                  //Claimer, Invoker of the method
+    ///CHECK: user address
+    #[account(mut)]
+    pub user: AccountInfo<'info>,                                // User address
+  
+    ///CHECK: Authority address
+    #[account(mut)]
+    pub authority: AccountInfo<'info>,
     /// CHECK: address of program pda
     #[account(mut)]
     pub program_pda: AccountInfo<'info>,
-    /// CHECK: address of the user
+
+    #[account(
+      mut,
+      seeds = [
+        AUTHORITY_SEED_PREFIX.as_bytes(),
+        authority_pda.authority.as_ref(),
+      ],
+      bump = authority_pda.bump,
+    )]
+    pub authority_pda: Account<'info, AuthorityPda>,            // mint authority, used in mint method
+  
+    #[account(
+      init_if_needed, 
+      payer = claimer, 
+      space = UserPda::LEN + 8,
+      seeds = [USER_SEED_PREFIX.as_bytes(),user.key().as_ref(),],
+      bump,
+      // constraint = user_pda.user == user.key()
+    )]
+    pub user_pda: Account<'info, UserPda>,                     // Keep tracks of counter to prevent multiple invokation
+  
+    #[account(
+      init_if_needed,
+      payer = claimer, 
+      associated_token::mint = mint, // the mint constraint has to be an account field for token initializations (not a public key)
+      associated_token::authority = user,
+    )]
+    pub token_account: Account<'info, TokenAccount>,
+    /// CHECK: This is the token that we want to mint
     #[account(mut)]
-    pub receiver: AccountInfo<'info>,
+    pub mint: Account<'info, Mint>,
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     /// CHECK:` doc comment explaining why no checks through types are necessary
     #[account(address = IX_ID)]
     pub ix_sysvar: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
-  }
+    }

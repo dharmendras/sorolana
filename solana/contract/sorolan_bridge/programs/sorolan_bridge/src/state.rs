@@ -1,6 +1,17 @@
 use anchor_lang::prelude::*;
 
 #[account]
+pub struct UserPda {
+    pub claim_counter: u64,
+    pub user: Pubkey,
+    pub bump: u8
+}
+
+impl UserPda
+{
+    pub const LEN: usize =  std::mem::size_of::<UserPda>();
+}
+#[account]
 pub struct AuthorityPda {
     pub authority: Pubkey, // game_authority
     pub bump: u8, // bump used to create this game_pda
@@ -22,6 +33,7 @@ pub struct InitTokenParams {
 
 #[event]
 pub struct DepositEvent {
+    pub method: String,
     pub amount: u64,
     pub token_address: String,
     pub token_chain: u16,
@@ -30,7 +42,14 @@ pub struct DepositEvent {
     pub fee: u64,
 }
 #[event]
+pub struct ClaimEvent {
+    pub amount: u64,
+    pub claim_counter: u64,
+    pub user_address: Pubkey
+}
+#[event]
 pub struct WithdrawEvent {
+    pub method: String,
     pub amount: u64,
     pub token_address: String,
     pub token_chain: u16,
@@ -43,6 +62,8 @@ pub struct WithdrawEvent {
 pub enum CustomErrorCode {
     #[msg("Signature verification failed.")]
     SigVerificationFailed,
-    #[msg("Signature verification failed.")]
+    #[msg("Only Admin can invoke this method")]
     WrongAdmin,
+    #[msg("Wrong user or multiple times claimed.")]
+    WrongInvokation,
 }

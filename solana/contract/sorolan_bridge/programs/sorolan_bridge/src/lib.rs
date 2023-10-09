@@ -16,8 +16,8 @@ use anchor_spl::token::{mint_to, Burn, MintTo};
 use constants::AUTHORITY;
 
 use ins::*;
-use state::{CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("7mq4zw63J2cABg3g37UxJx9eq5oErtmRVDEjtTCbUU8a");
+use state::{ClaimEvent, CustomErrorCode, DepositEvent, WithdrawEvent};
+declare_id!("HYjGGd6Tp7CCjHuLFwX5hPQwoRHzsLwtKVn8cRcpP9Aw");
 
 #[program]
 pub mod sorolan_bridge {
@@ -27,11 +27,14 @@ pub mod sorolan_bridge {
     use super::*;
 
     #[access_control(authorized_admin(&ctx.accounts.authority))]
-    pub fn init_authority_pda(ctx: Context<AccountsForInitAuthorityPda>, bump: u8) -> Result<()>{
+    pub fn init_authority_pda(ctx: Context<AccountsForInitAuthorityPda>, bump: u8) -> Result<()> {
         let authority_pda_account = &mut ctx.accounts.authority_pda;
         authority_pda_account.authority = ctx.accounts.authority.key();
         authority_pda_account.bump = bump;
-        msg!("Authority pda created successfully: {}", authority_pda_account.key());
+        msg!(
+            "Authority pda created successfully: {}",
+            authority_pda_account.key()
+        );
         Ok(())
     }
 
@@ -76,6 +79,7 @@ pub mod sorolan_bridge {
         )?;
 
         emit!(DepositEvent {
+            method: "Deposit".to_string(),
             amount: amount,
             token_address: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".to_string(),
             token_chain: 123,
@@ -87,10 +91,11 @@ pub mod sorolan_bridge {
     }
 
     pub fn claim(
-        ctx: Context<AccountsInvolvedInMint>,
+        ctx: Context<AccountsForClaim>,
         pubkey: [u8; 32],
         msg: Vec<u8>,
         sig: [u8; 64],
+        bump: u8,
     ) -> Result<()> {
         msg!("claim method start executing");
         msg!("message{:?}", msg);
@@ -101,35 +106,132 @@ pub mod sorolan_bridge {
         utils::verify_ed25519_ix(&ix, &pubkey, &msg, &sig)?;
         msg!("varify done");
 
+        let user_pda_account = &mut ctx.accounts.user_pda;
+        let user_account = &mut ctx.accounts.user;
+        msg!("user pda counter: {}", user_pda_account.claim_counter);
+        if user_pda_account.claim_counter == 0 {
+            user_pda_account.bump = bump;
+            user_pda_account.claim_counter = 0;
+            user_pda_account.user = user_account.key();
+
+            msg!(
+                "User pda {} initialized successfully.",
+                user_pda_account.key()
+            );
+        }
+
+        // Parse counter
+        let dummy_msg = msg.clone();
+        let mut msg_str = String::from_utf8(dummy_msg.to_vec()).unwrap();
+        let ctr_index = msg_str.find("\"tokenAddress\":").unwrap_or(msg_str.len());
+
+        let mut counter_string: String =
+            msg_str.drain(..ctr_index).collect::<String>().split_off(11);
+        let passed_counter = counter_string
+            .drain(..counter_string.len() - 1)
+            .collect::<String>()
+            .parse::<u64>()
+            .unwrap();
+        msg!("🚀 ~ file: a1.rs:45 ~ ctr: {}", passed_counter);
+
+        let to_index = msg_str.find(",\"toChain\":").unwrap_or(msg_str.len());
+
+        let mut to_string: String = msg_str.drain(..to_index).collect::<String>();
+        let _to = to_string.drain(..to_string.len() - 46).collect::<String>();
+
+        msg!("User address in msg {}", to_string);
+        msg!(
+            "User address in accounts {}",
+            user_account.key().to_string()
+        );
+        if user_pda_account.claim_counter != passed_counter
+            && user_account.key().to_string() != to_string
+        {
+            return Err(CustomErrorCode::WrongInvokation.into());
+        }
+
+        let mut message_string = String::from_utf8(msg.clone().to_vec()).unwrap();
+        let deposit_method = message_string.contains("Deposit");
+
         // Parse amount
-        let mut amount_string = String::from_utf8(msg.to_vec()).unwrap();
-        let mut amt_bracket = amount_string.split_off(177); // hard coded
-        let amount: String = amt_bracket.drain(..amt_bracket.len() - 1).collect();
-        let amt: u64 = amount.parse().unwrap();
+        let split_index = message_string
+            .find("\"amount\":")
+            .unwrap_or(message_string.len());
+        let _amount_string = message_string.drain(..split_index).collect::<String>();
+        let mut amount = message_string.split_off(9);
+        msg!("Amount to be mint in str: {}", amount);
+
+        let amt = amount
+            .drain(..amount.len() - 1)
+            .collect::<String>()
+            .parse::<u64>()
+            .unwrap();
         msg!("Amount to be mint: {}", amt);
         // Create the MintTo struct for our context
-        
-        let authority_account = &mut ctx.accounts.authority_pda;
 
-        let signer_seed = [
-            constants::AUTHORITY_SEED_PREFIX.as_bytes(),
-            authority_account.authority.as_ref(),
-            &[authority_account.bump],
-        ];
-        let cpi_accounts = MintTo {
-            mint: ctx.accounts.mint.to_account_info(),
-            to: ctx.accounts.token_account.to_account_info(),
-            authority: authority_account.to_account_info(),
-        };
-        let binding = [&signer_seed[..]];
-        let cpi_ctx = CpiContext::new_with_signer(ctx.accounts.token_program.to_account_info(), cpi_accounts, &binding);
-        // let cpi_program = ctx.accounts.token_program.to_account_info();
-        // // Create the CpiContext we need for the request
-        // let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        if deposit_method {
+            msg!("Mint method invoked");
 
-        // // Execute anchor's helper function to mint tokens
-        let a = mint_to(cpi_ctx, amt * 1000000000)?;
-        msg!("a: {:?}", a);
+            let authority_account = &mut ctx.accounts.authority_pda;
+
+            let signer_seed = [
+                constants::AUTHORITY_SEED_PREFIX.as_bytes(),
+                authority_account.authority.as_ref(),
+                &[authority_account.bump],
+            ];
+            let cpi_accounts = MintTo {
+                mint: ctx.accounts.mint.to_account_info(),
+                to: ctx.accounts.token_account.to_account_info(),
+                authority: authority_account.to_account_info(),
+            };
+            let binding = [&signer_seed[..]];
+            let cpi_ctx = CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                cpi_accounts,
+                &binding,
+            );
+            // let cpi_program = ctx.accounts.token_program.to_account_info();
+            // // Create the CpiContext we need for the request
+            // let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+            // // Execute anchor's helper function to mint tokens
+            let _a = mint_to(cpi_ctx, amt * 1000000000)?;
+        } else {
+            msg!("Release method invoked");
+            let (program_pda, generic_bump_seed) = Pubkey::find_program_address(
+                &[b"soroban_solana", ctx.accounts.authority.key().as_ref()],
+                ctx.program_id,
+            );
+            invoke_signed(
+                &system_instruction::transfer(
+                    &program_pda.key(),  // local var .key() // from
+                    &user_account.key(), // to // double checked by deriving treasury PDA in program itself
+                    amt * 1000000000,
+                ),
+                &[
+                    ctx.accounts.program_pda.to_account_info(), // from
+                    user_account.to_account_info(),             // to
+                    ctx.accounts.system_program.to_account_info(),
+                ],
+                &[&[
+                    "soroban_solana".as_ref(), // since signing using PDA, therefore passing signers seeds
+                    ctx.accounts.authority.key().as_ref(),
+                    &[generic_bump_seed],
+                ]],
+            )?;
+        }
+
+        emit!(ClaimEvent {
+            amount: amt,
+            claim_counter: user_pda_account.claim_counter,
+            user_address: user_account.key()
+        });
+
+        user_pda_account.claim_counter += 1;
+        msg!(
+            "Now pda counter is increased to: {}",
+            user_pda_account.claim_counter
+        );
 
         Ok(())
     }
@@ -149,6 +251,7 @@ pub mod sorolan_bridge {
         anchor_spl::token::burn(cpi_ctx, amount)?;
 
         emit!(WithdrawEvent {
+            method: "Burn".to_string(),
             amount: amount,
             token_address: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".to_string(),
             token_chain: 123,
@@ -156,49 +259,6 @@ pub mod sorolan_bridge {
             to_chain: 456,
             fee: 6000,
         });
-        Ok(())
-    }
-
-    pub fn release_funds(
-        ctx: Context<AccountsForReleaseFunds>,
-        pubkey: [u8; 32],
-        msg: Vec<u8>,
-        sig: [u8; 64],
-    ) -> Result<()> {
-        msg!("withdraw message{:?}", msg);
-        let ix: Instruction = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;
-        msg!("ix: {:?}", ix);
-        utils::verify_ed25519_ix(&ix, &pubkey, &msg, &sig)?;
-        msg!("varify done");
-
-        // Parse amount
-        let mut parsed_amount_string = String::from_utf8(msg.to_vec()).unwrap();
-        let mut with_bracket = parsed_amount_string.split_off(177); // hard coded
-        let amount_string: String = with_bracket.drain(..with_bracket.len() - 1).collect();
-        let withdrawable_amount: u64 = amount_string.parse().unwrap();
-        msg!("Amount to be withdraw: {}", withdrawable_amount);
-
-        let (program_pda, generic_bump_seed) = Pubkey::find_program_address(
-            &[b"soroban_solana", ctx.accounts.authority.key().as_ref()],
-            ctx.program_id,
-        );
-        invoke_signed(
-            &system_instruction::transfer(
-                &program_pda.key(),           // local var .key() // from
-                &ctx.accounts.receiver.key(), // to // double checked by deriving treasury PDA in program itself
-                withdrawable_amount * 1000000000,
-            ),
-            &[
-                ctx.accounts.program_pda.to_account_info(), // from
-                ctx.accounts.receiver.to_account_info(),    // to
-                ctx.accounts.system_program.to_account_info(),
-            ],
-            &[&[
-                "soroban_solana".as_ref(), // since signing using PDA, therefore passing signers seeds
-                ctx.accounts.authority.key().as_ref(),
-                &[generic_bump_seed],
-            ]],
-        )?;
         Ok(())
     }
 }

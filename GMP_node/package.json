@@ -5,6 +5,7 @@
     "@solana/wallet-adapter-react": "^0.15.32",
     "@solana/wallet-adapter-react-ui": "^0.9.31",
     "@solana/web3.js": "^1.77.1",
+    "axios": "^1.5.1",
     "bignumber.js": "^9.1.1",
     "bn.js": "^5.2.1",
     "bs58": "^5.0.0",
