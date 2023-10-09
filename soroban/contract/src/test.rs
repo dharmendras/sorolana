@@ -56,17 +56,17 @@ use soroban_sdk::{ Address, Env};
 
      //   std::println!("wasm_hash{:?}" , wasm_hash);
 
-        let balance =  bridge_contract.deposit(
-                    &depositor_address,
-                    &token_contract_id,
-                    &10,
+        // let balance =  bridge_contract.deposit(
+        //             &depositor_address,
+        //             &token_contract_id,
+        //             &10,
                    
-                );
-                std::println!("balance{:?}" , balance);
+        //         );
+        //         std::println!("balance{:?}" , balance);
 
       //  timelock_client.testdeposit(&token_contract_id, &10, &user);
 
-        std::println!("balance:{:?}" , balance);
+//        std::println!("balance:{:?}" , balance);
 //  let balance = timelock_client.claim(&user, &10);
 //  std::println!("balance{:?}" ,  balance);
 // let add = timelock_client.createcustomtoken(&wasm_hash, &salt);
