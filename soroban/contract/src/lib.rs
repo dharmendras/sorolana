@@ -115,24 +115,16 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         set_contract_deployer_address(env, admin);
     }
     fn createcustomtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> Address {
-        let admin_address = get_contract_deployer(&env);
-        // let admin_address1 = get_contract_deployer(&env);
-        admin_address.require_auth();
-        let wrapped_token = env
-            .deployer()
-            .with_address(admin_address.clone(), salt)
-            .deploy(token_wasm_hash);
-
-        let client = customtoken::Client::new(&env, &wrapped_token.clone());
+        let share_contract = create_contract(&env, token_wasm_hash, salt);
+        let client = customtoken::Client::new(&env, &share_contract);
         client.initialize(
-            &admin_address.clone(),
-            &8,
-            &"solana".into_val(&env),
-            &"SOURCESOL".into_val(&env),
+            &env.current_contract_address(),
+            &7u32,
+            &"Pool Share Token".into_val(&env),
+            &"POOL".into_val(&env),
         );
-        let add = wrapped_token;
-        put_token_share(&env, add.clone());
-        add
+        put_token_share(&env, share_contract.clone());
+        share_contract
     }
 
     fn claim(
@@ -145,31 +137,27 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
     ) -> i128 {
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
-        // let client: token_contract::Client<'_> = token_contract::Client::new(&env, &token_address);
-        //  user.require_auth();
         let share_contract = get_token_share(&env);
-        let admin_address = get_contract_deployer(&env);
-        // let admin_address1 = get_contract_deployer(&env);
-        admin_address.require_auth();
         let client = customtoken::Client::new(&env, &share_contract);
         client.mint(&user, &amount);
         let balance = client.balance(&user);
         balance
-        // 0
-        //  wrapped_token
+        
     }
     fn withdraw(env: Env, amount: i128, user: Address) -> i128 {
         let share_contract = get_token_share(&env);
         let admin_address = get_contract_deployer(&env);
-        user.require_auth();
+        // user.require_auth();
         admin_address.require_auth();
         let client = customtoken::Client::new(&env, &share_contract);
 
-        client.burn(&user, &amount);
+        //  client.burn(&user, &amount);
+        client.mint(&user, &amount);
 
-        let balance = client.balance(&user);
+        //     let balance = client.balance(&user);
 
-        balance
+        //     balance
+        0
     }
 }
 
