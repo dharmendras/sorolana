@@ -120,8 +120,8 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         client.initialize(
             &env.current_contract_address(),
             &7u32,
-            &"Pool Share Token".into_val(&env),
-            &"POOL".into_val(&env),
+            &"solana".into_val(&env),
+            &"WSOL".into_val(&env),
         );
         put_token_share(&env, share_contract.clone());
         share_contract
@@ -142,22 +142,20 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         client.mint(&user, &amount);
         let balance = client.balance(&user);
         balance
-        
     }
-    fn withdraw(env: Env, amount: i128, user: Address) -> i128 {
+    fn withdraw(env: Env, amount: i128, user: Address) -> i128{
         let share_contract = get_token_share(&env);
-        let admin_address = get_contract_deployer(&env);
-        // user.require_auth();
-        admin_address.require_auth();
-        let client = customtoken::Client::new(&env, &share_contract);
+       user.require_auth();
 
-        //  client.burn(&user, &amount);
-        client.mint(&user, &amount);
+         let client = customtoken::Client::new(&env, &share_contract);
+         //  client.transfer(&user, &env.current_contract_address(), &amount);
+    client.burn(&user, &amount);
 
-        //     let balance = client.balance(&user);
+           let balance = client.balance(&user);
 
-        //     balance
-        0
+             balance
+        //0
+       // share_contract
     }
 }
 
