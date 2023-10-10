@@ -1,8 +1,8 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, token, vec, Address, Bytes, BytesN,
-    ConversionError, Env, IntoVal, String, Symbol, TryFromVal, Val, Vec,
+    contract, contractimpl,contracterror, contracttype, symbol_short, token, vec, Address, Bytes, BytesN,
+    ConversionError, Env, IntoVal, String, Symbol, TryFromVal, Val, Vec
 };
 mod token_contract {
     soroban_sdk::contractimport!(file = "./token/soroban_token_contract.wasm");
@@ -10,9 +10,11 @@ mod token_contract {
 
 //use stellar_strkey::*;
 //extern crate std;
-mod customtoken;
 
-use customtoken::create_contract;
+
+
+mod wrappedtoken;
+use wrappedtoken::create_wtoken;
 
 mod types;
 use types::*;
@@ -26,6 +28,17 @@ pub enum DataKeyToken {
 
     TokenShare,
 }
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+pub enum VerifyError {
+  
+    InvalidPublickey = 1,
+}
+#[derive(Clone, Copy)]
+#[repr(u32)]
+pub enum DataStore {
+    validators
+}
 impl TryFromVal<Env, DataKeyToken> for Val {
     type Error = ConversionError;
 
@@ -34,7 +47,28 @@ impl TryFromVal<Env, DataKeyToken> for Val {
     }
 }
 
+fn compare(env: Env , key_to_compare: &BytesN<32>) ->bool {
+    let public_keys: Bytes = [6, 152,  25,  46, 252, 163, 222, 241,
+    69, 203,  30,   9, 138,  20,  22, 235,
+   163,  66, 176, 208,  72, 135,  33,  32,
+   199, 115, 216, 252, 231,  24, 166,  53].into_val(&env);
+    // Replace this with your actual parameter
+    // In this example, we're using the key we generated earlier
+   //let parameter_bytes: [u8; 32] = public_keys.to_bytes().try_into().unwrap();
+    let mut  result: Bytes =   key_to_compare.into_val(&env);
+   // let public: Bytes = public_keys.into_val();
+    // Check if the parameter matches any of the stored public keys
+  //let is_match = public_keys.iter().any(|&public_key| public_key == result);
+   
+    if  public_keys == result {
+     true
+   
+    } else {
+        false
+    }
+   }
 fn set_contract_deployer_address(env: Env, admin: Address) {
+    
     env.storage()
         .persistent()
         .set(&DataKeyToken::TokenAdmin, &admin);
@@ -48,12 +82,12 @@ fn get_contract_deployer(env: &Env) -> Address {
         .unwrap();
     add
 }
-fn put_token_share(e: &Env, contract: Address) {
+fn put_token(e: &Env, contract: Address) {
     e.storage()
         .instance()
         .set(&DataKeyToken::TokenShare, &contract);
 }
-fn get_token_share(e: &Env) -> Address {
+fn get_token(e: &Env) -> Address {
     e.storage()
         .instance()
         .get(&DataKeyToken::TokenShare)
@@ -63,7 +97,7 @@ fn get_token_share(e: &Env) -> Address {
 pub trait SorobanSoloanaBridgeTrait {
     fn deposit(env: Env, from: Address, token: Address, amount: i128, to: String) -> (i128);
     fn admin(env: Env, admin: Address);
-    fn createcustomtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> (Address);
+    fn createwrappedtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> (Address);
     fn claim(
         env: Env,
         public_key: BytesN<32>,
@@ -71,8 +105,9 @@ pub trait SorobanSoloanaBridgeTrait {
         signature: BytesN<64>,
         user: Address,
         amount: i128,
-    ) -> (i128);
+    ) -> Result<(), VerifyError> ;
     fn withdraw(env: Env, amount: i128, user: Address) -> (i128);
+    fn release(env: Env , user: Address , amount: i128)-> (i128);
 }
 #[contract]
 struct SorobanSoloanaBridge;
@@ -90,10 +125,10 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         //message
         let amount: i128 = amount;
-        let token_address: String =
-            "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".into_val(&env);
+        let token_address: Address = token;
+            
         let token_chain: i128 = 1234;
-        let to: String = "to".into_val(&env);
+        let to: String = to;
         let to_chain: i128 = 6789;
         let fee: u32 = 100;
 
@@ -112,18 +147,19 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         balance
     }
     fn admin(env: Env, admin: Address) {
+        admin.require_auth();
         set_contract_deployer_address(env, admin);
     }
-    fn createcustomtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> Address {
-        let share_contract = create_contract(&env, token_wasm_hash, salt);
-        let client = customtoken::Client::new(&env, &share_contract);
+    fn createwrappedtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> Address {
+        let share_contract = create_wtoken(&env, token_wasm_hash, salt);
+        let client = wrappedtoken::Client::new(&env, &share_contract);
         client.initialize(
             &env.current_contract_address(),
             &7u32,
             &"solana".into_val(&env),
             &"WSOL".into_val(&env),
         );
-        put_token_share(&env, share_contract.clone());
+        put_token(&env, share_contract.clone());
         share_contract
     }
 
@@ -134,28 +170,48 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         signature: BytesN<64>,
         user: Address,
         amount: i128,
-    ) -> i128 {
+    ) -> Result<(), VerifyError>  {
+        user.require_auth();
+
+        let check =   compare(env.clone() , &public_key);
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
-        let share_contract = get_token_share(&env);
-        let client = customtoken::Client::new(&env, &share_contract);
+     
+   
+      if check == true {
+        let share_contract = get_token(&env.clone());
+        let client = wrappedtoken::Client::new(&env, &share_contract);
         client.mint(&user, &amount);
         let balance = client.balance(&user);
-        balance
+     //   balance
+      }
+      else {
+        return Err(VerifyError::InvalidPublickey);
+      }
+      Ok(())
+
     }
     fn withdraw(env: Env, amount: i128, user: Address) -> i128{
-        let share_contract = get_token_share(&env);
+        let share_contract = get_token(&env);
        user.require_auth();
 
-         let client = customtoken::Client::new(&env, &share_contract);
+         let client = wrappedtoken::Client::new(&env, &share_contract);
          //  client.transfer(&user, &env.current_contract_address(), &amount);
     client.burn(&user, &amount);
 
            let balance = client.balance(&user);
-
+            
              balance
         //0
        // share_contract
+    }
+    fn release(env: Env , to: Address , amount: i128) -> i128 { 
+        // let client = token::Client::new(&env, &token);
+        let share_contract = get_token(&env);
+        let client = wrappedtoken::Client::new(&env, &share_contract);
+        client.transfer(&env.current_contract_address(), &to, &amount);
+        // client.transfer(&from, &env.current_contract_address(), &amount);
+        0
     }
 }
 

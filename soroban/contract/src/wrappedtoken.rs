@@ -5,7 +5,7 @@ soroban_sdk::contractimport!(
     file = "/home/imentus/Documents/imentus_project/sorolana/soroban/contract/token/soroban_token_contract.wasm"
 );
 
-pub fn create_contract(
+pub fn create_wtoken(
     e: &Env,
     token_wasm_hash: BytesN<32>,
     // token_a: &Address,

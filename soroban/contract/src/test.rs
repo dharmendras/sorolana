@@ -22,7 +22,7 @@ use soroban_sdk::testutils::{Address as _, Ledger, LedgerInfo};
 use soroban_sdk::token::Client as TokenClient;
 use soroban_sdk::token::StellarAssetClient as TokenAdminClient;
 use soroban_sdk::{ Address, Env};
-
+use soroban_sdk::{IntoVal};
 //#[derive(Arbitrary, Debug, Clone)]
 
 
@@ -34,7 +34,7 @@ use soroban_sdk::{ Address, Env};
 
         env.mock_all_auths();
 
-        // Turn off the CPU/memory budget for testing.
+    
        
 
         let depositor_address = Address::random(&env);
@@ -53,9 +53,9 @@ use soroban_sdk::{ Address, Env};
         token_admin_client.mint(&depositor_address, &i128::max_value());
         let wasm_hash = env.deployer().upload_contract_wasm(contract::WASM);
         let salt = BytesN::from_array(&env, &[0; 32]);
-
+           
      //   std::println!("wasm_hash{:?}" , wasm_hash);
-
+     
         // let balance =  bridge_contract.deposit(
         //             &depositor_address,
         //             &token_contract_id,
