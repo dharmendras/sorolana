@@ -25,7 +25,7 @@ pub struct TokenMap {
 #[derive(Clone, Copy)]
 #[repr(u32)]
 pub enum DataKeyToken {
-    TokenA = 0,
+    TokenAdmin = 0,
     TokenB = 1,
     TokenShare = 2,
     TotalShares = 3,
@@ -52,10 +52,13 @@ pub enum Globals {
     TokenAddress,
 }
 
-//const COUNTER: Symbol = symbol_short!("COUNTER");
 
+fn set_contract_deployer_address(env: Env, admin: Address) {
+    env.storage().persistent().set(&DataKeyToken::TokenAdmin, &admin);
+    // env.storage().persistent().bump( &Globals::Admin, 52600);
+}
 fn get_contract_deployer(env: &Env) -> Address {
-    let add: Address = env.storage().persistent().get(&Globals::Admin).unwrap();
+    let add: Address = env.storage().persistent().get(&DataKeyToken::TokenAdmin).unwrap();
     add
 }
 fn put_token_share(e: &Env, contract: Address) {
@@ -67,7 +70,7 @@ fn get_token_share(e: &Env) -> Address {
 // fn get_data(env: &)
 pub trait SorobanSoloanaBridgeTrait { 
     fn deposit(env: Env, from: Address, token: Address, amount: i128 , to: String) ->(i128);
-    fn set_contract_deployer_address(env: Env, admin: Address);
+    fn admin(env: Env, admin: Address);
     fn createcustomtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> (Address); 
     fn claim(env: Env, public_key: BytesN<32>, message: Bytes, signature: BytesN<64> , token_address: Address , user: Address , amount: i128) -> (i128);
     fn withdraw(env: Env, amount: i128, user: Address) -> (i128);
@@ -109,21 +112,22 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge  {
         env.events().publish((DataKey::Transfer, symbol), transfer);
         balance
     }
-   fn set_contract_deployer_address(env: Env, admin: Address) {
-        env.storage().persistent().set(&Globals::Admin, &admin);
-        // env.storage().persistent().bump( &Globals::Admin, 52600);
+    fn admin(env: Env , admin: Address) { 
+        set_contract_deployer_address(env, admin);
+
     }
      fn createcustomtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> Address {
-        // let admin_address = get_contract_deployer(&env);
+         let admin_address = get_contract_deployer(&env);
         // let admin_address1 = get_contract_deployer(&env);
+        admin_address.require_auth();
         let wrapped_token = env
             .deployer()
-            .with_address(env.current_contract_address(), salt)
+            .with_address(admin_address.clone(), salt)
             .deploy(token_wasm_hash);
 
         let client = customtoken::Client::new(&env, &wrapped_token.clone());
         client.initialize(
-            &env.current_contract_address(),
+            &admin_address.clone(),
             &8,
             &"solana".into_val(&env),
             &"sol".into_val(&env),
@@ -132,12 +136,16 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge  {
             put_token_share(&env, add.clone());
     add
     }
+   
      fn claim(env: Env, public_key: BytesN<32>, message: Bytes, signature: BytesN<64> , token_address: Address , user: Address , amount: i128) -> i128 {
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
        // let client: token_contract::Client<'_> = token_contract::Client::new(&env, &token_address);
         //  user.require_auth();
         let share_contract = get_token_share(&env);
+        let admin_address = get_contract_deployer(&env);
+        // let admin_address1 = get_contract_deployer(&env);
+        admin_address.require_auth();
         let client =    customtoken::Client::new(&env, &share_contract);
          client.mint(&user, &amount);
       let balance =    client.balance(&user);
