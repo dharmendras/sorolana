@@ -38,7 +38,7 @@ function convertToBytes32(address) {
     return bytes32Array;
 }
 describe('MyTestSuite', () => {
-  //  this.timeout(10000)
+    //  this.timeout(10000)
     const contractId = 'CAJW2YDE7YKGDTDHV7QOGZAOLVX3JV6VLOJRW7EYXGJK3EGXNH3VJRGK';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     const secret_key = 'SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C';
@@ -48,26 +48,26 @@ describe('MyTestSuite', () => {
     const sleepTime = Math.min(1000, 120000);
 
     let amount = 100000
-    it('deposit method test case',  async () => {
-        
-       await get_balance(native_source_token , user)
+    it('deposit method test case', async () => {
 
-     await deposit(contractId , secret_key , native_source_token , amount)
-      get_balance(native_source_token , user)
+        await get_balance(native_source_token, user)
+        await deposit(contractId, secret_key, native_source_token, amount)
+        await get_balance(native_source_token, user)
 
-       // get_balance(native_source_token , pblic_key)
- });
+        // get_balance(native_source_token , pblic_key)
+    });
 
-    
-    it('custom method test case', () => {
+
+    it('custom method test case', async () => {
         const salt = randomBytes(32);
 
         let wasm_hash = "6b7e4bfbf47157a12e24e564efc1f9ac237e7ae6d7056b6c2ab47178b9e7a510"
-       //  customtoken(contractId, secret_key, wasm_hash, salt)
-       
+
+        await customtoken(contractId, secret_key, wasm_hash, salt)
+
 
     });
-    it('claim method test case', () => {
+    it('claim method test case', async () => {
         const validator_public_key = "IQcwIpPAKbs2zdRongIduJ7MzVTHejmp9vVI+kyj2HU=";
 
         let validator_key = convertToBytes32(validator_public_key)
@@ -82,22 +82,23 @@ describe('MyTestSuite', () => {
 
         const message = util.decodeUTF8(string);
 
-         //   get_balance(source_token , user)
-       //  claim(contractId  , secret_key , validator_key , message ,validator_signature , user , amount)
+        await get_balance(custom_source_token, user)
+        await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+        await get_balance(custom_source_token, user)
 
     });
-    it('withdraw method test case', () => {
+    it('withdraw method test case', async () => {
 
-     // withdraw(contractId  , secret_key,amount , user)
-    //   get_balance(custom_source_token , user)
-        
+        await withdraw(contractId, secret_key, amount, user)
+        await get_balance(custom_source_token, user)
+
     });
- 
-    it('release method test case', () => {
 
-       // release(contractId, secret_key, user, amount)
-      //get_balance(custom_source_token , user)
-        
+    it('release method test case', async () => {
+
+        await release(contractId, secret_key, user, amount)
+        await get_balance(custom_source_token, user)
+
     });
 
 });
