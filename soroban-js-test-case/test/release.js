@@ -2,20 +2,19 @@ const SorobanClient = require('soroban-client')
 const encode = require('./encode')
 const { use } = require('chai')
 
-const release = async (contractId, secret, amount, user) => {
-    console.log("🚀 ~ file: claimmethod.js:2 ~ claim ~ secret:", secret)
-    console.log("🚀 ~ file: claimmethod.js:2 ~ claim ~ contractId:", contractId)
+const release = async (contractId, secret, user , amount) => {
+    
 
     const server = new SorobanClient.Server(
         `https://rpc-futurenet.stellar.org:443`
     );
     const contract = new SorobanClient.Contract(contractId);
-    console.log("called");
+
     let keypair = SorobanClient.Keypair.fromSecret(secret)
-    console.log("🚀 ~ file: index.js:18 ~ deposit ~ public_key:", keypair.publicKey())
+    console.log("🚀 ~ file: release.js:14 ~ release ~ keypair:", keypair)
 
     const account = await server.getAccount(keypair.publicKey());
-    console.log("🚀 ~ file: claimmethod.js:14 ~ claim ~ account:", account)
+    console.log("🚀 ~ file: release.js:17 ~ release ~ account:", account)
 
     const obj1 = { type: 'address', value: user };
     const obj2 = { type: 'scoI128', value: amount };
@@ -33,24 +32,27 @@ const release = async (contractId, secret, amount, user) => {
         .addOperation(contract.call(method, ...params))
         .setTimeout(SorobanClient.TimeoutInfinite)
         .build();
-    console.log("🚀 ~ file: claimmethod.js:27 ~ claim ~ tx:", tx)
+    console.log("🚀 ~ file: release.js:35 ~ release ~ tx:", tx)
 
     const sim = await server.simulateTransaction(tx);
-    console.log("🚀 ~ file: claimmethod.js:32 ~ claim ~ sim:", sim)
+    console.log("🚀 ~ file: release.js:38 ~ release ~ sim:", sim)
 
     let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
     _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);
-        console.log("🚀 ~ file: claimmethod.js:39 ~ claim ~ hash:", hash)
+        console.log("🚀 ~ file: release.js:45 ~ release ~ hash:", hash)
+        
         const sleepTime = Math.min(1000, 60000);
+
         for (let i = 0; i <= 60000; i += sleepTime) {
             await sleep(sleepTime);
             try {
                 //get transaction response
                 const response = await server?.getTransaction(hash);
-                console.log("🚀 ~ file: hello_world.ts:99 ~ test ~ response:", response.status)
+              //  console.log("🚀 ~ file: release.js:54 ~ release ~ response:", response)
+
                 if (response.status == "SUCCESS") {
                     //    let result = JSON.parse(JSON.stringify(response.returnValue));
                     //    let return_vaule = returnval.scvalToBigNumber(result._arm,result);
@@ -61,7 +63,7 @@ const release = async (contractId, secret, amount, user) => {
 
             } catch (err) {
                 if ('code' in err && err.code === 404) {
-                    console.log('🚀 ~ withdraw ~ err', err);
+                console.log("🚀 ~ file: release.js:66 ~ release ~ err:", err)
                 } else {
                     throw err;
                 }

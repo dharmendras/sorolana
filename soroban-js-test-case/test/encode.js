@@ -13,14 +13,14 @@ const encode = (data) => {
             // console.log("value of i128", scoI128);
             return scoI128;
 
-            case "bytes":
-                console.log("data" , data.type)
-           return SorobanClient.xdr.ScVal.scvBytes(Buffer.from(data.value, "hex"))
+        case "bytes":
+            console.log("data", data.type)
+            return SorobanClient.xdr.ScVal.scvBytes(Buffer.from(data.value, "hex"))
 
         case "scvString":
             return SorobanClient.xdr.ScVal.scvString(data.value)
-            default:
-                break;
+        default:
+            break;
 
     }
     return SorobanClient.xdr.ScVal.scvSymbol(data.value);
