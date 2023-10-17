@@ -20,6 +20,8 @@ const axios = require("axios");
 const { Program } = require("@coral-xyz/anchor");
 const { AnchorProvider } = require("@coral-xyz/anchor");
 const fs = require("fs");
+
+const {solanaClaim} = require('./SolanaEventsFunctions/claimEvent.js')
 // import fs from "fs";
 
 const db_url = "http://localhost:3400";
@@ -191,15 +193,15 @@ async function solanaToSoroban() {
   }
 }
 
-program.addEventListener("DepositEvent", (event, slot, transaction_id) => {
-  solanaDeposit(event, slot, transaction_id);
-});
+// program.addEventListener("DepositEvent", (event, slot, transaction_id) => {
+//   solanaDeposit(event, slot, transaction_id);
+// });
 // program.addEventListener("WithdrawEvent", (event, slot, transaction_id) => {
 //   solanaWithdraw(event, slot, transaction_id);
 // });
-// program.addEventListener("ClaimEvent", (event, slot, transaction_id) => {
-//   solanaClaim(event, slot, transaction_id);
-// });
+program.addEventListener("ClaimEvent", (event, slot, transaction_id) => {
+  solanaClaim(event, slot, transaction_id);
+});
 
 // solana Deposit();
 async function solanaDeposit(event, slot, transaction_id) {
@@ -321,112 +323,112 @@ async function solanaDeposit(event, slot, transaction_id) {
 }
 
 // solanaClaim();
-async function solanaClaim(event, slot, transaction_id) {
-  console.log(
-    "🚀 ~ file: validator1.js:296 ~ solanaClaim ~ transaction_id:",
-    transaction_id
-  );
-  console.log("🚀 ~ file: validator1.js:296 ~ solanaClaim ~ slot:", slot);
-  console.log("🚀 ~ file: validator1.js:296 ~ solanaClaim ~ event:", event);
+// async function solanaClaim(event, slot, transaction_id) {
+//   console.log(
+//     "🚀 ~ file: validator1.js:296 ~ solanaClaim ~ transaction_id:",
+//     transaction_id
+//   );
+//   console.log("🚀 ~ file: validator1.js:296 ~ solanaClaim ~ slot:", slot);
+//   console.log("🚀 ~ file: validator1.js:296 ~ solanaClaim ~ event:", event);
 
-  let userAddress = event.userAddress.toBase58();
-  // let userAddress = "9rdobDxmeeM9B3yZPqt69Xyf8TGSuJk2J2nk1H5PNjGp";
-  let userCounter = event.claimCounter;
-  // let userCounter = 8;
+//   let userAddress = event.userAddress.toBase58();
+//   // let userAddress = "9rdobDxmeeM9B3yZPqt69Xyf8TGSuJk2J2nk1H5PNjGp";
+//   let userCounter = event.claimCounter;
+//   // let userCounter = 8;
 
-  let message_data = {
-    queue_id: userCounter,
-  };
+//   let message_data = {
+//     queue_id: userCounter,
+//   };
 
-  await axios
-    .delete(`${db_url}/message_queue/${userAddress}`, {
-      data: message_data,
-    })
-    .then((response) => {
-      console.log(response);
-    });
+//   await axios
+//     .delete(`${db_url}/message_queue/${userAddress}`, {
+//       data: message_data,
+//     })
+//     .then((response) => {
+//       console.log(response);
+//     });
 
-  // to know if there is more unclaimed msgs presents in the queue
-  await axios
-    .get(`${db_url}/message_queue/${userAddress}`)
-    .then(async (response) => {
-      console.log(
-        "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
-        response.data.length
-      );
-      if (response.data[0].queue_id == userCounter + 1) {
-        let res = response.data[0];
-        console.log(
-          "🚀 ~ file: validator1.js:209 ~ awaitaxios.get ~ response.data:",
-          response.data[0].queue_id
-        );
-        let msg = response.data[0].message_info;
+//   // to know if there is more unclaimed msgs presents in the queue
+//   await axios
+//     .get(`${db_url}/message_queue/${userAddress}`)
+//     .then(async (response) => {
+//       console.log(
+//         "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
+//         response.data.length
+//       );
+//       if (response.data[0].queue_id == userCounter + 1) {
+//         let res = response.data[0];
+//         console.log(
+//           "🚀 ~ file: validator1.js:209 ~ awaitaxios.get ~ response.data:",
+//           response.data[0].queue_id
+//         );
+//         let msg = response.data[0].message_info;
 
-        const message = JSON.stringify(msg);
-        console.log(
-          "🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:",
-          message
-        );
-        const messageBytes = Buffer.from(message, "utf-8");
+//         const message = JSON.stringify(msg);
+//         console.log(
+//           "🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:",
+//           message
+//         );
+//         const messageBytes = Buffer.from(message, "utf-8");
 
-        console.log(
-          "🚀 ~ file: sorolan_bridge.ts:152 ~ it ~ messageBytes:",
-          messageBytes
-        );
-        const signer_pkey = validator_kp.publicKey.toBytes();
-        console.log(
-          "🚀 ~ file: sorolan_bridge.ts:155 ~ it ~ signer_pkey:",
-          signer_pkey
-        );
+//         console.log(
+//           "🚀 ~ file: sorolan_bridge.ts:152 ~ it ~ messageBytes:",
+//           messageBytes
+//         );
+//         const signer_pkey = validator_kp.publicKey.toBytes();
+//         console.log(
+//           "🚀 ~ file: sorolan_bridge.ts:155 ~ it ~ signer_pkey:",
+//           signer_pkey
+//         );
 
-        const signature = nacl.sign.detached(
-          messageBytes,
-          validator_kp.secretKey
-        );
-        console.log(
-          "🚀 ~ file: sorolan_bridge.ts:154 ~ it ~ signature:",
-          signature
-        );
-        console.log(
-          "🚀 ~ file: validator1.js:354 ~ .then ~ Buffer.from(signature).toString('base64'):",
-          Buffer.from(signature).toString("base64")
-        );
-        let validator_data = {
-          validator_sig: Buffer.from(signature).toString("base64"),
-          validator_pkey: validator_kp.publicKey.toBase58(),
-          message_id: response.data[0].id,
-        };
-        await axios
-          .post(`${db_url}/Signature`, validator_data)
-          .then(async (response) => {
-            console.log(
-              "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
-              response
-            );
-          });
+//         const signature = nacl.sign.detached(
+//           messageBytes,
+//           validator_kp.secretKey
+//         );
+//         console.log(
+//           "🚀 ~ file: sorolan_bridge.ts:154 ~ it ~ signature:",
+//           signature
+//         );
+//         console.log(
+//           "🚀 ~ file: validator1.js:354 ~ .then ~ Buffer.from(signature).toString('base64'):",
+//           Buffer.from(signature).toString("base64")
+//         );
+//         let validator_data = {
+//           validator_sig: Buffer.from(signature).toString("base64"),
+//           validator_pkey: validator_kp.publicKey.toBase58(),
+//           message_id: response.data[0].id,
+//         };
+//         await axios
+//           .post(`${db_url}/Signature`, validator_data)
+//           .then(async (response) => {
+//             console.log(
+//               "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
+//               response
+//             );
+//           });
 
-        let message_queue_data = {
-          amount: res.amount,
-          from: res.from_address,
-          to: res.receiver,
-          toChain: res.destination_chain_id,
-          date: new Date().getDate,
-          transaction_hash: res.transaction_hash,
-          status: "pending",
-          message: res.message_info,
-          queue_id: res.queue_id,
-        };
+//         let message_queue_data = {
+//           amount: res.amount,
+//           from: res.from_address,
+//           to: res.receiver,
+//           toChain: res.destination_chain_id,
+//           date: new Date().getDate,
+//           transaction_hash: res.transaction_hash,
+//           status: "pending",
+//           message: res.message_info,
+//           queue_id: res.queue_id,
+//         };
 
-        await axios
-          .post(`${db_url}/Message`, message_queue_data)
-          .then(async (response) => {
-            console.log(
-              "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
-              response
-            );
-          });
-      } else {
-        console.log("Some thing went wrong");
-      }
-    });
-}
+//         await axios
+//           .post(`${db_url}/Message`, message_queue_data)
+//           .then(async (response) => {
+//             console.log(
+//               "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
+//               response
+//             );
+//           });
+//       } else {
+//         console.log("Some thing went wrong");
+//       }
+//     });
+// }

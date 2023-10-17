@@ -44,7 +44,7 @@ let sorolanaTokenParams = {
 };
 
 let Soroban_msg = {
-  counter: 3,
+  counter: 4,
   tokenAddress: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U",
   tokenChain: 123,
   to: "Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC",
@@ -97,7 +97,10 @@ describe("sorolan_bridge", () => {
     return programPdaInfo;
   };
   const getUserPda = async (user: PublicKey) => {
-    console.log("🚀 ~ file: sorolan_bridge.ts:100 ~ getUserPda ~ user:", user.toBase58())
+    console.log(
+      "🚀 ~ file: sorolan_bridge.ts:100 ~ getUserPda ~ user:",
+      user.toBase58()
+    );
     const userPdaInfo = web3.PublicKey.findProgramAddressSync(
       [anchor.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
       program.programId
@@ -185,7 +188,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Users can deposit funds to the program pda: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         const [program_pda, player_bump] = await getProgramPda();
         console.log(
@@ -215,7 +218,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Listen events at the time of deposit the funds: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         const depositListener = program.addEventListener(
           "DepositEvent",
@@ -250,7 +253,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Verfiy and mint method: ", async () => {
-    if (!isRunTestCase) {
+    if (isRunTestCase) {
       console.log(
         "🚀 ~ file: sorolan_bridge.ts:145 ~ it ~ Soroban_msg:",
         Soroban_msg
@@ -299,14 +302,34 @@ describe("sorolan_bridge", () => {
 
       console.log(
         "🚀 ~ file: sorolan_bridge.ts:231 ~ it ~ await getAta(mint_kp.publicKey, user_kp.publicKey, false):",
-        (await getAta(mint_kp.publicKey, new PublicKey('Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC'), false)).toBase58()
+        (
+          await getAta(
+            mint_kp.publicKey,
+            new PublicKey("Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC"),
+            false
+          )
+        ).toBase58()
       );
       const [program_pda, player_bump] = await getProgramPda();
       let authorityPdaInfo = await getAuthorityPda();
-      let [userPda, userBump] = await getUserPda(new PublicKey('Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC'));
+      let [userPda, userBump] = await getUserPda(
+        new PublicKey("Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC")
+      );
       // let info = await program.account.userPda.fetch(userPda);
       // console.log("🚀 ~ file: sorolan_bridge.ts:320 ~ it ~ info:", info.counter.toNumber())
       console.log("🚀 ~ file: sorolan_bridge.ts:326 ~ it ~ message:", message);
+      console.log(
+        "🚀 ~ file: sorolan_bridge.ts:326 ~ it ~ authorityPdaInfo[0]:",
+        authorityPdaInfo[0].toBase58()
+      );
+      console.log(
+        "🚀 ~ file: sorolan_bridge.ts:321 ~ it ~ program.provider.publicKey:",
+        program.provider.publicKey.toBase58()
+      );
+      console.log(
+        "🚀 ~ file: sorolan_bridge.ts:326 ~ it ~ program_pda:",
+        program_pda
+      );
       const claimIx = await program.methods
         .claim(
           //@ts-ignore
@@ -318,14 +341,14 @@ describe("sorolan_bridge", () => {
         .accounts({
           claimer: program.provider.publicKey,
           // user: user_kp.publicKey,
-          user: new PublicKey('Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC'),
+          user: new PublicKey("Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC"),
           authority: program.provider.publicKey,
           programPda: program_pda,
           userPda: userPda,
           authorityPda: authorityPdaInfo[0],
           tokenAccount: await getAta(
             mint_kp.publicKey,
-            new PublicKey('Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC'),
+            new PublicKey("Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC"),
             false
           ),
           mint: mint_kp.publicKey,
@@ -339,6 +362,8 @@ describe("sorolan_bridge", () => {
       // Instruction: 1
 
       let claimTx = new web3.Transaction().add(ix01, claimIx);
+      console.log("🚀 ~ file: sorolan_bridge.ts:365 ~ it ~ claimIx:", claimIx);
+      console.log("🚀 ~ file: sorolan_bridge.ts:365 ~ it ~ ix01:", ix01);
       claimTx.recentBlockhash = (
         await provider.connection.getLatestBlockhash()
       ).blockhash;
