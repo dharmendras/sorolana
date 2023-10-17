@@ -33,13 +33,14 @@ pub struct InitTokenParams {
 
 #[event]
 pub struct DepositEvent {
-    pub method: String,
-    pub amount: u64,
-    pub token_address: String,
-    pub token_chain: u16,
-    pub reciever_address: String,
-    pub to_chain: u16,
-    pub fee: u64,
+    // pub sender: Pubkey,    //32
+    pub method: String,    //7
+    pub amount: u64,        //8
+    pub token_address: String, //40
+    pub token_chain: u16,   //2
+    pub reciever_address: String, //40
+    pub to_chain: u16,  //2
+    pub fee: u64,  //8
 }
 #[event]
 pub struct ClaimEvent {
@@ -49,6 +50,7 @@ pub struct ClaimEvent {
 }
 #[event]
 pub struct WithdrawEvent {
+    // pub sender: Pubkey,
     pub method: String,
     pub amount: u64,
     pub token_address: String,

@@ -103,12 +103,32 @@
       "name": "claim",
       "accounts": [
         {
-          "name": "user",
+          "name": "claimer",
           "isMut": true,
           "isSigner": true
         },
         {
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "programPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authorityPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userPda",
           "isMut": true,
           "isSigner": false
         },
@@ -165,6 +185,10 @@
               64
             ]
           }
+        },
+        {
+          "name": "bump",
+          "type": "u8"
         }
       ]
     },
@@ -198,63 +222,29 @@
           "type": "u64"
         }
       ]
-    },
-    {
-      "name": "releaseFunds",
-      "accounts": [
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "programPda",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "receiver",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "ixSysvar",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "pubkey",
-          "type": {
-            "array": [
-              "u8",
-              32
-            ]
-          }
-        },
-        {
-          "name": "msg",
-          "type": "bytes"
-        },
-        {
-          "name": "sig",
-          "type": {
-            "array": [
-              "u8",
-              64
-            ]
-          }
-        }
-      ]
     }
   ],
   "accounts": [
+    {
+      "name": "UserPda",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "claimCounter",
+            "type": "u64"
+          },
+          {
+            "name": "user",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
     {
       "name": "AuthorityPda",
       "type": {
@@ -303,6 +293,11 @@
       "name": "DepositEvent",
       "fields": [
         {
+          "name": "method",
+          "type": "string",
+          "index": false
+        },
+        {
           "name": "amount",
           "type": "u64",
           "index": false
@@ -335,8 +330,33 @@
       ]
     },
     {
+      "name": "ClaimEvent",
+      "fields": [
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "claimCounter",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "userAddress",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
       "name": "WithdrawEvent",
       "fields": [
+        {
+          "name": "method",
+          "type": "string",
+          "index": false
+        },
         {
           "name": "amount",
           "type": "u64",
@@ -379,10 +399,15 @@
     {
       "code": 6001,
       "name": "WrongAdmin",
-      "msg": "Signature verification failed."
+      "msg": "Only Admin can invoke this method"
+    },
+    {
+      "code": 6002,
+      "name": "WrongInvokation",
+      "msg": "Wrong user or multiple times claimed."
     }
   ],
   "metadata": {
-    "address": "7mq4zw63J2cABg3g37UxJx9eq5oErtmRVDEjtTCbUU8a"
+    "address": "HYjGGd6Tp7CCjHuLFwX5hPQwoRHzsLwtKVn8cRcpP9Aw"
   }
 }

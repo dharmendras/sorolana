@@ -4,6 +4,7 @@ const NETWORK_PASSPHRASE = "Test SDF Future Network ; October 2022";
 const SOROBAN_RPC_URL = "https://rpc-futurenet.stellar.org:443/";
 const scvalToBigNumber = require("./convert.js");
 const solanaWeb3 = require("@solana/web3.js");
+const anchorr = require("@coral-xyz/anchor");
 const { PublicKey } = require("@solana/web3.js");
 const { Keypair } = require("@solana/web3.js");
 const { EventParser, BorshCoder, web3 } = require("@coral-xyz/anchor");
@@ -18,8 +19,11 @@ const { anchor } = require("@coral-xyz/anchor");
 const axios = require("axios");
 const { Program } = require("@coral-xyz/anchor");
 const { AnchorProvider } = require("@coral-xyz/anchor");
+const fs = require("fs");
+// import fs from "fs";
 
-const db_url = "http://localhost:3400/Message";
+const db_url = "http://localhost:3400";
+const get_queue_id = "http://localhost:3400/userCounter";
 
 const dotenv = require("dotenv");
 dotenv.config();
@@ -32,6 +36,8 @@ const connection = new solanaWeb3.Connection(network, "confirmed");
 const programID = new PublicKey(idl.metadata.address);
 const provider = new AnchorProvider(connection, opts.preflightCommitment);
 const program = new Program(idl, programID, provider);
+const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
+
 //sorobanToSolana();
 async function sorobanToSolana() {
   const server = new SorobanClient.Server(SOROBAN_RPC_URL, { allowHttp: true });
@@ -96,9 +102,23 @@ async function sorobanToSolana() {
   console.log("signature String", base64string); // console signature as a string
 }
 
+let validator_kp = Keypair.fromSecretKey(
+  new Uint8Array(
+    JSON.parse(fs.readFileSync("solana_validators/validator1.json").toString())
+  )
+);
+
+//To get Pda
+const getUserPda = async (user) => {
+  const userPdaInfo = web3.PublicKey.findProgramAddressSync(
+    [anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
+    program.programId
+  );
+  return userPdaInfo;
+};
 
 const server = new StellarSdk.Server("https://horizon-testnet.stellar.org/");
-solanaToSoroban();
+// solanaToSoroban();
 async function solanaToSoroban() {
   // Generate key pair
   // const keypair = nacl.sign.keyPair();
@@ -156,7 +176,7 @@ async function solanaToSoroban() {
         "🚀 ~ file: validator1.js:185 ~ solanaToSoroban ~ data:",
         data
       );
-      axios.post(db_url, data).then((response) => {
+      axios.post(`${db_url}/message_queue`, data).then((response) => {
         console.log(response);
       });
       solanaToSoroban();
@@ -169,4 +189,244 @@ async function solanaToSoroban() {
   } else {
     console.log("Not Matched");
   }
+}
+
+program.addEventListener("DepositEvent", (event, slot, transaction_id) => {
+  solanaDeposit(event, slot, transaction_id);
+});
+// program.addEventListener("WithdrawEvent", (event, slot, transaction_id) => {
+//   solanaWithdraw(event, slot, transaction_id);
+// });
+// program.addEventListener("ClaimEvent", (event, slot, transaction_id) => {
+//   solanaClaim(event, slot, transaction_id);
+// });
+
+// solana Deposit();
+async function solanaDeposit(event, slot, transaction_id) {
+  console.log("Deposit method invokes");
+  console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ transaction_id:", transaction_id)
+  console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ slot:", slot)
+  console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ event:", event)
+  let receiverId = 0;
+  let [receiver_pda, userBump] = await getUserPda(
+    new PublicKey(event.sender.toBase58())
+  );
+  console.log(
+    "🚀 ~ file: validator1.js:196 ~ axios.get ~ receiver_pda.toBase58():",
+    receiver_pda.toBase58()
+  );
+
+  await axios
+    .get(`${get_queue_id}/${receiver_pda.toBase58()}`)
+    .then(async (response) => {
+      console.log(
+        "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
+        response.data.length
+      );
+      if (response.data.length == 0) {
+        receiverId = 0;
+        console.log(
+          "🚀 ~ file: validator1.js:206 ~ axios.get ~ receiverId:",
+          receiverId
+        );
+        let receiverDetails = {
+          receiver: receiver_pda.toBase58(),
+          queue_id: receiverId,
+        };
+        await axios.post(get_queue_id, receiverDetails).then((response) => {
+          console.log(response);
+        });
+      } else if (response.data.length > 0) {
+        console.log(
+          "🚀 ~ file: validator1.js:209 ~ awaitaxios.get ~ response.data:",
+          response.data[0].queue_id
+        );
+        receiverId = response.data[0].queue_id + 1;
+
+        await axios
+          .put(`${get_queue_id}/${receiver_pda.toBase58()}`, {
+            queue_id: receiverId,
+          })
+          .then((response) => {
+            console.log(
+              "🚀 ~ file: validator1.js:229 ~ awaitaxios.put ~ response:",
+              response.data
+            );
+          });
+      } else {
+        console.log("Some thing went wrong");
+      }
+      console.log(
+        "🚀 ~ file: validator1.js:218 ~ .then ~ receiverId:",
+        receiverId
+      );
+    });
+
+  let solana_msg = {
+    counter: receiverId,
+    tokenAddress: event.tokenAddress,
+    tokenChain: event.tokenChain,
+    to: event.receiverAddress,
+    toChain: event.toChain,
+    fee: 100,
+    method: event.method,
+    amount: event.amount,
+  };
+  const message = JSON.stringify(solana_msg);
+  console.log(
+    "🚀 ~ file: validator1.js:272 ~ solanaDeposit ~ message:",
+    message
+  );
+
+  if (event.amount > 0) {
+    console.log("matched");
+    try {
+      let data = {
+        amount: event.amount,
+        from: event.sender,
+        receiver: event.receiverAddress,
+        destination_chain_id: event.toChain,
+        date: new Date().getDate,
+        transaction_hash: `${transaction_id}`,
+        status: "pending",
+        message: message,
+        queue_id: receiverId,
+        receiver_pda: receiver_pda.toBase58(),
+      };
+      console.log(
+        "🚀 ~ file: validator1.js:185 ~ solanaToSoroban ~ data:",
+        data
+      );
+      await axios.post(`${db_url}/message_queue`, data).then((response) => {
+        console.log(response);
+      });
+
+      await axios
+        .get(`${db_url}/Message/${userAddress}`)
+        .then(async (response) => {
+          console.log(
+            "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
+            response.data.length
+          );
+        });
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: validator1.js:178 ~ solanaToSoroban ~ error:",
+        error
+      );
+    }
+  } else {
+    console.log("Not Matched");
+  }
+}
+
+// solanaClaim();
+async function solanaClaim(event, slot, transaction_id) {
+  console.log(
+    "🚀 ~ file: validator1.js:296 ~ solanaClaim ~ transaction_id:",
+    transaction_id
+  );
+  console.log("🚀 ~ file: validator1.js:296 ~ solanaClaim ~ slot:", slot);
+  console.log("🚀 ~ file: validator1.js:296 ~ solanaClaim ~ event:", event);
+
+  let userAddress = event.userAddress.toBase58();
+  // let userAddress = "9rdobDxmeeM9B3yZPqt69Xyf8TGSuJk2J2nk1H5PNjGp";
+  let userCounter = event.claimCounter;
+  // let userCounter = 8;
+
+  let message_data = {
+    queue_id: userCounter,
+  };
+
+  await axios
+    .delete(`${db_url}/message_queue/${userAddress}`, {
+      data: message_data,
+    })
+    .then((response) => {
+      console.log(response);
+    });
+
+  // to know if there is more unclaimed msgs presents in the queue
+  await axios
+    .get(`${db_url}/message_queue/${userAddress}`)
+    .then(async (response) => {
+      console.log(
+        "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
+        response.data.length
+      );
+      if (response.data[0].queue_id == userCounter + 1) {
+        let res = response.data[0];
+        console.log(
+          "🚀 ~ file: validator1.js:209 ~ awaitaxios.get ~ response.data:",
+          response.data[0].queue_id
+        );
+        let msg = response.data[0].message_info;
+
+        const message = JSON.stringify(msg);
+        console.log(
+          "🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:",
+          message
+        );
+        const messageBytes = Buffer.from(message, "utf-8");
+
+        console.log(
+          "🚀 ~ file: sorolan_bridge.ts:152 ~ it ~ messageBytes:",
+          messageBytes
+        );
+        const signer_pkey = validator_kp.publicKey.toBytes();
+        console.log(
+          "🚀 ~ file: sorolan_bridge.ts:155 ~ it ~ signer_pkey:",
+          signer_pkey
+        );
+
+        const signature = nacl.sign.detached(
+          messageBytes,
+          validator_kp.secretKey
+        );
+        console.log(
+          "🚀 ~ file: sorolan_bridge.ts:154 ~ it ~ signature:",
+          signature
+        );
+        console.log(
+          "🚀 ~ file: validator1.js:354 ~ .then ~ Buffer.from(signature).toString('base64'):",
+          Buffer.from(signature).toString("base64")
+        );
+        let validator_data = {
+          validator_sig: Buffer.from(signature).toString("base64"),
+          validator_pkey: validator_kp.publicKey.toBase58(),
+          message_id: response.data[0].id,
+        };
+        await axios
+          .post(`${db_url}/Signature`, validator_data)
+          .then(async (response) => {
+            console.log(
+              "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
+              response
+            );
+          });
+
+        let message_queue_data = {
+          amount: res.amount,
+          from: res.from_address,
+          to: res.receiver,
+          toChain: res.destination_chain_id,
+          date: new Date().getDate,
+          transaction_hash: res.transaction_hash,
+          status: "pending",
+          message: res.message_info,
+          queue_id: res.queue_id,
+        };
+
+        await axios
+          .post(`${db_url}/Message`, message_queue_data)
+          .then(async (response) => {
+            console.log(
+              "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
+              response
+            );
+          });
+      } else {
+        console.log("Some thing went wrong");
+      }
+    });
 }
