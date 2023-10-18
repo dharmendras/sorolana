@@ -4,13 +4,11 @@ const get_queue_id = "http://localhost:3400/userCounter";
 const axios = require("axios");
 const bs58 = require("bs58");
 const nacl = require("tweetnacl");
-const web3 = require('@solana/web3.js');
+const web3 = require("@solana/web3.js");
 const anchorr = require("@coral-xyz/anchor");
 const { Program } = require("@coral-xyz/anchor");
 const { AnchorProvider } = require("@coral-xyz/anchor");
 const idl = require("../idl.json");
-
-
 
 const { Keypair, PublicKey } = require("@solana/web3.js");
 const abc =
@@ -49,7 +47,10 @@ async function solanaDeposit(event, slot, transaction_id) {
   );
   console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ slot:", slot);
   console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ event:", event);
-  console.log("🚀 ~ file: depositEvent.js:36 ~ solanaDeposit ~ event.receiver_address:", event.receiver_address)
+  console.log(
+    "🚀 ~ file: depositEvent.js:36 ~ solanaDeposit ~ event.receiver_address:",
+    event.receiver_address
+  );
   let receiverId = 0;
   let [receiver_pda, userBump] = await getUserPda(
     new PublicKey(event.receiver_address)
@@ -124,12 +125,15 @@ async function solanaDeposit(event, slot, transaction_id) {
   if (event.amount > 0) {
     console.log("matched");
     try {
+      let timestamp = Date.now();
+      let date = new Date(timestamp);
+      const formattedDate = date.toLocaleString();
       let data = {
         amount: event.amount,
         from: event.from,
         receiver: event.receiver_address,
         destination_chain_id: event.to_chain,
-        date: new Date().getDate,
+        date: formattedDate,
         transaction_hash: `${transaction_id}`,
         status: "pending",
         message: message,
@@ -143,15 +147,58 @@ async function solanaDeposit(event, slot, transaction_id) {
       await axios.post(`${base_url}/message_queue`, data).then((response) => {
         console.log(response);
       });
+      if (receiverId == 0) {
+        const msg = JSON.stringify(message);
+        console.log("🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:", msg);
+        const messageBytes = Buffer.from(msg, "utf-8");
 
-      await axios
-        .get(`${base_url}/Message/${userAddress}`)
-        .then(async (response) => {
-          console.log(
-            "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
-            response.data.length
-          );
+        console.log(
+          "🚀 ~ file: sorolan_bridge.ts:152 ~ it ~ messageBytes:",
+          messageBytes
+        );
+        const signer_pkey = validator_kp.publicKey.toBytes();
+        console.log(
+          "🚀 ~ file: sorolan_bridge.ts:155 ~ it ~ signer_pkey:",
+          signer_pkey
+        );
+
+        const signature = nacl.sign.detached(
+          messageBytes,
+          validator_kp.secretKey
+        );
+        console.log(
+          "🚀 ~ file: sorolan_bridge.ts:154 ~ it ~ signature:",
+          signature
+        );
+        console.log(
+          "🚀 ~ file: validator1.js:354 ~ .then ~ Buffer.from(signature).toString('base64'):",
+          Buffer.from(signature).toString("base64")
+        );
+        let validator_data = {
+          validator_sig: Buffer.from(signature).toString("base64"),
+          validator_pkey: validator_kp.publicKey.toBase58(),
+          message_id: response.data[0].id,
+        };
+        await axios
+          .post(`${base_url}/Signature`, validator_data)
+          .then(async (response) => {
+            console.log(
+              "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
+              response
+            );
+          });
+        await axios.post(`${base_url}/Message`, data).then((response) => {
+          console.log(response);
         });
+      }
+      // await axios
+      //   .get(`${base_url}/Message/${userAddress}`)
+      //   .then(async (response) => {
+      //     console.log(
+      //       "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
+      //       response.data.length
+      //     );
+      //   });
     } catch (error) {
       console.log(
         "🚀 ~ file: validator1.js:178 ~ solanaToSoroban ~ error:",

@@ -21,7 +21,7 @@ const { Program } = require("@coral-xyz/anchor");
 const { AnchorProvider } = require("@coral-xyz/anchor");
 const fs = require("fs");
 
-const {solanaClaim} = require('./SolanaEventsFunctions/claimEvent.js')
+const { solanaClaim } = require("./SolanaEventsFunctions/claimEvent.js");
 // import fs from "fs";
 
 const db_url = "http://localhost:3400";
@@ -161,6 +161,9 @@ async function solanaToSoroban() {
         deposit_event[2],
         "confirmed"
       );
+      let timestamp = Date.now();
+      let date = new Date(timestamp);
+      const formattedDate = date.toLocaleString();
       let data = {
         // amount: message.amount,
         amount: 1,
@@ -168,7 +171,7 @@ async function solanaToSoroban() {
         from: "9Bxt5hHicRnJSLy5f8KAWf2Cmgrcke9zqx1BfXGeF3jH",
         to: message.to,
         toChain: "message.toChain",
-        date: new Date().toString(),
+        date: formattedDate,
         // date: "2023-09-28",
         transaction_hash: deposit_event[2],
         status: "success",
@@ -206,9 +209,12 @@ program.addEventListener("ClaimEvent", (event, slot, transaction_id) => {
 // solana Deposit();
 async function solanaDeposit(event, slot, transaction_id) {
   console.log("Deposit method invokes");
-  console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ transaction_id:", transaction_id)
-  console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ slot:", slot)
-  console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ event:", event)
+  console.log(
+    "🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ transaction_id:",
+    transaction_id
+  );
+  console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ slot:", slot);
+  console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ event:", event);
   let receiverId = 0;
   let [receiver_pda, userBump] = await getUserPda(
     new PublicKey(event.sender.toBase58())
