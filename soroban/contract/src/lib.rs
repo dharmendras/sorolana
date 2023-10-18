@@ -116,6 +116,7 @@ pub trait SorobanSoloanaBridgeTrait {
     )-> Result<(), VerifyError>;
     fn withdraw(env: Env, amount: i128, user: Address) -> (i128);
     fn release(env: Env, user: Address, amount: i128) -> (i128);
+    fn  upgrade(e: Env, new_wasm_hash: BytesN<32>);
 }
 #[contract]
 struct SorobanSoloanaBridge;
@@ -136,7 +137,8 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let token_address: Address = token;
 
         let token_chain: i128 = 1234;
-        let to: String = to;
+        let reciever_address: String = to;
+        let from: Address = from;
         let to_chain: i128 = 6789;
         let fee: u32 = 100;
 
@@ -144,14 +146,16 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             amount,
             token_address,
             token_chain,
-            to,
+            reciever_address,
+            from,
             to_chain,
             fee,
         };
-        env.storage().instance().set(&DataKey::Transfer, &transfer);
+     //   env.storage().instance().set(&DataKey::Transfer, &transfer);
         let symbol: Symbol = symbol_short!("deposit");
 
-        env.events().publish((DataKey::Transfer, symbol), transfer);
+       env.events().publish((DataKey::Transfer, symbol), transfer);
+        //env.events().publish( symbol, transfer);
         balance
     }
     fn admin(env: Env, admin: Address) {
@@ -216,6 +220,13 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         // client.transfer(&from, &env.current_contract_address(), &amount);
         0
     }
+     fn upgrade(e: Env, new_wasm_hash: BytesN<32>) {
+        // // TODO: Only admin can upgrade this contract
+        // let admin: Address = e.storage().instance().get(&DataKey::Admin).unwrap();
+        // admin.require_auth();
+       
+        e.deployer().update_current_contract_wasm(new_wasm_hash);
+        }
 }
 
 mod test;

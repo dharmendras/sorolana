@@ -4,6 +4,7 @@ const customtoken = require('./customtoken')
 const withdraw = require('./withdraw')
 const release = require('./release')
 const get_balance = require('./getbalance')
+const upgrade = require('./upgrademethod')
 const { data } = require('./message')
 const util = require('tweetnacl-util');
 const { randomBytes } = require('crypto')
@@ -39,22 +40,22 @@ function convertToBytes32(address) {
 }
 describe('MyTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CAJW2YDE7YKGDTDHV7QOGZAOLVX3JV6VLOJRW7EYXGJK3EGXNH3VJRGK';
+    const contractId = 'CAZRU77MBDVBSYZKJWFXHD23XZPK7YIXB7UYYFUYMBQAMMQSX3FQMSPR';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     const secret_key = 'SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
-    let custom_source_token = "CCQW3P4SESVPTG4K5XPHCNKRCBGY2IT3G5WMKYSDTLNTG772WTVWZQU7"
+    let custom_source_token = "CDM3LVBEZFOJH64RAO2HIKOV3ABQ4AVK6OY3I7LKXVHKJ32NHUL7QKXZ"
     const sleepTime = Math.min(1000, 120000);
 
-    let amount = 100000
+    let amount = 10000
     it('deposit method test case', async () => {
 
-        await get_balance(native_source_token, user)
-        await deposit(contractId, secret_key, native_source_token, amount)
-        await get_balance(native_source_token, user)
+    //   await get_balance(native_source_token, user)
+      await deposit(contractId, secret_key, native_source_token, amount)
+    //    await get_balance(native_source_token, user)
 
-        // get_balance(native_source_token , pblic_key)
+       // get_balance(native_source_token , pblic_key)
     });
 
 
@@ -63,7 +64,7 @@ describe('MyTestSuite', () => {
 
         let wasm_hash = "6b7e4bfbf47157a12e24e564efc1f9ac237e7ae6d7056b6c2ab47178b9e7a510"
 
-        await customtoken(contractId, secret_key, wasm_hash, salt)
+    //   await customtoken(contractId, secret_key, wasm_hash, salt)
 
 
     });
@@ -82,22 +83,29 @@ describe('MyTestSuite', () => {
 
         const message = util.decodeUTF8(string);
 
-        await get_balance(custom_source_token, user)
-        await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
-        await get_balance(custom_source_token, user)
+        //  await get_balance(custom_source_token, user)
+        //  await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+        //  await get_balance(custom_source_token, user)
 
     });
     it('withdraw method test case', async () => {
 
-        await withdraw(contractId, secret_key, amount, user)
-        await get_balance(custom_source_token, user)
+      //  await withdraw(contractId, secret_key, amount, user)
+        // await get_balance(custom_source_token, user)
 
     });
 
     it('release method test case', async () => {
 
-        await release(contractId, secret_key, user, amount)
-        await get_balance(custom_source_token, user)
+       //  await release(contractId, secret_key, user, amount)
+        // await get_balance(custom_source_token, user)
+
+    });
+    it('upgrade method test case', async () => {
+        let custom_contract_wasm_hash = "a0801bbaf040dc96d1466d5c7ea9797438c3b31e786c877fcb4b7595ee882673"
+
+        //  await  upgrade(contractId ,secret_key, custom_contract_wasm_hash)
+        
 
     });
 

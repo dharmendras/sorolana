@@ -21,6 +21,7 @@ mod contract {
 use soroban_sdk::testutils::{Address as _, Ledger, LedgerInfo};
 use soroban_sdk::token::Client as TokenClient;
 use soroban_sdk::token::StellarAssetClient as TokenAdminClient;
+
 use soroban_sdk::{ Address, Env};
 use soroban_sdk::{IntoVal};
 //#[derive(Arbitrary, Debug, Clone)]
@@ -37,31 +38,36 @@ use soroban_sdk::{IntoVal};
     
        
 
-        let depositor_address = Address::random(&env);
-        let user = Address::random(&env);
+        let depositor_address: Address = Address::random(&env);
+        let user: Address = Address::random(&env);
 
-        let claimant_address = Address::random(&env);
-        let token_admin = Address::random(&env);
+        let claimant_address: Address = Address::random(&env);
+        let token_admin: Address = Address::random(&env);
 
         let token_contract_id = env.register_stellar_asset_contract(token_admin.clone());
         let token_client = TokenClient::new(&env, &token_contract_id);
         let token_admin_client = TokenAdminClient::new(&env, &token_contract_id);
 
-        let timelock_contract_id = env.register_contract(None, SorobanSoloanaBridge { });
-        let bridge_contract = SorobanSoloanaBridgeClient::new(&env, &timelock_contract_id);
+        let soroban_bridge_id = env.register_contract(None, SorobanSoloanaBridge { });
+        let soroban_bridge_cient = SorobanSoloanaBridgeClient::new(&env, &soroban_bridge_id);
       
-        token_admin_client.mint(&depositor_address, &i128::max_value());
-        let wasm_hash = env.deployer().upload_contract_wasm(contract::WASM);
-        let salt = BytesN::from_array(&env, &[0; 32]);
+        token_admin_client.mint(&depositor_address, &i128::MAX);
+
+        std::println!("before deposit");
+       let depositor_balance =  token_client.balance(&depositor_address);
+       std::println!("depositor_balance:{:?}" , depositor_balance);
+
+        // let wasm_hash = env.deployer().upload_contract_wasm(contract::WASM);
+        // let salt = BytesN::from_array(&env, &[0; 32]);
            
      //   std::println!("wasm_hash{:?}" , wasm_hash);
-     
-        // let balance =  bridge_contract.deposit(
-        //             &depositor_address,
-        //             &token_contract_id,
-        //             &10,
-                   
-        //         );
+
+        let balance =  soroban_bridge_cient.deposit(
+                    &depositor_address,
+                    &token_contract_id,
+                    &10,
+                   &String::from_slice(&env , "deposit")
+                );
         //         std::println!("balance{:?}" , balance);
 
       //  timelock_client.testdeposit(&token_contract_id, &10, &user);

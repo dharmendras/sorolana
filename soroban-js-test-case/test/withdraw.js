@@ -18,7 +18,7 @@ const withdraw = async (contractId, secret, amount, user) => {
     console.log("🚀 ~ file: withdraw.js:18 ~ withdraw ~ account:", account)
 
     const obj1 = { type: 'scoI128', value: amount };
-    const obj2 = { type: 'address', value: user };
+    const obj2 = { type: 'address', value: keypair.publicKey() };
 
     const params = [encode(obj1),
     encode(obj2),

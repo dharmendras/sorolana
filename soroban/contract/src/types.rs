@@ -7,7 +7,8 @@ pub struct Transfer {
     pub amount: i128,
     pub token_address: Address,
     pub token_chain: i128,
-    pub to: String,
+    pub reciever_address: String,
+    pub from: Address,
     pub to_chain: i128,
     pub fee: u32,
 }

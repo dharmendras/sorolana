@@ -1,18 +1,45 @@
 let base_url = "http://localhost:3400";
+const get_queue_id = "http://localhost:3400/userCounter";
+
 const axios = require("axios");
 const bs58 = require("bs58");
 const nacl = require("tweetnacl");
+const web3 = require('@solana/web3.js');
+const anchorr = require("@coral-xyz/anchor");
+const { Program } = require("@coral-xyz/anchor");
+const { AnchorProvider } = require("@coral-xyz/anchor");
+const idl = require("../idl.json");
+
+
+
 const { Keypair, PublicKey } = require("@solana/web3.js");
 const abc =
-  "/home/imentus/Documents/Sorolana/sorolana/GMP_node/solana_validators/validator1.json";
+  "/home/imentus/Documents/imentus_project/sorolana/GMP_node/solana_validators/validator1.json";
 
 const fs = require("fs");
 const dotenv = require("dotenv");
 dotenv.config();
 
+const opts = {
+  preflightCommitment: "processed",
+};
+const network = "https://api.devnet.solana.com";
+const connection = new web3.Connection(network, "confirmed");
+const programID = new PublicKey(idl.metadata.address);
+const provider = new AnchorProvider(connection, opts.preflightCommitment);
+const program = new Program(idl, programID, provider);
+const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
+
 let validator_kp = Keypair.fromSecretKey(
   new Uint8Array(JSON.parse(fs.readFileSync(`${abc}`).toString()))
 );
+const getUserPda = async (user) => {
+  const userPdaInfo = web3.PublicKey.findProgramAddressSync(
+    [anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
+    program.programId
+  );
+  return userPdaInfo;
+};
 
 async function solanaDeposit(event, slot, transaction_id) {
   console.log("Deposit method invokes");
@@ -22,9 +49,10 @@ async function solanaDeposit(event, slot, transaction_id) {
   );
   console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ slot:", slot);
   console.log("🚀 ~ file: validator1.js:206 ~ solanaDeposit ~ event:", event);
+  console.log("🚀 ~ file: depositEvent.js:36 ~ solanaDeposit ~ event.receiver_address:", event.receiver_address)
   let receiverId = 0;
   let [receiver_pda, userBump] = await getUserPda(
-    new PublicKey(event.receiverAddress)
+    new PublicKey(event.receiver_address)
   );
   console.log(
     "🚀 ~ file: validator1.js:196 ~ axios.get ~ receiver_pda.toBase58():",
@@ -79,12 +107,12 @@ async function solanaDeposit(event, slot, transaction_id) {
 
   let solana_msg = {
     counter: receiverId,
-    tokenAddress: event.tokenAddress,
-    tokenChain: event.tokenChain,
-    to: event.receiverAddress,
-    toChain: event.toChain,
+    tokenAddress: event.token_address,
+    tokenChain: event.token_chain,
+    to: event.receiver_address,
+    toChain: event.to_chain,
     fee: 100,
-    method: event.method,
+    method: "deposit",
     amount: event.amount,
   };
   const message = JSON.stringify(solana_msg);
@@ -99,8 +127,8 @@ async function solanaDeposit(event, slot, transaction_id) {
       let data = {
         amount: event.amount,
         from: event.from,
-        receiver: event.receiverAddress,
-        destination_chain_id: event.toChain,
+        receiver: event.receiver_address,
+        destination_chain_id: event.to_chain,
         date: new Date().getDate,
         transaction_hash: `${transaction_id}`,
         status: "pending",
@@ -112,12 +140,12 @@ async function solanaDeposit(event, slot, transaction_id) {
         "🚀 ~ file: validator1.js:185 ~ solanaToSoroban ~ data:",
         data
       );
-      await axios.post(`${db_url}/message_queue`, data).then((response) => {
+      await axios.post(`${base_url}/message_queue`, data).then((response) => {
         console.log(response);
       });
 
       await axios
-        .get(`${db_url}/Message/${userAddress}`)
+        .get(`${base_url}/Message/${userAddress}`)
         .then(async (response) => {
           console.log(
             "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
