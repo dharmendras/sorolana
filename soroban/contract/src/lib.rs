@@ -113,7 +113,7 @@ pub trait SorobanSoloanaBridgeTrait {
         signature: BytesN<64>,
         user: Address,
         amount: i128,
-    )-> Result<(), VerifyError>;
+    )-> i128;
     fn withdraw(env: Env, amount: i128, user: Address) -> (i128);
     fn release(env: Env, user: Address, amount: i128) -> (i128);
     fn  upgrade(e: Env, new_wasm_hash: BytesN<32>);
@@ -136,17 +136,17 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let amount: i128 = amount;
         let token_address: Address = token;
 
-        let token_chain: i128 = 1234;
-        let reciever_address: String = to;
+        let token_chain: i128 = 456;
+        let receiver_address: String = to;
         let from: Address = from;
-        let to_chain: i128 = 6789;
+        let to_chain: i128 = 123;
         let fee: u32 = 100;
 
         let transfer = Transfer {
             amount,
             token_address,
             token_chain,
-            reciever_address,
+            receiver_address,
             from,
             to_chain,
             fee,
@@ -182,9 +182,9 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         signature: BytesN<64>,
         user: Address,
         amount: i128,
-    ) -> Result<(), VerifyError>{
+    ) -> i128{
         user.require_auth();
-
+        
         let check = compare(env.clone(), &public_key);
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
@@ -195,10 +195,12 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             client.mint(&user, &amount);
             let balance = client.balance(&user);
             // //   balance
+            1 // if true
         } else {
-              return Err(VerifyError::InvalidPublickey);
+              //return Err(VerifyError::InvalidPublickey);
+              0
         }
-         Ok(())
+       //  Ok(())
     }
     fn withdraw(env: Env, amount: i128, user: Address) -> i128 {
         let share_contract = get_token(&env);

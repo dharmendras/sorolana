@@ -53,7 +53,7 @@ async function solanaDeposit(event, slot, transaction_id) {
   );
   let receiverId = 0;
   let [receiver_pda, userBump] = await getUserPda(
-    new PublicKey(event.receiver_address)
+    new PublicKey(event.receiver_address.toString())
   );
   console.log(
     "🚀 ~ file: validator1.js:196 ~ axios.get ~ receiver_pda.toBase58():",
@@ -113,8 +113,8 @@ async function solanaDeposit(event, slot, transaction_id) {
     to: event.receiver_address,
     toChain: event.to_chain,
     fee: 100,
-    method: "deposit",
-    amount: event.amount,
+    method: "Deposit",
+    amount: parseInt(event.amount),
   };
   const message = JSON.stringify(solana_msg);
   console.log(
@@ -145,9 +145,23 @@ async function solanaDeposit(event, slot, transaction_id) {
         data
       );
       await axios.post(`${base_url}/message_queue`, data).then((response) => {
-        console.log(response);
+      console.log("🚀 ~ file: depositEvent.js:149 ~ awaitaxios.post ~ response:", response)
       });
       if (receiverId == 0) {
+        let message_data = {
+          amount: event.amount,
+          from: event.from,
+          receiver: event.receiver_address,
+          destination_chain_id: event.to_chain,
+          date: formattedDate,
+          transaction_hash: `${transaction_id}`,
+          status: "pending",
+          message: message,
+          queue_id: receiverId,
+        }
+        await axios.post(`${base_url}/Message`, message_data).then((response) => {
+        console.log("🚀 ~ file: depositEvent.js:164 ~ awaitaxios.post ~ response:", response)
+        });
         const msg = JSON.stringify(message);
         console.log("🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:", msg);
         const messageBytes = Buffer.from(msg, "utf-8");
@@ -174,22 +188,20 @@ async function solanaDeposit(event, slot, transaction_id) {
           "🚀 ~ file: validator1.js:354 ~ .then ~ Buffer.from(signature).toString('base64'):",
           Buffer.from(signature).toString("base64")
         );
+
         let validator_data = {
-          validator_sig: Buffer.from(signature).toString("base64"),
+          validator_sig: Buffer.from(signature).toString("hex")
+,
           validator_pkey: validator_kp.publicKey.toBase58(),
-          message_id: response.data[0].id,
         };
+        console.log("🚀 ~ file: depositEvent.js:182 ~ solanaDeposit ~ validator_data:", validator_data)
         await axios
           .post(`${base_url}/Signature`, validator_data)
           .then(async (response) => {
-            console.log(
-              "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
-              response
-            );
+            ;
+            console.log("🚀 ~ file: depositEvent.js:186 ~ .then ~ response:", response)
           });
-        await axios.post(`${base_url}/Message`, data).then((response) => {
-          console.log(response);
-        });
+
       }
       // await axios
       //   .get(`${base_url}/Message/${userAddress}`)

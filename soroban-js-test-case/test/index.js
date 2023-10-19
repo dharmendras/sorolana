@@ -40,19 +40,19 @@ function convertToBytes32(address) {
 }
 describe('MyTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CAZRU77MBDVBSYZKJWFXHD23XZPK7YIXB7UYYFUYMBQAMMQSX3FQMSPR';
+    const contractId = 'CCR5VJ4YWL27WTII4RAVBYKQ7UP6232I2IWCBIKQCV6XBOGJ6OGKCYKI';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
-    const secret_key = 'SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C';
+    const secret_key = 'SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
-    let custom_source_token = "CDM3LVBEZFOJH64RAO2HIKOV3ABQ4AVK6OY3I7LKXVHKJ32NHUL7QKXZ"
+    let custom_source_token = "CD5NJMQB5ZI2USWKITZXVJLKEFT3NRVDYCV346URCM7RKL7M2OBQLMGB"
     const sleepTime = Math.min(1000, 120000);
 
     let amount = 10000
     it('deposit method test case', async () => {
 
     //   await get_balance(native_source_token, user)
-      await deposit(contractId, secret_key, native_source_token, amount)
+    //  await deposit(contractId, secret_key, native_source_token, amount)
     //    await get_balance(native_source_token, user)
 
        // get_balance(native_source_token , pblic_key)
@@ -83,9 +83,9 @@ describe('MyTestSuite', () => {
 
         const message = util.decodeUTF8(string);
 
-        //  await get_balance(custom_source_token, user)
-        //  await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
-        //  await get_balance(custom_source_token, user)
+          await get_balance(custom_source_token, user)
+         await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+         await get_balance(custom_source_token, user)
 
     });
     it('withdraw method test case', async () => {

@@ -4,9 +4,8 @@ const cron = require("node-cron");
 const SorobanClient = require('soroban-client')
 // const Message = require("../DataBase/message.js");
 // const Message = require("../DataBase/message.js");
-
+const {solanaDeposit} = require('../SolanaEventsFunctions/depositEvent')
 //const {post_api} = require('./server')
-const {solanaDeposit} = require('../GMP_node/SolanaEventsFunctions/depositEvent')
 // Create an Express app
 const app = express();
 

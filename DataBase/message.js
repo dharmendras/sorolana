@@ -16,12 +16,13 @@ app.app.use(bodyParser.urlencoded({ extended: false }));
 app.app.use(bodyParser.json());
 
 app.app.post("/Message", async (req, res) => {
+  console.log("🚀 ~ file: message.js:19 ~ app.app.post ~ res:", res)
   console.log("message id ", req.body);
   const {
     amount,
     from,
-    to,
-    toChain,
+    receiver,
+    destination_chain_id,
     date,
     transaction_hash,
     status,
@@ -30,24 +31,25 @@ app.app.post("/Message", async (req, res) => {
   } = req.body;
   try {
     const _query = await gmpdbclient.query(
-      `INSERT INTO message (amount,fromaddress, toaddress, tochain, date, transaction_hash, status, message_info, counters) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [amount, from, to, toChain, transaction_hash, status, message]
+      `INSERT INTO message (amount,fromaddress, toaddress, tochain, date, transaction_hash, status, message_info, queue_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+      [amount, from, receiver, destination_chain_id, date, transaction_hash, status, message, queue_id]
     );
-    console.log("fullresponse---->", _query);
+    console.log("fullresponse id aa gyi hai---->", _query);
     res.status(201).send({
-      message: "Message added successfully!",
+      message: "L39 Message added successfully!",
     });
   } catch (error) {
     console.error("Error", error);
     res.status(500).send({
-      message: "something went wrong",
+      message: "L44 something went wrong",
     });
   }
 });
 
 // Post request for the table message_queue, which includes counter
 app.app.post("/message_queue", async (req, res) => {
-  console.log("🚀 ~ file: message.js:40 ~ app.app.post ~ req:", req.body);
+  // console.log("🚀 ~ file: message.js:50 ~ app.app.post ~ res:", res.data.body)
+  // console.log("🚀 ~ file: message.js:40 ~ app.app.post ~ req:", req.body);
   const {
     amount,
     from,
@@ -255,25 +257,25 @@ app.app.get("/Message", (req, res) => {
 
 app.app.get('/Message/:userAddress', (req, res) => {
 
-    let accountAddress = req.params.userAddress
-    console.log("accountAddress--->", accountAddress)
-    try {
-        console.log("accountAddress2--->", accountAddress)
-        client.query(`SELECT * FROM message WHERE fromaddress = '${accountAddress}' and status = pending`, (err, result) => {
-            if (!err) {
-                // let _data = JSON.stringify(result.rows)
-                // let _transactions = JSON.parse(_data)
-                // res.status(200).json({ data: _transactions })
-                console.log("acc transactions ----->:", result.rows)
-            }
-            console.log("error",err)
-        });
-        console.log("accountAddress3--->", accountAddress)
+  let accountAddress = req.params.userAddress
+  console.log("accountAddress--->", accountAddress)
+  try {
+    console.log("accountAddress2--->", accountAddress)
+    gmpdbclient.query(`SELECT * FROM message WHERE fromaddress = '${accountAddress}' and status = pending`, (err, result) => {
+      if (!err) {
+        // let _data = JSON.stringify(result.rows)
+        // let _transactions = JSON.parse(_data)
+        // res.status(200).json({ data: _transactions })
+        console.log("acc transactions ----->:", result.rows)
+      }
+      console.log("error", err)
+    });
+    console.log("accountAddress3--->", accountAddress)
 
-    } catch (error) {
-        console.log(error);
-    }
-    console.log("accountAddress4--->", accountAddress)
+  } catch (error) {
+    console.log(error);
+  }
+  console.log("accountAddress4--->", accountAddress)
 
 })
 
@@ -298,15 +300,16 @@ app.app.put("/Message/:userId", (req, res) => {
 // Post req to add signatures and the pubkey into the signature table
 app.app.post("/Signature", (req, res) => {
   try {
-    let { validator_sig, validator_pkey, message_id } = req.body;
-    const { rows } = client.query(
-      "INSERT INTO signature (  signature , public_key , messageid) VALUES ($1 , $2 , $3)",
-      [validator_sig, validator_pkey, message_id]
+    let { validator_sig, validator_pkey } = req.body;
+    const { rows } = gmpdbclient.query(
+      "INSERT INTO signature (  validator_sign , public_key) VALUES ($1 , $2)",
+      [validator_sig, validator_pkey]
     );
     res.status(201).send({
       message: "Signature  added successfully!",
     });
   } catch (error) {
+    console.log("🚀 ~ file: message.js:310 ~ app.app.post ~ error:", error)
     console.error("Error", error);
     res.status(500).send({
       message: "something went wrong",
@@ -318,7 +321,7 @@ app.app.post("/Signature", (req, res) => {
 function saveSignature(signature, publicKey) {
   app.app.post("/Signature", (req, res) => {
     try {
-      const { rows } = client.query(
+      const { rows } = gmpdbclient.query(
         "INSERT INTO signature (  signature , public_key , messageid) VALUES ($1 , $2 , $3)",
         [signature, publicKey, 3]
       );
@@ -339,7 +342,7 @@ function saveSignature(signature, publicKey) {
 }
 
 app.app.get("/Signature", (req, res) => {
-  client.query(`SELECT * FROM signature`, (err, result) => {
+  gmpdbclient.query(`SELECT * FROM signature`, (err, result) => {
     if (!err) {
       res.send(result.rows);
     }
@@ -352,7 +355,7 @@ app.app.get("/Signature/:mid", async (req, res) => {
   try {
     const { mid } = req.params;
     const query = "SELECT * FROM signature WHERE mid = $1";
-    const result = await client.query(query, [mid]);
+    const result = await gmpdbclient.query(query, [mid]);
     res.json(result.rows[0]);
   } catch (error) {
     console.log("====>Error<=====", error);
