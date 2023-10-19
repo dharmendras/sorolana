@@ -25,7 +25,7 @@ function convertBigIntToString(obj) {
 }
 
 async function pollSorobanEvents() {
-  let startTimeLedger;
+  let startTimeLedger, convertedData;
   try {
     // // One time use only
     if (lastLedger == null){
@@ -116,7 +116,7 @@ async function pollSorobanEvents() {
     console.log("🚀 ~ file: depositEvent.js:108 ~ pollSorobanEvents ~ converted_value:", converted_value);
 
     try {
-      const convertedData = convertBigIntToString(converted_value);
+      convertedData = convertBigIntToString(converted_value);
       console.log("🚀 ~ file: depositEvent.js:111 ~ pollSorobanEvents ~ convertedData:", convertedData);
     } catch (error) {
       console.log("🚀 ~ file: depositEvent.js:114 ~ pollSorobanEvents ~ error:", error);
