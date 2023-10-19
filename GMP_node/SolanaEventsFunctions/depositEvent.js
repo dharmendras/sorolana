@@ -11,6 +11,7 @@ const { AnchorProvider } = require("@coral-xyz/anchor");
 const idl = require("../idl.json");
 
 const { Keypair, PublicKey } = require("@solana/web3.js");
+// TODO: modify to use relative URL
 const abc =
   "/home/imentus/Documents/imentus_project/sorolana/GMP_node/solana_validators/validator1.json";
 
