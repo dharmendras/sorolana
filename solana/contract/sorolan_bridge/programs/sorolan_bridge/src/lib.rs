@@ -79,7 +79,6 @@ pub mod sorolan_bridge {
         )?;
 
         emit!(DepositEvent {
-            // sender: ctx.accounts.user.key(),
             method: "Deposit".to_string(),
             amount: amount,
             token_address: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".to_string(),

@@ -36,7 +36,8 @@ app.app.post("/Message", async (req, res) => {
     );
     console.log("fullresponse id aa gyi hai---->", _query);
     res.status(201).send({
-      message: "L39 Message added successfully!",
+      message: "Message added successfully!",
+      row_id: _query.rows[0].id,
     });
   } catch (error) {
     console.error("Error", error);
@@ -258,19 +259,15 @@ app.app.get("/Message", (req, res) => {
 app.app.get('/Message/:userAddress', (req, res) => {
 
   let accountAddress = req.params.userAddress
-  console.log("accountAddress--->", accountAddress)
   try {
-    console.log("accountAddress2--->", accountAddress)
-    gmpdbclient.query(`SELECT * FROM message WHERE fromaddress = '${accountAddress}' and status = pending`, (err, result) => {
+    gmpdbclient.query(`SELECT * FROM message WHERE toaddress = '${accountAddress}' and status = 'pending'`, (err, result) => {
       if (!err) {
-        // let _data = JSON.stringify(result.rows)
-        // let _transactions = JSON.parse(_data)
-        // res.status(200).json({ data: _transactions })
-        console.log("acc transactions ----->:", result.rows)
+        let _data = JSON.stringify(result.rows)
+        let _transactions = JSON.parse(_data)
+        res.status(200).json({ data: _transactions })
       }
       console.log("error", err)
     });
-    console.log("accountAddress3--->", accountAddress)
 
   } catch (error) {
     console.log(error);
@@ -300,10 +297,10 @@ app.app.put("/Message/:userId", (req, res) => {
 // Post req to add signatures and the pubkey into the signature table
 app.app.post("/Signature", (req, res) => {
   try {
-    let { validator_sig, validator_pkey } = req.body;
+    let { validator_sig, validator_pkey, message_id } = req.body;
     const { rows } = gmpdbclient.query(
-      "INSERT INTO signature (  validator_sign , public_key) VALUES ($1 , $2)",
-      [validator_sig, validator_pkey]
+      "INSERT INTO signature (  validator_sign , public_key, message_id) VALUES ($1 , $2, $3)",
+      [validator_sig, validator_pkey, message_id]
     );
     res.status(201).send({
       message: "Signature  added successfully!",
