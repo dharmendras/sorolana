@@ -49,8 +49,8 @@ app.app.post("/Message", async (req, res) => {
 
 // Post request for the table message_queue, which includes counter
 app.app.post("/message_queue", async (req, res) => {
-  // console.log("🚀 ~ file: message.js:50 ~ app.app.post ~ res:", res.data.body)
-  // console.log("🚀 ~ file: message.js:40 ~ app.app.post ~ req:", req.body);
+//  console.log("🚀 ~ file: message.js:50 ~ app.app.post ~ res:", res.data.body)
+  console.log("🚀 ~ file: message.js:40 ~ app.app.post ~ req:", req.body);
   const {
     amount,
     from,

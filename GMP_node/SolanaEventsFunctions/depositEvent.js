@@ -11,7 +11,7 @@ const idl = require("../idl.json");
 const { Keypair, PublicKey } = require("@solana/web3.js");
 // TODO: modify to use relative URL
 const validaor_kp_path =
-  "/home/imentus/Documents/Sorolana/sorolana/GMP_node/solana_validators/validator1.json";
+  "/home/imentus/Documents/imentus_project/sorolana/GMP_node/solana_validators/validator1.json";
 
 const fs = require("fs");
 const dotenv = require("dotenv");

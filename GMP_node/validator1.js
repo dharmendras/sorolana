@@ -20,12 +20,13 @@ const axios = require("axios");
 const { Program } = require("@coral-xyz/anchor");
 const { AnchorProvider } = require("@coral-xyz/anchor");
 const fs = require("fs");
-
+// const {SorobanDeposit} = require('./SorobanEventsFunction/SorobanDeposit.js')
 const { solanaClaim } = require("./SolanaEventsFunctions/claimEvent.js");
-const { solanaDeposit } = require("./SolanaEventsFunctions/depositEvent.js");
-const { solanaWithdraw } = require("./SolanaEventsFunctions/withdrawEvent.js");
+const { SorobanClaim } = require("./SorobanEventsFunctions/SorobanClaim.js");
+// const { solanaWithdraw } = require("./SolanaEventsFunctions/withdrawEvent.js");
 const { solanaWithdrawEventHandle } = require("./SorobanEventsFunctions/solanaWithdrawHandle.js");
 // import fs from "fs";
+
 
 const db_url = "http://localhost:3400";
 const get_queue_id = "http://localhost:3400/userCounter";
@@ -61,7 +62,9 @@ const getUserPda = async (user) => {
 const server = new StellarSdk.Server("https://horizon-testnet.stellar.org/");
 
 program.addEventListener("DepositEvent", (event, slot, transaction_id) => {
-  solanaDeposit(event, slot, transaction_id);
+ // solanaDeposit(event, slot, transaction_id);
+  SorobanClaim(event , slot , transaction_id)
+
 });
 program.addEventListener("WithdrawEvent", (event, slot, transaction_id) => {
   solanaWithdrawEventHandle(event, slot, transaction_id);

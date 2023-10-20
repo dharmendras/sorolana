@@ -4,11 +4,25 @@ use soroban_sdk::{contracttype, Address, Symbol , String};
 #[contracttype]
 
 pub struct Transfer {
+    pub method: String,
     pub amount: i128,
     pub token_address: Address,
     pub token_chain: i128,
     pub receiver_address: String,
     pub from: Address,
+    pub to_chain: i128,
+    pub fee: u32,
+}
+
+#[derive(Clone, Debug)]
+#[contracttype]
+
+pub struct Withdraw {
+    pub method: String,
+    pub amount: i128,
+
+    pub token_chain: i128,
+    pub from: String,
     pub to_chain: i128,
     pub fee: u32,
 }
@@ -28,7 +42,7 @@ pub struct Customtokenstruct {
 #[contracttype]
 
 pub enum DataKey {
-    Transfer,
+    Transfer, Withdraw
 }
 #[derive(Clone)]
 #[contracttype]

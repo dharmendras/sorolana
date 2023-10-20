@@ -2,7 +2,7 @@ const SorobanClient = require('soroban-client')
 const encode = require('./encode')
 const { use } = require('chai')
 
-const release = async (contractId, secret, user , amount) => {
+const release = async (contractId, secret , amount) => {
     
 
     const server = new SorobanClient.Server(
@@ -16,7 +16,7 @@ const release = async (contractId, secret, user , amount) => {
     const account = await server.getAccount(keypair.publicKey());
     console.log("🚀 ~ file: release.js:17 ~ release ~ account:", account)
 
-    const obj1 = { type: 'address', value: user };
+    const obj1 = { type: 'address', value: keypair.publicKey() };
     const obj2 = { type: 'scoI128', value: amount };
 
 

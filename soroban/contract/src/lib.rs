@@ -46,8 +46,8 @@ impl TryFromVal<Env, DataKeyToken> for Val {
 
 fn compare(env: Env, key_to_compare: &BytesN<32>) -> bool {
     let public_keys: Bytes = [
-        33, 7, 48, 34, 147, 192, 41, 187, 54, 205, 212, 104, 158, 2, 29, 184, 158, 204, 205, 84,
-        199, 122, 57, 169, 246, 245, 72, 250, 76, 163, 216, 117,
+        246, 218, 101, 129, 232, 167, 143, 203, 7, 56, 128, 246, 179, 252, 231, 103, 195, 128, 34,
+        237, 63, 204, 24, 85, 61, 76, 154, 200, 25, 210, 223, 109,
     ]
     .into_val(&env);
     // Replace this with your actual parameter
@@ -113,10 +113,11 @@ pub trait SorobanSoloanaBridgeTrait {
         signature: BytesN<64>,
         user: Address,
         amount: i128,
-    )-> i128;
-    fn withdraw(env: Env, amount: i128, user: Address) -> (i128);
+    ) -> i128;
+
+    fn withdraw(env: Env, amount: i128, user: Address, to: String) -> (i128);
     fn release(env: Env, user: Address, amount: i128) -> (i128);
-    fn  upgrade(e: Env, new_wasm_hash: BytesN<32>);
+    fn upgrade(e: Env, new_wasm_hash: BytesN<32>);
 }
 #[contract]
 struct SorobanSoloanaBridge;
@@ -132,7 +133,8 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         let balance = client.balance(&env.current_contract_address());
         put_native_token(&env, token.clone());
-        //message
+        // //message
+        let method: String = "Deposit".into_val(&env);
         let amount: i128 = amount;
         let token_address: Address = token;
 
@@ -143,6 +145,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let fee: u32 = 100;
 
         let transfer = Transfer {
+            method,
             amount,
             token_address,
             token_chain,
@@ -151,11 +154,11 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             to_chain,
             fee,
         };
-     //   env.storage().instance().set(&DataKey::Transfer, &transfer);
+        // //   env.storage().instance().set(&DataKey::Transfer, &transfer);
         let symbol: Symbol = symbol_short!("deposit");
 
-       env.events().publish((DataKey::Transfer, symbol), transfer);
-        //env.events().publish( symbol, transfer);
+        env.events().publish((DataKey::Transfer, symbol), transfer);
+        // //env.events().publish( symbol, transfer);
         balance
     }
     fn admin(env: Env, admin: Address) {
@@ -182,13 +185,12 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         signature: BytesN<64>,
         user: Address,
         amount: i128,
-    ) -> i128{
+    ) -> i128 {
         user.require_auth();
-        
+
         let check = compare(env.clone(), &public_key);
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
-
         if check == true {
             let share_contract = get_token(&env.clone());
             let client = wrappedtoken::Client::new(&env, &share_contract);
@@ -197,17 +199,47 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             // //   balance
             1 // if true
         } else {
-              //return Err(VerifyError::InvalidPublickey);
-              0
+            //return Err(VerifyError::InvalidPublickey);
+            0
         }
-       //  Ok(())
+        //  Ok(())
     }
-    fn withdraw(env: Env, amount: i128, user: Address) -> i128 {
-        let share_contract = get_token(&env);
+
+    fn withdraw(env: Env, amount: i128, user: Address, to: String) -> i128 {
         user.require_auth();
-        let client = wrappedtoken::Client::new(&env, &share_contract);
+
+        let token_address = get_token(&env);
+
+        let client = wrappedtoken::Client::new(&env, &token_address);
+
         client.burn(&user, &amount);
+
         let balance = client.balance(&user);
+
+        let method: String = "Withdraw".into_val(&env);
+
+        let amount: i128 = balance;
+
+        let token_chain: i128 = 456;
+
+        let from: String = to;
+
+        let to_chain: i128 = 123;
+
+        let fee: u32 = 100;
+
+        let transfer = Withdraw {
+            method,
+            amount,
+            token_chain,
+            from,
+            to_chain,
+            fee,
+        };
+        // //   env.storage().instance().set(&DataKey::Transfer, &transfer);
+        let symbol: Symbol = symbol_short!("Withdraw");
+
+        env.events().publish((DataKey::Withdraw, symbol), transfer);
 
         balance
         //0
@@ -215,20 +247,18 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
     }
     fn release(env: Env, to: Address, amount: i128) -> i128 {
         to.require_auth();
-        // let client = token::Client::new(&env, &token);
-        let share_contract = get_native_token(&env);
-        let client = token::Client::new(&env, &share_contract);
+        let token_address = get_native_token(&env);
+        let client = token::Client::new(&env, &token_address);
         client.transfer(&env.current_contract_address(), &to, &amount);
-        // client.transfer(&from, &env.current_contract_address(), &amount);
         0
     }
-     fn upgrade(e: Env, new_wasm_hash: BytesN<32>) {
+    fn upgrade(e: Env, new_wasm_hash: BytesN<32>) {
         // // TODO: Only admin can upgrade this contract
         // let admin: Address = e.storage().instance().get(&DataKey::Admin).unwrap();
         // admin.require_auth();
-       
+
         e.deployer().update_current_contract_wasm(new_wasm_hash);
-        }
+    }
 }
 
 mod test;
