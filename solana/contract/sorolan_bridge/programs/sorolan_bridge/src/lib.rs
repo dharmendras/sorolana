@@ -17,7 +17,7 @@ use constants::AUTHORITY;
 
 use ins::*;
 use state::{ClaimEvent, CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("HYjGGd6Tp7CCjHuLFwX5hPQwoRHzsLwtKVn8cRcpP9Aw");
+declare_id!("2Jx91NAVUrmHWQMWXzEwNhqtAsdKw3WnMcGHUotcgbH6");
 
 #[program]
 pub mod sorolan_bridge {
@@ -224,7 +224,7 @@ pub mod sorolan_bridge {
         emit!(ClaimEvent {
             amount: amt,
             claim_counter: user_pda_account.claim_counter,
-            user_address: user_pda_account.key()
+            user_validator_address: user_pda_account.key()
         });
 
         user_pda_account.claim_counter += 1;
@@ -236,7 +236,7 @@ pub mod sorolan_bridge {
         Ok(())
     }
 
-    pub fn withdraw(ctx: Context<BurnToken>, amount: u64) -> Result<()> {
+    pub fn withdraw(ctx: Context<BurnToken>, amount: u64, to: String) -> Result<()> {
         msg!("Amount to be burn: {}", amount);
         let cpi_accounts = Burn {
             mint: ctx.accounts.mint.to_account_info(),
@@ -256,7 +256,7 @@ pub mod sorolan_bridge {
             amount: amount,
             token_address: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".to_string(),
             token_chain: 123,
-            withdrawer_address: ctx.accounts.token_account.key().to_string(),
+            withdrawer_address: to,
             to_chain: 456,
             fee: 6000,
         });

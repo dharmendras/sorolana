@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.devnet]
-sorolan_bridge = "HYjGGd6Tp7CCjHuLFwX5hPQwoRHzsLwtKVn8cRcpP9Aw"
+sorolan_bridge = "2Jx91NAVUrmHWQMWXzEwNhqtAsdKw3WnMcGHUotcgbH6"
 
 [registry]
 url = "https://api.apr.dev"

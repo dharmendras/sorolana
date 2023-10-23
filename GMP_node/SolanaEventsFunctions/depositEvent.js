@@ -109,10 +109,11 @@ async function solanaDeposit(event, slot, transaction_id) {
 
   if (event.amount > 0) {
     try {
-      // let timestamp = Date.now();
-      // let date = new Date(timestamp);
-      // const formattedDate = date.toLocaleString();
-      const date = new Date(Date.now()).toLocaleString();
+      let timestamp = Date.now();
+      let date = new Date(timestamp);
+      const formattedDate = date.toLocaleString();
+      console.log("date-->", formattedDate)
+      // const date = new Date(Date.now()).toLocaleString();
       let data = {
         amount: event.amount,
         from: event.from,

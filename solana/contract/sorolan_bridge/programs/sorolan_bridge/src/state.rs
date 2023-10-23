@@ -46,7 +46,7 @@ pub struct DepositEvent {
 pub struct ClaimEvent {
     pub amount: u64,
     pub claim_counter: u64,
-    pub user_address: Pubkey
+    pub user_validator_address: Pubkey
 }
 #[event]
 pub struct WithdrawEvent {

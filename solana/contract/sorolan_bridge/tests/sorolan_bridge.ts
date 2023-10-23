@@ -20,14 +20,20 @@ import { base64 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 const PROGRAM_SEED_PREFIX = "soroban_solana";
 const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 const AUTHORITY_SEED_PREFIX = "soroban_authority";
-const amount = new anchor.BN(0.01 * LAMPORTS_PER_SOL);
+const amount = new anchor.BN(2 * LAMPORTS_PER_SOL);
 const destination_address =
   "GDUUZPJFLI6BHGUHH32L7UMAJQHCI5VTHETE3PNRXS554W3OV7HBFIVR";
 let user_kp = Keypair.fromSecretKey(
   new Uint8Array(JSON.parse(fs.readFileSync("keys/user.json").toString()))
 );
-let validator_kp = Keypair.fromSecretKey(
+let validator0_kp = Keypair.fromSecretKey(
   new Uint8Array(JSON.parse(fs.readFileSync("keys/validator.json").toString()))
+);
+let validator1_kp = Keypair.fromSecretKey(
+  new Uint8Array(JSON.parse(fs.readFileSync("keys/validator1.json").toString()))
+);
+let validator2_kp = Keypair.fromSecretKey(
+  new Uint8Array(JSON.parse(fs.readFileSync("keys/validator2.json").toString()))
 );
 let deployer_kp = Keypair.fromSecretKey(
   new Uint8Array(JSON.parse(fs.readFileSync("keys/deployer.json").toString()))
@@ -44,7 +50,15 @@ let sorolanaTokenParams = {
   decimals: 100,
 };
 
-let db_msg = {"counter":0,"tokenAddress":"CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT","tokenChain":"1234","to":"5fDJ2JsUcN4A14tLVxWVnGJHwAo8a4VCYfTLNZmZe4fE","toChain":"6789","fee":100,"amount":4};
+let db_msg = {
+  counter: 0,
+  tokenAddress: "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT",
+  tokenChain: "1234",
+  to: "5fDJ2JsUcN4A14tLVxWVnGJHwAo8a4VCYfTLNZmZe4fE",
+  toChain: "6789",
+  fee: 100,
+  amount: 0.001,
+};
 
 let Soroban_msg = {
   counter: 0,
@@ -84,14 +98,18 @@ describe("sorolan_bridge", () => {
   let isRunTestCase = true;
 
   const getAuthorityPda = async () => {
-    const programPdaInfo = web3.PublicKey.findProgramAddressSync(
+    const authorityPdaInfo = web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode(AUTHORITY_SEED_PREFIX),
         program.provider.publicKey.toBuffer(),
       ],
       program.programId
     );
-    return programPdaInfo;
+    console.log(
+      "🚀 ~ file: sorolan_bridge.ts:94 ~ getAuthorityPda ~ authorityPdaInfo:",
+      authorityPdaInfo[0].toBase58()
+    );
+    return authorityPdaInfo;
   };
   const getProgramPda = async () => {
     console.log(
@@ -105,13 +123,13 @@ describe("sorolan_bridge", () => {
       ],
       program.programId
     );
+    console.log(
+      "🚀 ~ file: sorolan_bridge.ts:108 ~ getProgramPda ~ programPdaInfo:",
+      programPdaInfo[0].toBase58()
+    );
     return programPdaInfo;
   };
   const getUserPda = async (user: PublicKey) => {
-    console.log(
-      "🚀 ~ file: sorolan_bridge.ts:100 ~ getUserPda ~ user:",
-      user.toBase58()
-    );
     const userPdaInfo = web3.PublicKey.findProgramAddressSync(
       [anchor.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
       program.programId
@@ -139,7 +157,7 @@ describe("sorolan_bridge", () => {
   };
 
   it("Can initialize a authority pda: ", async () => {
-    if (!isRunTestCase) {
+    if (isRunTestCase) {
       const [authorityPda, authorityBump] =
         web3.PublicKey.findProgramAddressSync(
           [
@@ -148,10 +166,6 @@ describe("sorolan_bridge", () => {
           ],
           program.programId
         );
-      console.log(
-        "🚀 ~ file: sorolan_bridge.ts:108 ~ it ~ authorityPda:",
-        authorityPda.toBase58()
-      );
       const tx = await program.methods
         .initAuthorityPda(authorityBump)
         .accounts({
@@ -165,13 +179,9 @@ describe("sorolan_bridge", () => {
   });
 
   it("Authority can initialize the mint account: ", async () => {
-    if (!isRunTestCase) {
+    if (isRunTestCase) {
       try {
         let authorityPdaInfo = await getAuthorityPda();
-        console.log(
-          "🚀 ~ file: sorolan_bridge.ts:135 ~ it ~ authorityPdaInfo:",
-          authorityPdaInfo[0].toBase58()
-        );
         console.log(
           "🚀 ~ file: sorolan_bridge.ts:142 ~ it ~ mint_kp.publicKey:",
           mint_kp.publicKey.toBase58()
@@ -199,14 +209,13 @@ describe("sorolan_bridge", () => {
   });
 
   it("Users can deposit funds to the program pda: ", async () => {
-    if (!isRunTestCase) {
+    if (isRunTestCase) {
       try {
         const [program_pda, player_bump] = await getProgramPda();
         console.log(
-          "🚀 ~ file: sorolan_bridge.ts:122 ~ it ~ program_pda:",
+          "🚀 ~ file: sorolan_bridge.ts:209 ~ it ~ program_pda:",
           program_pda.toBase58()
         );
-        console.log("User: ", user_kp.publicKey.toBase58());
 
         const depositTx = await program.methods
           .deposit(amount, destination_address)
@@ -273,11 +282,11 @@ describe("sorolan_bridge", () => {
         messageBytes,
         messageBytes.length
       );
-      const signer_pkey = validator_kp.publicKey.toBytes();
+      const signer_pkey = validator0_kp.publicKey.toBytes();
 
       const signature = nacl.sign.detached(
         messageBytes,
-        validator_kp.secretKey
+        validator0_kp.secretKey
       );
 
       let signature_str = Buffer.from(signature).toString("hex");
@@ -288,12 +297,12 @@ describe("sorolan_bridge", () => {
       const result = nacl.sign.detached.verify(
         messageBytes,
         signature_buf,
-        validator_kp.publicKey.toBytes()
+        validator0_kp.publicKey.toBytes()
       );
       console.log("🚀 ~ file: sorolan_bridge.ts:159 ~ it ~ result:", result);
 
       let ix01 = anchor.web3.Ed25519Program.createInstructionWithPublicKey({
-        publicKey: validator_kp.publicKey.toBytes(), // The public key associated with the instruction (as bytes)
+        publicKey: validator0_kp.publicKey.toBytes(), // The public key associated with the instruction (as bytes)
         message: messageBytes, // The message to be included in the instruction (as a Buffer)
         signature: signature_buf, // The signature associated with the instruction (as a Buffer)
         // instructionIndex: 0
@@ -304,7 +313,7 @@ describe("sorolan_bridge", () => {
       let [userPda, userBump] = await getUserPda(user_kp_pubkey);
 
       const claimIx = await program.methods
-        .claim(
+      .claim(
           //@ts-ignore
           validator_kp.publicKey.toBuffer(),
           Buffer.from(message),
@@ -355,7 +364,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Burn the token from the user's wallet", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         console.log(
           "🚀 ~ file: sorolan_bridge.ts:286 ~ it ~ await getAta(mint_kp.publicKey, user_kp.publicKey, false):",
@@ -370,7 +379,7 @@ describe("sorolan_bridge", () => {
           balance
         );
         const withdrawTx = await program.methods
-          .withdraw(new anchor.BN(0.06 * LAMPORTS_PER_SOL))
+          .withdraw(new anchor.BN(0.06 * LAMPORTS_PER_SOL), "fghjk")
           .accounts({
             user: user_kp.publicKey,
             mint: mint_kp.publicKey,
@@ -398,10 +407,10 @@ describe("sorolan_bridge", () => {
       try {
         const message = JSON.stringify(Withdraw_msg);
         const messageBytes = Buffer.from(message, "utf-8");
-        const signer_pkey = validator_kp.publicKey.toBytes();
+        const signer_pkey = validator0_kp.publicKey.toBytes();
         const signature = nacl.sign.detached(
           messageBytes,
-          validator_kp.secretKey
+          validator0_kp.secretKey
         );
         console.log(
           "🚀 ~ file: sorolan_bridge.ts:333 ~ it ~ signature:",
@@ -411,12 +420,12 @@ describe("sorolan_bridge", () => {
         const result = nacl.sign.detached.verify(
           messageBytes,
           signature,
-          validator_kp.publicKey.toBytes()
+          validator0_kp.publicKey.toBytes()
         );
         console.log("🚀 ~ file: sorolan_bridge.ts:340 ~ it ~ result:", result);
 
         let ix01 = anchor.web3.Ed25519Program.createInstructionWithPublicKey({
-          publicKey: validator_kp.publicKey.toBytes(), // The public key associated with the instruction (as bytes)
+          publicKey: validator0_kp.publicKey.toBytes(), // The public key associated with the instruction (as bytes)
           message: messageBytes, // The message to be included in the instruction (as a Buffer)
           signature: signature, // The signature associated with the instruction (as a Buffer)
           // instructionIndex: 0
@@ -427,13 +436,16 @@ describe("sorolan_bridge", () => {
           "🚀 ~ file: sorolan_bridge.ts:362 ~ it ~ await getProgramPda()[0]:",
           program_pda.toBase58()
         );
-        let [userPda, userBump] = await getUserPda(user_kp.publicKey);
+        let [userPda, userBump] = await getUserPda(
+          user_kp.publicKey
+          // validator0_kp.publicKey
+        );
         let authorityPdaInfo = await getAuthorityPda();
 
         const releaseIx = await program.methods
           .claim(
             //@ts-ignore
-            validator_kp.publicKey.toBuffer(),
+            validator0_kp.publicKey.toBuffer(),
             Buffer.from(message),
             Buffer.from(signature),
             userBump
@@ -495,7 +507,7 @@ describe("sorolan_bridge", () => {
     let validator_key = "3USNdeEfH6hcf9RkczFYJhicBjJ7ugriTSX3j3snQxZE";
     console.log(
       "🚀 ~ file: sorolan_bridge.ts:537 ~ it ~ validator_kp.publicKey:",
-      validator_kp.publicKey.toBase58()
+      validator0_kp.publicKey.toBase58()
     );
 
     let message_str = JSON.stringify(msg);

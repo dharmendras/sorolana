@@ -28,12 +28,14 @@ async function solanaClaim(event, slot, transaction_id) {
     queue_id: userCounter,
   };
 
+  let response = await axios.put(`${base_url}/Message/${userAddress}`,{queue_id: userCounter});
+  console.log("🚀 ~ file: claimEvent.js:33 ~ solanaClaim ~ response:", response.data)
   await axios
     .delete(`${base_url}/message_queue/${userAddress}`, {
       data: message_data,
     })
     .then((response) => {
-      console.log(response);
+      console.log(response.data);
     });
 
   // to know if there is more unclaimed msgs presents in the queue

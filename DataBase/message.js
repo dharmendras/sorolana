@@ -16,7 +16,7 @@ app.app.use(bodyParser.urlencoded({ extended: false }));
 app.app.use(bodyParser.json());
 
 app.app.post("/Message", async (req, res) => {
-  console.log("🚀 ~ file: message.js:19 ~ app.app.post ~ res:", res)
+  console.log("🚀 ~ file: message.js:19 ~ app.app.post ~ res:", res);
   console.log("message id ", req.body);
   const {
     amount,
@@ -32,7 +32,17 @@ app.app.post("/Message", async (req, res) => {
   try {
     const _query = await gmpdbclient.query(
       `INSERT INTO message (amount,fromaddress, toaddress, tochain, date, transaction_hash, status, message_info, queue_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-      [amount, from, receiver, destination_chain_id, date, transaction_hash, status, message, queue_id]
+      [
+        amount,
+        from,
+        receiver,
+        destination_chain_id,
+        date,
+        transaction_hash,
+        status,
+        message,
+        queue_id,
+      ]
     );
     console.log("fullresponse id aa gyi hai---->", _query);
     res.status(201).send({
@@ -256,32 +266,33 @@ app.app.get("/Message", (req, res) => {
   }
 });
 
-app.app.get('/Message/:userAddress', (req, res) => {
-
-  let accountAddress = req.params.userAddress
+app.app.get("/Message/:userAddress", (req, res) => {
+  let accountAddress = req.params.userAddress;
   try {
-    gmpdbclient.query(`SELECT * FROM message WHERE toaddress = '${accountAddress}' and status = 'pending'`, (err, result) => {
-      if (!err) {
-        let _data = JSON.stringify(result.rows)
-        let _transactions = JSON.parse(_data)
-        res.status(200).json({ data: _transactions })
+    gmpdbclient.query(
+      `SELECT * FROM message WHERE toaddress = '${accountAddress}' and status = 'pending'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+          res.status(200).json({ data: _transactions });
+        }
+        console.log("error", err);
       }
-      console.log("error", err)
-    });
-
+    );
   } catch (error) {
     console.log(error);
   }
-  console.log("accountAddress4--->", accountAddress)
+  console.log("accountAddress4--->", accountAddress);
+});
 
-})
-
-app.app.put("/Message/:userId", (req, res) => {
-  let queryId = req.params.userId;
-  console.log("userid--->", queryId);
+app.app.put("/Message/:receiver", (req, res) => {
+  const { queue_id } = req.body;
+  let receiver = req.params.receiver;
+  console.log("userid--->", receiver);
   try {
     const { rows } = gmpdbclient.query(
-      `UPDATE message SET status = 'success' where id = ${queryId}`
+      `UPDATE message SET status = 'success' WHERE receiver = '${receiver}' and queue_id = '${queue_id}'`
     );
     res.status(201).send({
       message: "Message updated successfully!",
@@ -306,7 +317,7 @@ app.app.post("/Signature", (req, res) => {
       message: "Signature  added successfully!",
     });
   } catch (error) {
-    console.log("🚀 ~ file: message.js:310 ~ app.app.post ~ error:", error)
+    console.log("🚀 ~ file: message.js:310 ~ app.app.post ~ error:", error);
     console.error("Error", error);
     res.status(500).send({
       message: "something went wrong",
