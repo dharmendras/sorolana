@@ -157,7 +157,7 @@ async function solanaDeposit(event, slot, transaction_id) {
           message: message,
           queue_id: receiverId,
         };
-        let response = await axios.post(`${base_url}/Message`, message_data);
+        let response = await axios.post(`${base_url}/gmp/Message`, message_data);
         console.log(
           "🚀 ~ file: depositEvent.js:165 ~ solanaDeposit ~ response:",
           response.data

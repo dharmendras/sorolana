@@ -14,7 +14,7 @@ gmpdbclient.connect();
 app.app.use(bodyParser.urlencoded({ extended: false }));
 app.app.use(bodyParser.json());
 
-app.app.post("gmp/Message", async (req, res) => {
+app.app.post("/gmp/Message", async (req, res) => {
   console.log("🚀 ~ file: message.js:19 ~ app.app.post ~ res:", res);
   console.log("message id ", req.body);
   const {
