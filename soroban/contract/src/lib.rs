@@ -42,23 +42,31 @@ impl TryFromVal<Env, DataKeyToken> for Val {
     fn try_from_val(_env: &Env, v: &DataKeyToken) -> Result<Self, Self::Error> {
         Ok((*v as u32).into())
     }
-}
+}   
+
+const CURRENT_VALIDATOR: [&str; 4] = [
+    "9tplgeinj8sHOID2s/znZ8OAIu0/zBhVPUyayBnS320=",
+    "WMJN8yXuwl2vDFH+XSOavdKG1DdbBWOQe7rQzmhgPuI=",
+    "dhuypGVkMF4cWvFO+h9XsHuiBe8RH+bawNzhQkTK5bk=",
+    "oPAOzqSzSjDhFpcl3+awVhYvnOFr8Bw7YMBSWcgEQJo=",
+];
 
 fn compare(env: Env, key_to_compare: &BytesN<32>) -> bool {
-    let public_keys: Bytes = [
-        246, 218, 101, 129, 232, 167, 143, 203, 7, 56, 128, 246, 179, 252, 231, 103, 195, 128, 34,
-        237, 63, 204, 24, 85, 61, 76, 154, 200, 25, 210, 223, 109,
-    ]
-    .into_val(&env);
-    // Replace this with your actual parameter
-    // In this example, we're using the key we generated earlier
-    //let parameter_bytes: [u8; 32] = public_keys.to_bytes().try_into().unwrap();
     let mut result: Bytes = key_to_compare.into_val(&env);
-    // let public: Bytes = public_keys.into_val();
-    // Check if the parameter matches any of the stored public keys
-    //let is_match = public_keys.iter().any(|&public_key| public_key == result);
 
-    if public_keys == result {
+    let mut IS_TRUE: bool = false;
+
+    for index in 0..CURRENT_VALIDATOR.len() {
+        let value: Bytes = CURRENT_VALIDATOR[index].into_val(&env);
+
+        if value == result {
+            IS_TRUE = true;
+            break;
+        } else {
+        }
+    }
+   
+    if IS_TRUE == true {
         true
     } else {
         false
@@ -124,6 +132,7 @@ struct SorobanSoloanaBridge;
 
 #[contractimpl]
 impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
+
     fn deposit(env: Env, from: Address, token: Address, amount: i128, to: String) -> i128 {
         from.require_auth();
 
@@ -187,21 +196,26 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         amount: i128,
     ) -> i128 {
         user.require_auth();
+        
+        let counter: i128 = 0;
 
         let check = compare(env.clone(), &public_key);
+        
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
-        if check == true {
+
+       if check == true {
             let share_contract = get_token(&env.clone());
             let client = wrappedtoken::Client::new(&env, &share_contract);
             client.mint(&user, &amount);
             let balance = client.balance(&user);
-            // //   balance
-            1 // if true
+            //   balance
+           1 // if true
         } else {
-            //return Err(VerifyError::InvalidPublickey);
-            0
-        }
+          //  return Err(VerifyError::InvalidPublickey);
+           0
+       }
+       
         //  Ok(())
     }
 

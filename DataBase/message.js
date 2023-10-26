@@ -1,6 +1,5 @@
 // const client = require('./connection.js')
 const gmpdbclient = require("./connection.js");
-
 const express = require("express");
 const req = require("express/lib/request");
 const res = require("express/lib/response");
@@ -56,7 +55,24 @@ app.app.post("/Message", async (req, res) => {
     });
   }
 });
+app.app.get('/FullMessage', (req, res) => {
+  console.log("ht")
+  try {
 
+      gmpdbclient.query(`SELECT * FROM message JOIN signature on message.id = signature.message_id`, (err, result) => {
+          if (!err) {
+              let _pa = JSON.stringify(result.rows)
+              let _str = JSON.parse(_pa)
+              res.status(200).json({ data: _str })
+              console.log("🚀 ~ file: message.js:50 ~ client.query ~ _str:", _str)
+          }
+          console.log("🚀 ~ file: message.js:64 ~ gmpdbclient.query ~ err:", err)
+      });
+  } catch (error) {
+      console.log("🚀 ~ file: message.js:70 ~ app.app.get ~ error:", error)
+      console.log(error);
+  }
+})
 // Post request for the table message_queue, which includes counter
 app.app.post("/message_queue", async (req, res) => {
 //  console.log("🚀 ~ file: message.js:50 ~ app.app.post ~ res:", res.data.body)

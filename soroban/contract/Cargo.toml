@@ -9,6 +9,7 @@ doctest = false
 
 [dependencies]
 soroban-sdk = { version = "20.0.0-rc2" }
+base64 = "0.13.0"
 
 [dev_dependencies]
 soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }

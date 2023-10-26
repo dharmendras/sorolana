@@ -2,7 +2,7 @@
 const { Client } = require("pg");
 
 const client = new Client({
-   host: "3.110.150.81",
+   host: "43.205.254.49",
    user: "postgres",
    port: 5432,
    password: "imentus123",
@@ -12,15 +12,15 @@ const client = new Client({
     },
 });
 const gmpdbclient = new Client({
-   host: "3.110.150.81",
+   host: "43.205.254.49",
    user: "postgres",
    port: 5432,
    password: "imentus123",
    database: "gmpdb"
  
 });
+// gmpdbclient.connect()
 
-//console.log("client" , gmpdbclient.connect());
 //    .then(() => {
 //       console.log("Connected to PostgreSQL database");
 //    })
@@ -32,7 +32,9 @@ module.exports =  gmpdbclient;
 
 
 
-
+//postgresql://postgres:imentus123@43.205.254.49:5432/gmpdb
+//postgres://postgres:imentus123@43.205.254.49:5432/gmpdb
+// DATABASE_URL=postgresql://postgres:imentus123@43.205.254.49:5432/gmpdb
 
 
 

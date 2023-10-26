@@ -73,6 +73,8 @@ use soroban_sdk::{IntoVal};
       //  timelock_client.testdeposit(&token_contract_id, &10, &user);
 
 //        std::println!("balance:{:?}" , balance);
+
+             //   soroban_bridge_cient.test_current_validator();
 //  let balance = timelock_client.claim(&user, &10);
 //  std::println!("balance{:?}" ,  balance);
 // let add = timelock_client.createcustomtoken(&wasm_hash, &salt);

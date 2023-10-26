@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model transaction {
+  id       Int      @id @default(autoincrement())
+  date     DateTime
+  from     String
+  to       String
+  amount   Int
+  gasFees  Int
+  status   String
+}
+model signature {
+  id       Int      @id @default(autoincrement())
+  signature   String
+}
+model  message {
+  id       Int      @id @default(autoincrement())
+  signature   String
+}

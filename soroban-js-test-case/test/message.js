@@ -1,4 +1,4 @@
-const data = {
+let data = {
   amount: 1000,
   tokenAddress: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U",
   tokenChain: 123,
