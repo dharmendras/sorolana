@@ -28,10 +28,10 @@ async function solanaClaim(event, slot, transaction_id) {
     queue_id: userCounter,
   };
 
-  let response = await axios.put(`${base_url}/Message/${userAddress}`,{queue_id: userCounter});
+  let response = await axios.put(`${base_url}/gmp/Message/${userAddress}`,{queue_id: userCounter});
   console.log("🚀 ~ file: claimEvent.js:33 ~ solanaClaim ~ response:", response.data)
   await axios
-    .delete(`${base_url}/message_queue/${userAddress}`, {
+    .delete(`${base_url}/gmp/message_queue/${userAddress}`, {
       data: message_data,
     })
     .then((response) => {
@@ -40,7 +40,7 @@ async function solanaClaim(event, slot, transaction_id) {
 
   // to know if there is more unclaimed msgs presents in the queue
   await axios
-    .get(`${base_url}/message_queue/${userAddress}`)
+    .get(`${base_url}/gmp/message_queue/${userAddress}`)
     .then(async (response) => {
       console.log(
         "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
@@ -89,7 +89,7 @@ async function solanaClaim(event, slot, transaction_id) {
           message_id: response.data[0].id,
         };
         await axios
-          .post(`${base_url}/Signature`, validator_data)
+          .post(`${base_url}/gmp/Signature`, validator_data)
           .then(async (response) => {
             console.log(
               "🚀 ~ file: validator1.js:364 ~ .then ~ response:",
@@ -110,7 +110,7 @@ async function solanaClaim(event, slot, transaction_id) {
         };
 
         await axios
-          .post(`${base_url}/Message`, message_queue_data)
+          .post(`${base_url}/gmp/Message`, message_queue_data)
           .then(async (response) => {
             console.log(
               "🚀 ~ file: claimEvent.js:118 ~ .then ~ response:",

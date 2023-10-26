@@ -55,7 +55,7 @@ app.app.post("/gmp/Message", async (req, res) => {
     });
   }
 });
-app.app.get('gmp/FullMessage', (req, res) => {
+app.app.get('/gmp/FullMessage', (req, res) => {
   console.log("ht")
   try {
 
@@ -74,7 +74,7 @@ app.app.get('gmp/FullMessage', (req, res) => {
   }
 })
 // Post request for the table message_queue, which includes counter
-app.app.post("/message_queue", async (req, res) => {
+app.app.post("/gmp/message_queue", async (req, res) => {
 //  console.log("🚀 ~ file: message.js:50 ~ app.app.post ~ res:", res.data.body)
   console.log("🚀 ~ file: message.js:40 ~ app.app.post ~ req:", req.body);
   const {
@@ -118,7 +118,7 @@ app.app.post("/message_queue", async (req, res) => {
 });
 
 // Get request for the table message_queue, which includes counter
-app.app.get("/message_queue", (req, res) => {
+app.app.get("/gmp/message_queue", (req, res) => {
   try {
     gmpdbclient.query(`SELECT * FROM message_queue`, (err, result) => {
       if (!err) {
@@ -134,7 +134,7 @@ app.app.get("/message_queue", (req, res) => {
 });
 
 // Delet request for the table message_queue, which includes counter of claimed msg
-app.app.delete("/message_queue/:receiver_pda", (req, res) => {
+app.app.delete("/gmp/message_queue/:receiver_pda", (req, res) => {
   let receiverPda = req.params.receiver_pda;
   const { queue_id } = req.body;
   console.log(
@@ -167,7 +167,7 @@ app.app.delete("/message_queue/:receiver_pda", (req, res) => {
   }
 });
 // Get request for the table message_queue, which includes counter
-app.app.get("/message_queue/:receiver_pda", (req, res) => {
+app.app.get("/gmp/message_queue/:receiver_pda", (req, res) => {
   let receiverPda = req.params.receiver_pda;
   console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", receiverPda);
   try {
@@ -199,7 +199,7 @@ app.app.get("/message_queue/:receiver_pda", (req, res) => {
 });
 
 // Insert new user details into the user_counters table
-app.app.post("/userCounter", async (req, res) => {
+app.app.post("/gmp/userCounter", async (req, res) => {
   const { receiver, queue_id } = req.body;
 
   try {
@@ -219,7 +219,7 @@ app.app.post("/userCounter", async (req, res) => {
 });
 
 // Get request for the table message_queue, which includes counter
-app.app.get("/userCounter/:receiver_pda", (req, res) => {
+app.app.get("/gmp/userCounter/:receiver_pda", (req, res) => {
   let receiverPda = req.params.receiver_pda;
   console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", receiverPda);
   try {
@@ -248,7 +248,7 @@ app.app.get("/userCounter/:receiver_pda", (req, res) => {
   }
 });
 
-app.app.put("/userCounter/:receiver", (req, res) => {
+app.app.put("/gmp/userCounter/:receiver", (req, res) => {
   let receiverPda = req.params.receiver;
   const { queue_id } = req.body;
   console.log("userid--->", receiverPda);
@@ -267,7 +267,7 @@ app.app.put("/userCounter/:receiver", (req, res) => {
   }
 });
 
-app.app.get("/Message", (req, res) => {
+app.app.get("/gmp/Message", (req, res) => {
   try {
     gmpdbclient.query(`SELECT * FROM message`, (err, result) => {
       if (!err) {
@@ -282,7 +282,7 @@ app.app.get("/Message", (req, res) => {
   }
 });
 
-app.app.get("/Message/:userAddress", (req, res) => {
+app.app.get("/gmp/Message/:userAddress", (req, res) => {
   let accountAddress = req.params.userAddress;
   try {
     gmpdbclient.query(
@@ -302,7 +302,7 @@ app.app.get("/Message/:userAddress", (req, res) => {
   console.log("accountAddress4--->", accountAddress);
 });
 
-app.app.put("/Message/:receiver", (req, res) => {
+app.app.put("/gmp/Message/:receiver", (req, res) => {
   const { queue_id } = req.body;
   let receiver = req.params.receiver;
   console.log("userid--->", receiver);
@@ -322,7 +322,7 @@ app.app.put("/Message/:receiver", (req, res) => {
 });
 
 // Post req to add signatures and the pubkey into the signature table
-app.app.post("/Signature", (req, res) => {
+app.app.post("/gmp/Signature", (req, res) => {
   try {
     let { validator_sig, validator_pkey, message_id } = req.body;
     const { rows } = gmpdbclient.query(
@@ -365,7 +365,7 @@ function saveSignature(signature, publicKey) {
   client.end;
 }
 
-app.app.get("/Signature", (req, res) => {
+app.app.get("/gmp/Signature", (req, res) => {
   gmpdbclient.query(`SELECT * FROM signature`, (err, result) => {
     if (!err) {
       res.send(result.rows);
@@ -374,7 +374,7 @@ app.app.get("/Signature", (req, res) => {
   client.end;
 });
 // get  signature by mid
-app.app.get("/Signature/:mid", async (req, res) => {
+app.app.get("/gmp/Signature/:mid", async (req, res) => {
   //client.query(`SELECT * FROM signature WHERE mid = $2` , )
   try {
     const { mid } = req.params;

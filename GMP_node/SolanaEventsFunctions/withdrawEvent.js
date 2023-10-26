@@ -53,7 +53,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
   );
 
   await axios
-    .get(`${base_url}/userCounter/${receiver_pda.toBase58()}`)
+    .get(`${base_url}/gmp/userCounter/${receiver_pda.toBase58()}`)
     .then(async (response) => {
       if (response.data.length == 0) {
         receiverId = 0;
@@ -66,7 +66,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
           queue_id: receiverId,
         };
         let response = await axios.post(
-          `${base_url}/userCounter`,
+          `${base_url}/gmp/userCounter`,
           receiverDetails
         );
         console.log(
@@ -76,7 +76,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
       } else if (response.data.length > 0) {
         receiverId = response.data[0].queue_id + 1;
         let res = await axios.put(
-          `${base_url}/userCounter/${receiver_pda.toBase58()}`,
+          `${base_url}/gmp/userCounter/${receiver_pda.toBase58()}`,
           {
             queue_id: receiverId,
           }
@@ -130,7 +130,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
         "🚀 ~ file: validator1.js:185 ~ solanaToSoroban ~ data:",
         data
       );
-      await axios.post(`${base_url}/message_queue`, data).then((response) => {
+      await axios.post(`${base_url}/gmp/message_queue`, data).then((response) => {
         console.log(
           "🚀 ~ file: depositEvent.js:149 ~ awaitaxios.post ~ response:",
           response.data.message
@@ -138,7 +138,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
       });
 
       let res = await axios.get(
-        `${base_url}/Message/${event.from}`
+        `${base_url}/gmp/Message/${event.from}`
       );
       console.log(
         "🚀 ~ file: depositEvent.js:142 ~ solanaDeposit ~ res.data.length :",
@@ -156,7 +156,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
           message: message,
           queue_id: receiverId,
         };
-        let response = await axios.post(`${base_url}/Message`, message_data);
+        let response = await axios.post(`${base_url}/gmp/Message`, message_data);
         console.log(
           "🚀 ~ file: depositEvent.js:165 ~ solanaDeposit ~ response:",
           response.data
@@ -193,7 +193,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
           validator_data
         );
         await axios
-          .post(`${base_url}/Signature`, validator_data)
+          .post(`${base_url}/gmp/Signature`, validator_data)
           .then(async (response) => {
             console.log(
               "🚀 ~ file: depositEvent.js:186 ~ .then ~ response:",
