@@ -198,7 +198,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         user.require_auth();
         
         let counter: i128 = 0;
-
+        UserCounter::KeyValue(user.clone(), counter);
         let check = compare(env.clone(), &public_key);
         
         env.crypto()

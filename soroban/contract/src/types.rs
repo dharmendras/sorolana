@@ -44,6 +44,9 @@ pub struct Customtokenstruct {
 pub enum DataKey {
     Transfer, Withdraw
 }
+pub enum UserCounter <key , value>{ 
+    KeyValue(key , value),
+}
 #[derive(Clone)]
 #[contracttype]
 pub enum TokenKey{ 
