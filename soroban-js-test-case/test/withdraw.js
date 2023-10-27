@@ -19,9 +19,10 @@ const withdraw = async (contractId, secret, amount, user) => {
 
     const obj1 = { type: 'scoI128', value: amount };
     const obj2 = { type: 'address', value: keypair.publicKey() };
+    const obj3 = { type: 'scvString', value: "receiver"};
 
     const params = [encode(obj1),
-    encode(obj2),
+    encode(obj2),encode(obj3),
     ]
     const method = 'withdraw';
 

@@ -118,7 +118,7 @@ async function SorobanClaim(event, slot, transaction_id) {
         let data = {
             amount: event.amount.toNumber(),
             from: user_key.toBase58(),
-            receiver: event.receiverAddress,
+            receiver: event.recieverAddress,
             destination_chain_id: event.toChain,
             // date: formattedDate,
             date: date,
@@ -146,7 +146,7 @@ async function SorobanClaim(event, slot, transaction_id) {
             let message_data = {
                 amount: event.amount.toNumber(),
                 from: user_key.toBase58(),
-                receiver: event.receiverAddress,
+                receiver: event.recieverAddress,
                 destination_chain_id: event.toChain,
                 date: date,
                 transaction_hash: `${transaction_id}`,

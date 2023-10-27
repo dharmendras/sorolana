@@ -52,22 +52,16 @@ const CURRENT_VALIDATOR: [&str; 4] = [
     "oPAOzqSzSjDhFpcl3+awVhYvnOFr8Bw7YMBSWcgEQJo=",
 ];
 
-fn compare(env: Env, key_to_compare: &BytesN<32>) -> bool {
+fn compare(env: Env, key_to_compare: BytesN<32>) -> bool {
     let mut result: Bytes = key_to_compare.into_val(&env);
-
+    let validator_pubkey: Bytes = [
+        246, 218, 101, 129, 232, 167, 143, 203, 7, 56, 128, 246, 179, 252, 231, 103, 195, 128, 34,
+        237, 63, 204, 24, 85, 61, 76, 154, 200, 25, 210, 223, 109,
+    ]
+    .into_val(&env);
     let mut IS_TRUE: bool = false;
 
-    for index in 0..CURRENT_VALIDATOR.len() {
-        let value: Bytes = CURRENT_VALIDATOR[index].into_val(&env);
-
-        if value == result {
-            IS_TRUE = true;
-            break;
-        } else {
-        }
-    }
-
-    if IS_TRUE == true {
+    if validator_pubkey == result {
         true
     } else {
         false
@@ -196,20 +190,21 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         amount: i128,
     ) -> i128 {
         user.require_auth();
+        let mut result: Bytes = public_key.into_val(&env);
 
         let counter: i128 = 0;
 
-        let check = compare(env.clone(), &public_key);
+        let check = compare(env.clone(), public_key.clone());
 
-        env.storage()
-            .instance()
-            .set(&DataKey::Counter((user.clone())), &counter);
+        // env.storage()
+        //     .instance()
+        //     .set(&DataKey::Counter((user.clone())), &counter);
 
-        let user_counter: i128 = env
-            .storage()
-            .instance()
-            .get(&DataKey::Counter((user.clone())))
-            .unwrap();
+        // let user_counter: i128 = env
+        //     .storage()
+        //     .instance()
+        //     .get(&DataKey::Counter((user.clone())))
+        //     .unwrap();
 
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
@@ -219,12 +214,14 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             let client = wrappedtoken::Client::new(&env, &share_contract);
             client.mint(&user.clone(), &amount);
             let balance = client.balance(&user);
+
             //   balance
-         //   1 // if true
-            user_counter
+            1 // if true
+              //   user_counter
         } else {
             //  return Err(VerifyError::InvalidPublickey);
             0
+            //false
         }
 
         //  Ok(())
@@ -237,13 +234,13 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         let client = wrappedtoken::Client::new(&env, &token_address);
 
-        client.burn(&user, &amount);
+         client.burn(&user, &amount);
 
         let balance = client.balance(&user);
 
         let method: String = "Withdraw".into_val(&env);
 
-        let amount: i128 =  amount;
+        let amount: i128 = amount;
 
         let token_chain: i128 = 456;
 
@@ -267,7 +264,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         env.events().publish((DataKey::Withdraw, symbol), transfer);
 
         balance
-        //0
+       
         // share_contract
     }
     fn release(env: Env, to: Address, amount: i128) -> i128 {
