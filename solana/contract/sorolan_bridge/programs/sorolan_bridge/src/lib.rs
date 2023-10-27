@@ -12,17 +12,20 @@ use anchor_lang::solana_program::{
     system_instruction,
 };
 use anchor_spl::token::{mint_to, Burn, MintTo};
+use mpl_token_metadata::instructions::CreateMetadataAccountV3;
 
 use constants::AUTHORITY;
 
 use ins::*;
 use state::{ClaimEvent, CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("2Jx91NAVUrmHWQMWXzEwNhqtAsdKw3WnMcGHUotcgbH6");
+declare_id!("4YXajmGwhTcszkZoae6TWQKvxwt5XAhvj4naV7biSnpT");
 
 #[program]
 pub mod sorolan_bridge {
 
     // use crate::constants::PROGRAM_SEED_PREFIX;
+
+    // use mpl_token_metadata::{instructions::CreateMetadataAccountV3InstructionArgs, types::DataV2};
 
     use super::*;
 
@@ -37,6 +40,70 @@ pub mod sorolan_bridge {
         );
         Ok(())
     }
+
+    // pub fn initialize(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {
+    //     let seeds = &["mint".as_bytes(), &[*ctx.bumps.get("mint").unwrap()]];
+    //     let signer = [&seeds[..]];
+
+    //     let account_info = vec![
+    //         ctx.accounts.metadata.to_account_info(),
+    //         ctx.accounts.mint.to_account_info(),
+    //         ctx.accounts.authority.to_account_info(),
+    //         ctx.accounts.token_metadata_program.to_account_info(),
+    //         ctx.accounts.token_program.to_account_info(),
+    //         ctx.accounts.system_program.to_account_info(),
+    //         ctx.accounts.rent.to_account_info(),
+    //     ];
+
+    //     let data: DataV2 = mpl_token_metadata::types::DataV2 {
+    //         name: "Wrapped XLM",
+    //         symbol: "W-XLM",
+    //         uri: "ertyuio",
+    //         seller_fee_basis_points: 100,
+    //         creators: ,
+    //         collection: None,
+    //         uses: None,
+    //     };
+
+    //     let c = CreateMetadataAccountV3InstructionArgs{
+    //          data: {
+    //             name: "Wrapped XLM",
+    //             symbol: "W-XLM",
+    //             uri: "ertyuio",
+    //             seller_fee_basis_points: 100,
+    //             creators: ,
+    //             collection: None,
+    //             uses: None,
+    //         },
+    //          is_mutable: true,
+    //          collection_details: None,
+    //     };
+    //     let i = CreateMetadataAccountV3::instruction(c);
+
+    //     invoke_signed(
+    //         &CreateMetadataAccountV3::instruction(
+    //             ctx.accounts.token_metadata_program.key(), // token metadata program
+    //             ctx.accounts.metadata.key(),               // metadata account PDA for mint
+    //             ctx.accounts.mint.key(),                   // mint account
+    //             ctx.accounts.mint.key(),                   // mint authority
+    //             ctx.accounts.user.key(),                   // payer for transaction
+    //             ctx.accounts.mint.key(),                   // update authority
+    //             name,                                      // name
+    //             symbol,                                    // symbol
+    //             uri,                                       // uri (offchain metadata)
+    //             None,                                      // (optional) creators
+    //             0,                                         // seller free basis points
+    //             true,                                      // (bool) update authority is signer
+    //             true,                                      // (bool) is mutable
+    //             None,                                      // (optional) collection
+    //             None,                                      // (optional) uses
+    //             None,                                      // (optional) collection details
+    //         ),
+    //         account_info.as_slice(),
+    //         &signer,
+    //     )?;
+    //     Ok(())
+    // }
 
     #[access_control(authorized_admin(&ctx.accounts.authority))]
     pub fn init_token_mint(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {

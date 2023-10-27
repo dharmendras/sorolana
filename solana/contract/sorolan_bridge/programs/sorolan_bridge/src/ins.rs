@@ -84,6 +84,10 @@ pub struct AccountsForDeposit<'info> {
     ///CHECK: user address
     #[account(mut)]
     pub user: AccountInfo<'info>,                                // User address
+
+    ///CHECK: validator address
+    #[account(mut)]
+    pub validator: AccountInfo<'info>,                                // Validator address
   
     ///CHECK: Authority address
     #[account(mut)]
@@ -105,12 +109,12 @@ pub struct AccountsForDeposit<'info> {
     #[account(
       init_if_needed, 
       payer = claimer, 
-      space = UserPda::LEN + 8,
-      seeds = [USER_SEED_PREFIX.as_bytes(),user.key().as_ref(),],
+      space = 10000,
+      seeds = [USER_SEED_PREFIX.as_bytes(),validator.key().as_ref(), user.key().as_ref(),],
       bump,
-      // constraint = user_pda.user == user.key()
     )]
-    pub user_pda: Account<'info, UserPda>,                     // Keep tracks of counter to prevent multiple invokation
+    pub user_pda: Box<Account<'info, UserPda>>,                // Keep tracks of counter to prevent multiple invokation
+    // pub user_pda: Account<'info, UserPda>,                     // Keep tracks of counter to prevent multiple invokation
   
     #[account(
       init_if_needed,

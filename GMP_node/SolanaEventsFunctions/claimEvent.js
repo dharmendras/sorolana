@@ -4,13 +4,14 @@ const bs58 = require("bs58");
 const nacl = require("tweetnacl");
 const { Keypair, PublicKey } = require("@solana/web3.js");
 //const abc = '/home/imentus/Documents/Sorolana/sorolana/GMP_node/solana_validators/validator1.json';
- const abc = '/home/imentus/Documents/imentus_project/sorolana/GMP_node/solana_validators/validator1.json'
+const validatorPath =
+  "/home/imentus/Documents/Sorolana/sorolana/GMP_node/solana_validators/validator1.json";
 const fs = require("fs");
 const dotenv = require("dotenv");
 dotenv.config();
 
 let validator_kp = Keypair.fromSecretKey(
-  new Uint8Array(JSON.parse(fs.readFileSync(`${abc}`).toString()))
+  new Uint8Array(JSON.parse(fs.readFileSync(`${validatorPath}`).toString()))
 );
 
 async function solanaClaim(event, slot, transaction_id) {

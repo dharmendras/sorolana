@@ -20,7 +20,7 @@ import { base64 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 const PROGRAM_SEED_PREFIX = "soroban_solana";
 const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 const AUTHORITY_SEED_PREFIX = "soroban_authority";
-const amount = new anchor.BN(2 * LAMPORTS_PER_SOL);
+const amount = new anchor.BN(0.001 * LAMPORTS_PER_SOL);
 const destination_address =
   "GDUUZPJFLI6BHGUHH32L7UMAJQHCI5VTHETE3PNRXS554W3OV7HBFIVR";
 let user_kp = Keypair.fromSecretKey(
@@ -53,28 +53,29 @@ let sorolanaTokenParams = {
 let db_msg = {
   counter: 0,
   tokenAddress: "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT",
-  tokenChain: "1234",
-  to: "5fDJ2JsUcN4A14tLVxWVnGJHwAo8a4VCYfTLNZmZe4fE",
-  toChain: "6789",
+  tokenChain: 1234,
+  to: "DeGYwpUPA5NgrTJvLFJQk63DuqRUJmoyMreHJcsgrHh5",
+  toChain: 6789,
   fee: 100,
-  amount: 0.001,
+  method: "Deposit",
+  amount: 1,
 };
 
 let Soroban_msg = {
-  counter: 0,
+  counter: 1,
   tokenAddress: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U",
-  tokenChain: "1234",
-  to: "9cxGAnXieeQ4dGYFK5QAAJtdBCVnRM1pWZDHDB9PCEW3",
-  toChain: "5678",
+  tokenChain: 1234,
+  to: "DeGYwpUPA5NgrTJvLFJQk63DuqRUJmoyMreHJcsgrHh5",
+  toChain: 5678,
   fee: 100,
   method: "Deposit",
-  amount: 20,
+  amount: 10,
 };
 
 let validator_signature =
   "aef69058e007dbc22c27eed672a86a813037265740ac4dedbc1de01183f2078d96bceabe6d8884e677eba40827780ee80861bb7464705700a5dd8c65197ae701";
 let user_kp_pubkey = new PublicKey(
-  "5fDJ2JsUcN4A14tLVxWVnGJHwAo8a4VCYfTLNZmZe4fE"
+  "DeGYwpUPA5NgrTJvLFJQk63DuqRUJmoyMreHJcsgrHh5"
 );
 // let user_kp_pubkey = new PublicKey(
 //   "Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC"
@@ -97,47 +98,44 @@ describe("sorolan_bridge", () => {
   const program = anchor.workspace.SorolanBridge as Program<SorolanBridge>;
   let isRunTestCase = true;
 
+  // Authority Pda to init the token Address
   const getAuthorityPda = async () => {
     const authorityPdaInfo = web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode(AUTHORITY_SEED_PREFIX),
-        program.provider.publicKey.toBuffer(),
+        deployer_kp.publicKey.toBuffer(),
       ],
       program.programId
-    );
-    console.log(
-      "🚀 ~ file: sorolan_bridge.ts:94 ~ getAuthorityPda ~ authorityPdaInfo:",
-      authorityPdaInfo[0].toBase58()
     );
     return authorityPdaInfo;
   };
+
+  // Program pda acts as a treasury, have all the funds deposit by users
   const getProgramPda = async () => {
-    console.log(
-      "🚀 ~ file: sorolana.ts:23 ~ getProgramPda ~ Authority publicKey:",
-      program.provider.publicKey.toBase58()
-    );
     const programPdaInfo = web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode(PROGRAM_SEED_PREFIX),
-        program.provider.publicKey.toBuffer(),
+        deployer_kp.publicKey.toBuffer(),
       ],
       program.programId
     );
-    console.log(
-      "🚀 ~ file: sorolan_bridge.ts:108 ~ getProgramPda ~ programPdaInfo:",
-      programPdaInfo[0].toBase58()
-    );
     return programPdaInfo;
   };
-  const getUserPda = async (user: PublicKey) => {
+
+  // User-Validator pda, saves counter to prevent multiple claim invokation
+  const getUserPda = async (user: PublicKey, validator: PublicKey) => {
     const userPdaInfo = web3.PublicKey.findProgramAddressSync(
-      [anchor.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
+      [
+        anchor.utils.bytes.utf8.encode(USER_SEED_PREFIX),
+        validator.toBuffer(),
+        user.toBuffer(),
+      ],
       program.programId
     );
     return userPdaInfo;
   };
 
-  // Get ATA
+  // To get ATA of the user, so token can be stored here
   const getAta = async (
     mint: PublicKey,
     owner: PublicKey,
@@ -147,11 +145,6 @@ describe("sorolan_bridge", () => {
       mint,
       owner,
       allowOwnerOffCurve
-    );
-    // console.log("🚀 ~ file: verifyUtility.ts:42 ~ getAta ~ ata:", ata.toBase58());
-    console.log(
-      "🚀 ~ file: sorolan_bridge.ts:84 ~ describe ~ owner:",
-      owner.toBase58()
     );
     return ata;
   };
@@ -166,6 +159,10 @@ describe("sorolan_bridge", () => {
           ],
           program.programId
         );
+      console.log(
+        "🚀 ~ file: sorolan_bridge.ts:151 ~ it ~ authorityPda:",
+        authorityPda.toBase58()
+      );
       const tx = await program.methods
         .initAuthorityPda(authorityBump)
         .accounts({
@@ -182,10 +179,8 @@ describe("sorolan_bridge", () => {
     if (isRunTestCase) {
       try {
         let authorityPdaInfo = await getAuthorityPda();
-        console.log(
-          "🚀 ~ file: sorolan_bridge.ts:142 ~ it ~ mint_kp.publicKey:",
-          mint_kp.publicKey.toBase58()
-        );
+        console.log("authorityPdaInfo:", authorityPdaInfo[0].toBase58());
+        console.log("Token mint address:", mint_kp.publicKey.toBase58());
         const initPdaTx = await program.methods
           .initTokenMint()
           .accounts({
@@ -198,10 +193,7 @@ describe("sorolan_bridge", () => {
           })
           .signers([mint_kp])
           .rpc();
-        console.log(
-          "🚀 ~ file: sorolan_bridge.ts:52 ~ it ~ initPdaTx:",
-          initPdaTx
-        );
+        console.log("🚀 ~ file: sorolan_bridge.ts:195 ~ it ~ initPdaTx:", initPdaTx)
       } catch (error) {
         console.log("🚀 ~ file: sorolana.ts:56 ~ it ~ error:", error);
       }
@@ -209,7 +201,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Users can deposit funds to the program pda: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         const [program_pda, player_bump] = await getProgramPda();
         console.log(
@@ -274,7 +266,7 @@ describe("sorolan_bridge", () => {
 
   it("Verfiy and mint method: ", async () => {
     if (isRunTestCase) {
-      const message = JSON.stringify(db_msg);
+      const message = JSON.stringify(Soroban_msg);
       console.log("🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:", message);
       const messageBytes = Buffer.from(message, "utf-8");
       console.log(
@@ -290,9 +282,7 @@ describe("sorolan_bridge", () => {
       );
 
       let signature_str = Buffer.from(signature).toString("hex");
-
-      // let signature_buf = base64.decode(signature_str);
-      let signature_buf = Buffer.from(validator_signature, "hex");
+      let signature_buf = Buffer.from(signature_str, "hex");
 
       const result = nacl.sign.detached.verify(
         messageBytes,
@@ -310,12 +300,18 @@ describe("sorolan_bridge", () => {
 
       const [program_pda, player_bump] = await getProgramPda();
       let authorityPdaInfo = await getAuthorityPda();
-      let [userPda, userBump] = await getUserPda(user_kp_pubkey);
+      let [userPda, userBump] = await getUserPda(
+        user_kp_pubkey,
+        validator0_kp.publicKey
+      );
+
+      let info = await provider.connection.getAccountInfo(userPda);
+      console.log("🚀 ~ file: sorolan_bridge.ts:316 ~ it ~ info:", info);
 
       const claimIx = await program.methods
-      .claim(
+        .claim(
           //@ts-ignore
-          validator_kp.publicKey.toBuffer(),
+          validator0_kp.publicKey.toBuffer(),
           Buffer.from(message),
           // Buffer.from(signature),
           signature_buf,
@@ -323,8 +319,8 @@ describe("sorolan_bridge", () => {
         )
         .accounts({
           claimer: program.provider.publicKey,
-          // user: user_kp.publicKey,
           user: user_kp_pubkey,
+          validator: validator0_kp.publicKey,
           authority: program.provider.publicKey,
           programPda: program_pda,
           userPda: userPda,
@@ -333,7 +329,6 @@ describe("sorolan_bridge", () => {
           mint: mint_kp.publicKey,
           tokenProgram: spltoken.TOKEN_PROGRAM_ID,
           associatedTokenProgram: spltoken.ASSOCIATED_TOKEN_PROGRAM_ID,
-          // authority: program.provider.publicKey,
           ixSysvar: web3.SYSVAR_INSTRUCTIONS_PUBKEY,
           systemProgram: web3.SystemProgram.programId,
         })
@@ -344,11 +339,20 @@ describe("sorolan_bridge", () => {
       claimTx.recentBlockhash = (
         await provider.connection.getLatestBlockhash()
       ).blockhash;
-      claimTx.feePayer = program.provider.publicKey;
+      claimTx.feePayer =program.provider.publicKey;
 
-      let claimHash: string;
+      // try {let signedTx = await provider.wallet.signTransaction(claimTx);
+      // console.log("🚀 ~ file: sorolan_bridge.ts:346 ~ it ~ signedTx:", signedTx)
+
+
+      // let claimHash = await provider.connection.sendRawTransaction(signedTx.serialize());
+      // console.log("🚀 ~ file: sorolan_bridge.ts:349 ~ it ~ claimHash:", claimHash)}
+      // catch (error) {
+      //   console.log("🚀 ~ file: sorolan_bridge.ts:351 ~ it ~ error:", error)
+        
+      // }
       try {
-        claimHash = await web3.sendAndConfirmTransaction(
+        let claimHash = await web3.sendAndConfirmTransaction(
           provider.connection,
           claimTx,
           [deployer_kp]
@@ -437,8 +441,8 @@ describe("sorolan_bridge", () => {
           program_pda.toBase58()
         );
         let [userPda, userBump] = await getUserPda(
-          user_kp.publicKey
-          // validator0_kp.publicKey
+          user_kp.publicKey,
+          validator0_kp.publicKey
         );
         let authorityPdaInfo = await getAuthorityPda();
 
@@ -489,39 +493,5 @@ describe("sorolan_bridge", () => {
         console.log("🚀 ~ file: sorolan_bridge.ts:325 ~ it ~ error:", error);
       }
     }
-  });
-
-  it("Claim from db", async () => {
-    let msg = {
-      counter: 0,
-      tokenAddress: "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT",
-      tokenChain: "1234",
-      to: "AJahZgUcfgNcCsLjGuRbkfMt8NQp1U59F9SpjM3fq4nt",
-      toChain: "6789",
-      fee: 100,
-      method: "deposit",
-      amount: 200000000,
-    };
-    let signature =
-      "lT8AhfmvYTSdAv7psxo2RCbqGBueRvRCuyOzL665AoCdpj71BK7FcT4IaXc1eROxkDUmbaGqV5d8Py9v5BZBBA==";
-    let validator_key = "3USNdeEfH6hcf9RkczFYJhicBjJ7ugriTSX3j3snQxZE";
-    console.log(
-      "🚀 ~ file: sorolan_bridge.ts:537 ~ it ~ validator_kp.publicKey:",
-      validator0_kp.publicKey.toBase58()
-    );
-
-    let message_str = JSON.stringify(msg);
-    const messageBytes = Buffer.from(message_str, "utf-8");
-    console.log(
-      "🚀 ~ file: sorolan_bridge.ts:538 ~ it ~ base64.decode(signature):",
-      base64.decode(signature)
-    );
-
-    const result = nacl.sign.detached.verify(
-      messageBytes,
-      base64.decode(signature),
-      new PublicKey(validator_key).toBytes()
-    );
-    console.log("🚀 ~ file: sorolan_bridge.ts:539 ~ it ~ result:", result);
   });
 });

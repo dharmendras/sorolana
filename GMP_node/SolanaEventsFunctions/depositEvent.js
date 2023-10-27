@@ -99,7 +99,7 @@ async function solanaDeposit(event, slot, transaction_id) {
     fee: 100,
     // method: event.method,
     method: "Deposit",
-    amount: parseInt(event.amount),
+    amount: event.amount/10000000,
   };
   const message = JSON.stringify(solana_msg);
   console.log(
@@ -115,7 +115,7 @@ async function solanaDeposit(event, slot, transaction_id) {
       console.log("date-->", formattedDate)
       // const date = new Date(Date.now()).toLocaleString();
       let data = {
-        amount: event.amount,
+        amount: event.amount/10000000,
         from: event.from,
         receiver: event.receiver_address,
         destination_chain_id: event.to_chain,
@@ -147,7 +147,7 @@ async function solanaDeposit(event, slot, transaction_id) {
       );
       if (!receiverId || res.data.data.length == 0) {
         let message_data = {
-          amount: event.amount,
+          amount: event.amount/10000000,
           from: event.from,
           receiver: event.receiver_address,
           destination_chain_id: event.to_chain,

@@ -7,7 +7,8 @@
         "@coral-xyz/anchor": "^0.27.0",
         "@solana/spl-token": "^0.3.8",
         "tweetnacl": "^1.0.3",
-        "tweetnacl-util": "^0.15.1"
+        "tweetnacl-util": "^0.15.1",
+        "web3-utils": "^4.0.7"
     },
     "devDependencies": {
         "@types/bn.js": "^5.1.0",
