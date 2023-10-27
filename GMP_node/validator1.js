@@ -61,10 +61,12 @@ const getUserPda = async (user) => {
 
 const server = new StellarSdk.Server("https://horizon-testnet.stellar.org/");
 
-// program.addEventListener("DepositEvent", (event, slot, transaction_id) => {
-//  // solanaDeposit(event, slot, transaction_id);
-//   SorobanClaim(event , slot , transaction_id)
-// });
+program.addEventListener("DepositEvent", (event, slot, transaction_id) => {
+ console.log("🚀 ~ file: validator1.js:65 ~ program.addEventListener ~ event:", event)
+ // solanaDeposit(event, slot, transaction_id);
+  SorobanClaim(event , slot , transaction_id)
+
+});
 program.addEventListener("WithdrawEvent", (event, slot, transaction_id) => {
   solanaWithdrawEventHandle(event, slot, transaction_id);
 });

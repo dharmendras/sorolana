@@ -4,6 +4,7 @@ use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, symbol_short, token, vec, Address, Bytes,
     BytesN, ConversionError, Env, IntoVal, String, Symbol, TryFromVal, Val, Vec,
 };
+
 mod token_contract {
     soroban_sdk::contractimport!(file = "./token/soroban_token_contract.wasm");
 }
@@ -42,7 +43,7 @@ impl TryFromVal<Env, DataKeyToken> for Val {
     fn try_from_val(_env: &Env, v: &DataKeyToken) -> Result<Self, Self::Error> {
         Ok((*v as u32).into())
     }
-}   
+}
 
 const CURRENT_VALIDATOR: [&str; 4] = [
     "9tplgeinj8sHOID2s/znZ8OAIu0/zBhVPUyayBnS320=",
@@ -65,7 +66,7 @@ fn compare(env: Env, key_to_compare: &BytesN<32>) -> bool {
         } else {
         }
     }
-   
+
     if IS_TRUE == true {
         true
     } else {
@@ -132,7 +133,6 @@ struct SorobanSoloanaBridge;
 
 #[contractimpl]
 impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
-
     fn deposit(env: Env, from: Address, token: Address, amount: i128, to: String) -> i128 {
         from.require_auth();
 
@@ -196,26 +196,37 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         amount: i128,
     ) -> i128 {
         user.require_auth();
-        
+
         let counter: i128 = 0;
-        UserCounter::KeyValue(user.clone(), counter);
+
         let check = compare(env.clone(), &public_key);
-        
+
+        env.storage()
+            .instance()
+            .set(&DataKey::Counter((user.clone())), &counter);
+
+        let user_counter: i128 = env
+            .storage()
+            .instance()
+            .get(&DataKey::Counter((user.clone())))
+            .unwrap();
+
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
 
-       if check == true {
+        if check == true {
             let share_contract = get_token(&env.clone());
             let client = wrappedtoken::Client::new(&env, &share_contract);
-            client.mint(&user, &amount);
+            client.mint(&user.clone(), &amount);
             let balance = client.balance(&user);
             //   balance
-           1 // if true
+         //   1 // if true
+            user_counter
         } else {
-          //  return Err(VerifyError::InvalidPublickey);
-           0
-       }
-       
+            //  return Err(VerifyError::InvalidPublickey);
+            0
+        }
+
         //  Ok(())
     }
 
@@ -232,7 +243,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         let method: String = "Withdraw".into_val(&env);
 
-        let amount: i128 = balance;
+        let amount: i128 =  amount;
 
         let token_chain: i128 = 456;
 

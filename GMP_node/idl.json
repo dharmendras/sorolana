@@ -113,6 +113,11 @@
           "isSigner": false
         },
         {
+          "name": "validator",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": false
@@ -220,6 +225,10 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "to",
+          "type": "string"
         }
       ]
     }
@@ -343,7 +352,7 @@
           "index": false
         },
         {
-          "name": "userAddress",
+          "name": "userValidatorAddress",
           "type": "publicKey",
           "index": false
         }
@@ -408,6 +417,6 @@
     }
   ],
   "metadata": {
-    "address": "HYjGGd6Tp7CCjHuLFwX5hPQwoRHzsLwtKVn8cRcpP9Aw"
+    "address": "4YXajmGwhTcszkZoae6TWQKvxwt5XAhvj4naV7biSnpT"
   }
 }

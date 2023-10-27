@@ -99,11 +99,11 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
     toChain: event.toChain,
     fee: 100,
     method: event.method,
-    amount: event.amount.toNumber()/web3.LAMPORTS_PER_SOL,
+    amount: event.amount.toNumber()
   };
   console.log(
     "🚀 ~ file: solanaWithdrawHandle.js:103 ~ solanaWithdrawEventHandle ~ event.amount.toNumber()/web3.LAMPORTS_PER_SOL:",
-    event.amount.toNumber()/web3.LAMPORTS_PER_SOL
+    event.amount.toNumber()
   );
   const message = JSON.stringify(soroban_msg);
   console.log(
@@ -114,7 +114,7 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
   try {
     const date = new Date(Date.now()).toLocaleString();
     let data = {
-      amount: parseFloat(event.amount.toNumber()/web3.LAMPORTS_PER_SOL),
+      amount: parseFloat(event.amount.toNumber()),
       from: user_key.toBase58(),
       receiver: event.receiverAddress,
       destination_chain_id: event.toChain,
@@ -142,7 +142,7 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
     // if (!receiverId || res.data.data.length == 0) {
     if (true) {
       let message_data = {
-        amount: event.amount.toNumber()/web3.LAMPORTS_PER_SOL,
+        amount: event.amount.toNumber(),
         from: user_key.toBase58(),
         receiver: event.receiverAddress,
         destination_chain_id: event.toChain,

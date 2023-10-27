@@ -49,7 +49,7 @@ async function pollSorobanDepositEvents() {
           {
             type: "contract",
             contractIds: [
-              "CDQGPM5D7U6GFP37MWZP2KS65F6PXGUDOWGFS5XP4GR5C7VL4O7DYJ2J",
+              "CBUOLNKEOELEGEGZLKAJD3XWKFNEMJDI7NZZGWGLG3VORO75MPAYVMCH",
             ],
             topics: [
               [
@@ -156,7 +156,7 @@ async function pollSorobanWithdrawEvents() {
           {
             type: "contract",
             contractIds: [
-              "CCRNS2S6DMCJOB3Q5YRQRPKS47L77ERDF7UR4XTIWJJ2A47AFOC5GW3M",
+              "CBUOLNKEOELEGEGZLKAJD3XWKFNEMJDI7NZZGWGLG3VORO75MPAYVMCH",
             ],
             topics: [
               [
@@ -242,6 +242,6 @@ async function pollSorobanWithdrawEvents() {
 // Schedule a cron job to run every 15 seconds and call pollSorobanEvents
 // cron.schedule("*/1 * * * *", pollSorobanEvents);
 cron.schedule("*/15 * * * * *", pollSorobanDepositEvents);
-//cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
+cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
 // Start listening on port 3000
 app.listen(3000, () => console.log("Server is listening on port 3000."));

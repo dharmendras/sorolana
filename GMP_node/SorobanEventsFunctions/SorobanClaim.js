@@ -185,7 +185,7 @@ async function SorobanClaim(event, slot, transaction_id) {
             console.log("🚀 ~ file: SorobanClaim.js:184 ~ validator_data.validator_sig:", validator_data.validator_sig)
             
             await axios
-                .post(`${base_url}/Signature`, validator_data)
+                .post(`${base_url}/gmp/Signature`, validator_data)
                 .then(async (response) => {
                     console.log(
                         "🚀 ~ file: depositEvent.js:186 ~ .then ~ response:",

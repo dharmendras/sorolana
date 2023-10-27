@@ -99,7 +99,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
     fee: 100,
     // method: event.method,
     method: "Burn",
-    amount: event.amount/10000000,
+    amount: event.amount,
   };
   const message = JSON.stringify(solana_msg);
   console.log(
@@ -111,7 +111,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
     try {
       const date = new Date(Date.now()).toLocaleString();
       let data = {
-        amount: event.amount/10000000,
+        amount: event.amount,
         from: event.from,
         //receiver: event.receiver_address,
         destination_chain_id: event.to_chain,
@@ -143,7 +143,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
       );
       if (!receiverId || res.data.data.length == 0) {
         let message_data = {
-          amount: event.amount/10000000,
+          amount: event.amount,
           from: event.from,
          // receiver: event.receiver_address,
           destination_chain_id: event.to_chain,
