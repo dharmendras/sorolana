@@ -49,7 +49,7 @@ async function pollSorobanDepositEvents() {
           {
             type: "contract",
             contractIds: [
-              "CBUOLNKEOELEGEGZLKAJD3XWKFNEMJDI7NZZGWGLG3VORO75MPAYVMCH",
+              "CBJU2VXIICMHETXON4GSMCU4XJR44LS5IYGIUBYBHYI2B3CCOZS5JVPL",
             ],
             topics: [
               [
@@ -116,16 +116,17 @@ async function pollSorobanDepositEvents() {
     let converted_value = SorobanClient.scValToNative(scVal)
     console.log("🚀 ~ file: depositEvent.js:108 ~ pollSorobanEvents ~ converted_value:", converted_value);
 
-    try {
-      convertedData = convertBigIntToString(converted_value);
-      console.log("🚀 ~ file: depositEvent.js:111 ~ pollSorobanEvents ~ convertedData:", convertedData);
-    } catch (error) {
-      console.log("🚀 ~ file: depositEvent.js:114 ~ pollSorobanEvents ~ error:", error);
-    }
+    // try {
+    //   convertedData = convertBigIntToString(converted_value);
+    //   console.log("🚀 ~ file: depositEvent.js:111 ~ pollSorobanEvents ~ convertedData:", convertedData);
+    // } catch (error) {
+    //   console.log("🚀 ~ file: depositEvent.js:114 ~ pollSorobanEvents ~ error:", error);
+    // }
     let soroban_deposit_random_transaction_hash = "e4eb26470ad1f19f900b1e943d8bd5edf71bc1e8c3fd6ca9b39b93fbf4936b40" // TODO: Triggering Event should give tx hash
 
     // Event data will be inserted to Postgres DB in below function
-    await solanaDeposit(convertedData, 0, soroban_deposit_random_transaction_hash)
+    await solanaDeposit(converted_value, 0, soroban_deposit_random_transaction_hash)
+    console.log("🚀 ~ fyile: depositEvent.js:129 ~ pollSorobanDepositEvents ~ converted_value:", converted_value)
 
   } catch (error) {
     // Log any other errors that may occur
@@ -156,7 +157,7 @@ async function pollSorobanWithdrawEvents() {
           {
             type: "contract",
             contractIds: [
-              "CBUOLNKEOELEGEGZLKAJD3XWKFNEMJDI7NZZGWGLG3VORO75MPAYVMCH",
+              "CBJU2VXIICMHETXON4GSMCU4XJR44LS5IYGIUBYBHYI2B3CCOZS5JVPL",
             ],
             topics: [
               [

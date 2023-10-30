@@ -44,16 +44,16 @@ function convertToBytes32(address) {
 
     return bytes32Array;
 }
-describe('MyTestSuite', () => {
+describe('SorobanTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CAWVBQ4YWNCUJJVEOVKXLULAAGL7WX4TEJKPARAC4RG2FP6XCLEW74SM';
+    const contractId = 'CBJU2VXIICMHETXON4GSMCU4XJR44LS5IYGIUBYBHYI2B3CCOZS5JVPL';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     //SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C
     //SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO
     const secret_key = 'SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
-    let custom_source_token = "CA7OE64GEAHPSLSGNO7LBLRVEIMR4PQUQLIN66ZWPRCGKN65RECE3Q2S"
+    let custom_source_token = "CDILU5GSXZLRM6JTYTGDKBTIPJD43GEBJVSECE6DKNJ4I7KBN2Z4EKRC"
     const sleepTime = Math.min(1000, 120000);
 
  //  let amount = 1000_000_000_0
@@ -61,7 +61,7 @@ describe('MyTestSuite', () => {
     it('deposit method test case', async () => {
 
       //  await get_balance(native_source_token, user)
-     await deposit(contractId, secret_key, native_source_token, amount)
+  //   await deposit(contractId, secret_key, native_source_token, amount)
      //   await get_balance(native_source_token, user)
 
 
@@ -96,23 +96,36 @@ describe('MyTestSuite', () => {
         const message = util.decodeUTF8(string);
         
         //  console.log("Balance Before  claim method")
-        // let amount =  await get_balance(custom_source_token, user)
+         let before_claim =  await get_balance(custom_source_token, user)
+
+         console.log("🚀 ========>User Balance Before Claim<========", before_claim)
+
           await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
-        //  await get_balance(custom_source_token, user)
+
+         let after_claim =  await get_balance(custom_source_token, user)
+
+         console.log("🚀 ========>User Balance after Claim<========", after_claim)
+
         //  console.log("Balance after claim method")
 
 
     });
     it('withdraw method test case', async () => {
+        let before_withdraw=  await get_balance(custom_source_token, user)
+
+        console.log("🚀 ========>User Balance Before Burn<========", before_withdraw)
 
           await withdraw(contractId, secret_key, amount, user)
-        //   await get_balance(native_source_token, user)
+
+          let after_withdraw=  await get_balance(custom_source_token, user)
+          console.log("🚀 ========>User Balance After Burn<========", after_withdraw)
+
 
     });
 
     it('release method test case', async () => {
 
-         await release(contractId, secret_key, amount)
+        // await release(contractId, secret_key, amount)
         // await get_balance(custom_source_token, user)
 
     });

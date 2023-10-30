@@ -11,10 +11,10 @@ const release = async (contractId, secret , amount) => {
     const contract = new SorobanClient.Contract(contractId);
 
     let keypair = SorobanClient.Keypair.fromSecret(secret)
-    console.log("🚀 ~ file: release.js:14 ~ release ~ keypair:", keypair)
+   // console.log("🚀 ~ file: release.js:14 ~ release ~ keypair:", keypair)
 
     const account = await server.getAccount(keypair.publicKey());
-    console.log("🚀 ~ file: release.js:17 ~ release ~ account:", account)
+ //   console.log("🚀 ~ file: release.js:17 ~ release ~ account:", account)
 
     const obj1 = { type: 'address', value: keypair.publicKey() };
     const obj2 = { type: 'scoI128', value: amount };
@@ -32,17 +32,17 @@ const release = async (contractId, secret , amount) => {
         .addOperation(contract.call(method, ...params))
         .setTimeout(SorobanClient.TimeoutInfinite)
         .build();
-    console.log("🚀 ~ file: release.js:35 ~ release ~ tx:", tx)
+  //  console.log("🚀 ~ file: release.js:35 ~ release ~ tx:", tx)
 
     const sim = await server.simulateTransaction(tx);
-    console.log("🚀 ~ file: release.js:38 ~ release ~ sim:", sim)
+  //  console.log("🚀 ~ file: release.js:38 ~ release ~ sim:", sim)
 
     let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
     _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);
-        console.log("🚀 ~ file: release.js:45 ~ release ~ hash:", hash)
+    //    console.log("🚀 ~ file: release.js:45 ~ release ~ hash:", hash)
         
         const sleepTime = Math.min(1000, 60000);
 

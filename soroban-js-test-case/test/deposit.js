@@ -47,19 +47,19 @@ const deposit = async (contractId, secret, source_token, amount) => {
         .addOperation(contract.call(method, ...params))
         .setTimeout(SorobanClient.TimeoutInfinite)
         .build();
-   console.log("🚀 ~ file: deposit.js:37 ~ deposit ~ tx:", tx)
+  // console.log("🚀 ~ file: deposit.js:37 ~ deposit ~ tx:", tx)
 
 
     const sim = await server.simulateTransaction(tx);
-   console.log("🚀 ~ file: deposit.js:41 ~ deposit ~ sim:", sim)
+  // console.log("🚀 ~ file: deposit.js:41 ~ deposit ~ sim:", sim)
 
     let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
     _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
-    console.log("🚀 ~ file: deposit.js:50 ~ deposit ~ _prepareTx:", _prepareTx)
+ //   console.log("🚀 ~ file: deposit.js:50 ~ deposit ~ _prepareTx:", _prepareTx)
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);
-        console.log("🚀 ~ file: deposit.js:48 ~ deposit ~ hash:", hash)
+     //   console.log("🚀 ~ file: deposit.js:48 ~ deposit ~ hash:", hash)
         
         const sleepTime = Math.min(1000, 60000);
 
@@ -68,7 +68,7 @@ const deposit = async (contractId, secret, source_token, amount) => {
             try {
                 //get transaction response
                 const response = await server?.getTransaction(hash);
-                console.log("🚀 ~ file: deposit.js:57 ~ deposit ~ response:", response)
+          //      console.log("🚀 ~ file: deposit.js:57 ~ deposit ~ response:", response)
 
                 if (response.status == "SUCCESS") {
                     //    let result = JSON.parse(JSON.stringify(response.returnValue));

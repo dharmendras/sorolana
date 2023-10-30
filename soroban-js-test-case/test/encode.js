@@ -14,7 +14,7 @@ const encode = (data) => {
             return scoI128;
 
         case "bytes":
-            console.log("data", data.type)
+          //  console.log("data", data.type)
             return SorobanClient.xdr.ScVal.scvBytes(Buffer.from(data.value, "hex"))
 
         case "scvString":

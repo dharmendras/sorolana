@@ -37,12 +37,12 @@ const get_balance = async (contractId, holder) => {
    // console.log("🚀 ~ file: getbalance.js:27 ~ constget_balance= ~ tx:", tx)
 
     const sim = await server.simulateTransaction(tx);
-    console.log("🚀 ~ file: getbalance.js:30 ~ constget_balance= ~ sim:", sim.result.retval._value._attributes.lo._value)
+   // console.log("🚀 ~ file: getbalance.js:30 ~ constget_balance= ~ sim:", sim.result.retval._value._attributes.lo._value)
     const bigIntValue = BigInt(sim.result.retval._value._attributes.lo._value);
 
     const amount  = Number(bigIntValue);
-    console.log("🚀 ~ file: getbalance.js:44 ~ constget_balance= ~ amount:", amount)
-    
+ //   console.log("🚀 ~ file: getbalance.js:44 ~ constget_balance= ~ amount:", amount)
+   return amount.toString()
 
 }
 module.exports = get_balance

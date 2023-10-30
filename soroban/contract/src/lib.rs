@@ -209,6 +209,8 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         env.crypto()
             .ed25519_verify(&public_key, &message, &signature);
 
+        let counter:Bytes = message.slice(28..28);
+            
         if check == true {
             let share_contract = get_token(&env.clone());
             let client = wrappedtoken::Client::new(&env, &share_contract);
@@ -229,7 +231,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
     fn withdraw(env: Env, amount: i128, user: Address, to: String) -> i128 {
         user.require_auth();
-
+       
         let token_address = get_token(&env);
 
         let client = wrappedtoken::Client::new(&env, &token_address);

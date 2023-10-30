@@ -13,10 +13,10 @@ const customtoken = async (contractId, secret, wasm_hash, salt) => {
     const contract = new SorobanClient.Contract(contractId);
 
     let keypair = SorobanClient.Keypair.fromSecret(secret)
-    console.log("🚀 ~ file: customtoken.js:16 ~ customtoken ~ keypair:", keypair)
+   // console.log("🚀 ~ file: customtoken.js:16 ~ customtoken ~ keypair:", keypair)
 
     const account = await server.getAccount(keypair.publicKey());
-    console.log("🚀 ~ file: customtoken.js:19 ~ customtoken ~ account:", account)
+   // console.log("🚀 ~ file: customtoken.js:19 ~ customtoken ~ account:", account)
 
     const obj1 = { type: 'bytes', value: wasm_hash };
     const obj2 = { type: 'bytes', value: salt };
@@ -34,17 +34,17 @@ const customtoken = async (contractId, secret, wasm_hash, salt) => {
         .addOperation(contract.call(method, ...params))
         .setTimeout(SorobanClient.TimeoutInfinite)
         .build();
-    console.log("🚀 ~ file: customtoken.js:37 ~ customtoken ~ tx:", tx)
+  //  console.log("🚀 ~ file: customtoken.js:37 ~ customtoken ~ tx:", tx)
 
     const sim = await server.simulateTransaction(tx);
-    console.log("🚀 ~ file: customtoken.js:40 ~ customtoken ~ sim:", sim)
+   // console.log("🚀 ~ file: customtoken.js:40 ~ customtoken ~ sim:", sim)
 
     let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
     _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);
-        console.log("🚀 ~ file: customtoken.js:47 ~ customtoken ~ hash:", hash)
+     //   console.log("🚀 ~ file: customtoken.js:47 ~ customtoken ~ hash:", hash)
         
         const sleepTime = Math.min(1000, 60000);
 

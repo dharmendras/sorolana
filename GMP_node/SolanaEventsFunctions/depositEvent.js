@@ -41,7 +41,7 @@ const getUserPda = async (user) => {
 async function solanaDeposit(event, slot, transaction_id) {
   console.log(
     "🚀 ~ file: depositEvent.js:36 ~ solanaDeposit ~ event.receiver_address:",
-    event.receiver_address
+    event
   );
   let receiverId = 0;
   let [receiver_pda, userBump] = await getUserPda(
@@ -93,21 +93,23 @@ async function solanaDeposit(event, slot, transaction_id) {
   let solana_msg = {
     counter: receiverId,
     tokenAddress: event.token_address,
-    tokenChain: event.token_chain,
+    tokenChain: Number(event.token_chain),
     to: event.receiver_address,
-    toChain: event.to_chain,
+    toChain: Number(event.to_chain),
     fee: 100,
-    // method: event.method,
-    method: "Deposit",
-    amount: event.amount,
+    method: event.method,
+    // method: "Deposit",
+    amount: Number(event.amount),
   };
+  console.log("🚀 ~ file: depositEvent.js:104 ~ solanaDeposit ~ solana_msg:", solana_msg)
+  console.log("🚀 ~ file: depositEvent.js:104 ~ solanaDeposit ~ solana_msg.event.amount:", Number(event.amount))
   const message = JSON.stringify(solana_msg);
   console.log(
     "🚀 ~ file: validator1.js:272 ~ solanaDeposit ~ message:",
     message
   );
 
-  if (event.amount > 0) {
+  if (Number(event.amount) > 0) {
     try {
       let timestamp = Date.now();
       let date = new Date(timestamp);
@@ -115,10 +117,10 @@ async function solanaDeposit(event, slot, transaction_id) {
       console.log("date-->", formattedDate)
       // const date = new Date(Date.now()).toLocaleString();
       let data = {
-        amount: event.amount,
+        amount: Number(event.amount),
         from: event.from,
         receiver: event.receiver_address,
-        destination_chain_id: event.to_chain,
+        destination_chain_id: Number(event.to_chain),
         // date: formattedDate,
         date: date,
         transaction_hash: `${transaction_id}`,
@@ -147,10 +149,10 @@ async function solanaDeposit(event, slot, transaction_id) {
       );
       if (!receiverId || res.data.data.length == 0) {
         let message_data = {
-          amount: event.amount,
+          amount: Number(event.amount),
           from: event.from,
           receiver: event.receiver_address,
-          destination_chain_id: event.to_chain,
+          destination_chain_id: Number(event.to_chain),
           date: date,
           transaction_hash: `${transaction_id}`,
           status: "pending",
