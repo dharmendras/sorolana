@@ -92,9 +92,9 @@ async function solanaWithdraw(event, slot, transaction_id) {
 
   let solana_msg = {
     counter: receiverId,
-    tokenAddress: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U",
+    tokenAddress: "CB5AD2U",
     tokenChain: Number(event.token_chain),
-    to: event.receiver_address,
+    to: event.from,   //Todo: change it in SC
     toChain: Number(event.to_chain),
     fee: 100,
     method: event.method,
@@ -113,7 +113,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
       let data = {
         amount: Number(event.amount),
         from: event.from,
-        //receiver: event.receiver_address,
+        receiver: event.from,
         destination_chain_id: Number(event.to_chain),
         // date: formattedDate,
         date: date,
@@ -145,7 +145,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
         let message_data = {
           amount: Number(event.amount),
           from: event.from,
-          // receiver: event.receiver_address,
+          receiver: event.from,
           destination_chain_id: Number(event.to_chain),
           date: date,
           transaction_hash: `${transaction_id}`,
