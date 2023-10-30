@@ -40,7 +40,7 @@ pub struct AccountsInvolvedInInitMintToken<'info>
     #[account(
       init,
       payer = authority,
-      mint::decimals = 9,
+      mint::decimals = 7,
       mint::authority = authority_pda,
       mint::freeze_authority = authority_pda,
     )]

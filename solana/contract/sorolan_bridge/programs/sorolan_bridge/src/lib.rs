@@ -262,7 +262,7 @@ pub mod sorolan_bridge {
             // let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
             // // Execute anchor's helper function to mint tokens
-            let _a = mint_to(cpi_ctx, amt * 1000000000)?;
+            let _a = mint_to(cpi_ctx, amt)?;
         } else {
             msg!("Release method invoked");
             let (program_pda, generic_bump_seed) = Pubkey::find_program_address(
@@ -273,7 +273,7 @@ pub mod sorolan_bridge {
                 &system_instruction::transfer(
                     &program_pda.key(),  // local var .key() // from
                     &user_account.key(), // to // double checked by deriving treasury PDA in program itself
-                    amt * 1000000000,
+                    amt,
                 ),
                 &[
                     ctx.accounts.program_pda.to_account_info(), // from
