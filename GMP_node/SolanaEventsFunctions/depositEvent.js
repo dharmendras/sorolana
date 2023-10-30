@@ -30,11 +30,15 @@ const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 let validator_kp = Keypair.fromSecretKey(
   new Uint8Array(JSON.parse(fs.readFileSync(`${validaor_kp_path}`).toString()))
 );
-const getUserPda = async (user) => {
+const getUserPda = async (user, validator) => {
   const userPdaInfo = web3.PublicKey.findProgramAddressSync(
-    [anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
-    program.programId
-  );
+      [
+        anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX),
+        validator.toBuffer(),
+        user.toBuffer(),
+      ],
+      program.programId
+    );
   return userPdaInfo;
 };
 
@@ -45,7 +49,8 @@ async function solanaDeposit(event, slot, transaction_id) {
   );
   let receiverId = 0;
   let [receiver_pda, userBump] = await getUserPda(
-    new PublicKey(event.receiver_address.toString())
+    new PublicKey(event.receiver_address.toString()),
+    new PublicKey(validator_kp.publicKey.toBase58())
   );
   console.log(
     "🚀 ~ file: validator1.js:196 ~ axios.get ~ receiver_pda.toBase58():",

@@ -61,7 +61,7 @@ let db_msg = {
 };
 
 let Soroban_msg = {
-  counter: 1,
+  counter: 3,
   tokenAddress: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U",
   tokenChain: 1234,
   to: "8CSbDYyUJGZRby3nbsJ2FzJS3nzfXojCNHGeSrtTHvGA",
@@ -149,7 +149,7 @@ describe("sorolan_bridge", () => {
   };
 
   it("Can initialize a authority pda: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       const [authorityPda, authorityBump] =
         web3.PublicKey.findProgramAddressSync(
           [
@@ -175,7 +175,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Authority can initialize the mint account: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         let authorityPdaInfo = await getAuthorityPda();
         console.log("authorityPdaInfo:", authorityPdaInfo[0].toBase58());
@@ -203,7 +203,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Users can deposit funds to the program pda: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       try {
         const [program_pda, player_bump] = await getProgramPda();
         console.log(

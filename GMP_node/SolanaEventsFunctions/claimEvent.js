@@ -22,7 +22,7 @@ async function solanaClaim(event, slot, transaction_id) {
   console.log("🚀 ~ file: validator1.js:296 ~ solanaClaim ~ slot:", slot);
   console.log("🚀 ~ file: validator1.js:296 ~ solanaClaim ~ event:", event);
 
-  let userAddress = event.userAddress.toBase58();
+  let userAddress = event.userValidatorAddress.toBase58();
   let userCounter = event.claimCounter;
 
   let message_data = {
