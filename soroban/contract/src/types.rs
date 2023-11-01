@@ -22,9 +22,19 @@ pub struct Withdraw {
     pub amount: i128,
 
     pub token_chain: i128,
-    pub from: String,
     pub to_chain: i128,
+    pub from: Address,
+    pub receiver_address: String,
     pub fee: u32,
+}
+#[derive(Clone, Debug)]
+#[contracttype]
+
+pub struct Claim {
+    pub method: String,
+    pub Claim_Counter: i128,
+    pub user_address: Address,
+   
 }
 #[derive(Clone, Debug)]
 #[contracttype]

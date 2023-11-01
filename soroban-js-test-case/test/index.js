@@ -46,14 +46,14 @@ function convertToBytes32(address) {
 }
 describe('SorobanTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CBJU2VXIICMHETXON4GSMCU4XJR44LS5IYGIUBYBHYI2B3CCOZS5JVPL';
+    const contractId = 'CDMRAQ52GVWI4JK7DP3EY4J6KCOARUMG6HZTVJYDVQECTWSA42NJ3JZ6';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     //SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C
     //SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO
     const secret_key = 'SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
-    let custom_source_token = "CDILU5GSXZLRM6JTYTGDKBTIPJD43GEBJVSECE6DKNJ4I7KBN2Z4EKRC"
+    let custom_source_token = "CDNMTJA6PYAG6KQBASJU7FLPUS3ZONDYU5ZGQQEVRKX3KK4O5RSG3OQQ"
     const sleepTime = Math.min(1000, 120000);
 
  //  let amount = 1000_000_000_0
@@ -96,29 +96,66 @@ describe('SorobanTestSuite', () => {
         const message = util.decodeUTF8(string);
         
         //  console.log("Balance Before  claim method")
-         let before_claim =  await get_balance(custom_source_token, user)
+        //  let before_claim =  await get_balance(custom_source_token, user)
 
-         console.log("🚀 ========>User Balance Before Claim<========", before_claim)
+        //  console.log("🚀 ========>User Balance Before Claim<========", before_claim)
 
           await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
 
-         let after_claim =  await get_balance(custom_source_token, user)
+        //  let after_claim =  await get_balance(custom_source_token, user)
 
-         console.log("🚀 ========>User Balance after Claim<========", after_claim)
+        //  console.log("🚀 ========>User Balance after Claim<========", after_claim)
+
+        //  console.log("Balance after claim method")
+
+
+    });
+    it('claim method test case', async () => {
+        let msg = {
+            "counter": 1,
+            "tokenAddress": "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U", "tokenChain": 123, "to": "GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W", "toChain": 456, "fee": 100, "method": "Deposit", "amount": 8
+        }
+        const validator_public_key = "9tplgeinj8sHOID2s/znZ8OAIu0/zBhVPUyayBnS320=";
+        //   const validator_public_key = "GADQONWGKD63YVBKZV54GKVK5XOYKDVJ4J4FA2S2GFN4V53KXYTZQMMJ";
+
+        let validator_key = convertToBytes32(validator_public_key)
+        //   let validator_key = convertToBytes(validator_public_key)
+        //console.log("🚀 ~ file: index.js:77 ~ it ~ validator_key:", validator_key)
+
+        let signature = "bHSVR57XtwoZH1Bv9gm6uBzticQrdSFVTKFhrJIg/tYeDexOi2qXyU+Ter+6GA/b6dVFTu3YyGSXfZ9o+YVdBw=="
+
+        const validator_signature = new Uint8Array(Buffer.from(signature, 'base64'));
+
+        let jsonString = JSON.stringify(msg)
+
+        let string = jsonString.toString();
+
+        const message = util.decodeUTF8(string);
+        
+        //  console.log("Balance Before  claim method")
+        //  let before_claim =  await get_balance(custom_source_token, user)
+
+        //  console.log("🚀 ========>User Balance Before Claim<========", before_claim)
+
+       //   await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+
+        //  let after_claim =  await get_balance(custom_source_token, user)
+
+        //  console.log("🚀 ========>User Balance after Claim<========", after_claim)
 
         //  console.log("Balance after claim method")
 
 
     });
     it('withdraw method test case', async () => {
-        let before_withdraw=  await get_balance(custom_source_token, user)
+        // let before_withdraw=  await get_balance(custom_source_token, user)
 
-        console.log("🚀 ========>User Balance Before Burn<========", before_withdraw)
+        // console.log("🚀 ========>User Balance Before Burn<========", before_withdraw)
 
-          await withdraw(contractId, secret_key, amount, user)
+        //   await withdraw(contractId, secret_key, amount, user)
 
-          let after_withdraw=  await get_balance(custom_source_token, user)
-          console.log("🚀 ========>User Balance After Burn<========", after_withdraw)
+        //   let after_withdraw=  await get_balance(custom_source_token, user)
+        //   console.log("🚀 ========>User Balance After Burn<========", after_withdraw)
 
 
     });

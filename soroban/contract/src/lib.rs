@@ -31,6 +31,7 @@ pub enum DataKeyToken {
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum VerifyError {
     InvalidPublickey = 1,
+    USER_ALREADY_CLAIMED = 2,
 }
 #[derive(Clone, Copy)]
 #[repr(u32)]
@@ -52,7 +53,7 @@ const CURRENT_VALIDATOR: [&str; 4] = [
     "oPAOzqSzSjDhFpcl3+awVhYvnOFr8Bw7YMBSWcgEQJo=",
 ];
 
-fn compare(env: Env, key_to_compare: BytesN<32>) -> bool {
+fn compare_validator_public_key(env: Env, key_to_compare: BytesN<32>) -> bool {
     let mut result: Bytes = key_to_compare.into_val(&env);
     let validator_pubkey: Bytes = [
         246, 218, 101, 129, 232, 167, 143, 203, 7, 56, 128, 246, 179, 252, 231, 103, 195, 128, 34,
@@ -116,10 +117,17 @@ pub trait SorobanSoloanaBridgeTrait {
         signature: BytesN<64>,
         user: Address,
         amount: i128,
-    ) -> i128;
+    ) -> Result<(), VerifyError>;
 
     fn withdraw(env: Env, amount: i128, user: Address, to: String) -> (i128);
-    fn release(env: Env, user: Address, amount: i128) -> (i128);
+    fn release(
+        env: Env,
+        public_key: BytesN<32>,
+        message: Bytes,
+        signature: BytesN<64>,
+        user: Address,
+        amount: i128,
+    ) -> (i128);
     fn upgrade(e: Env, new_wasm_hash: BytesN<32>);
 }
 #[contract]
@@ -188,55 +196,79 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         signature: BytesN<64>,
         user: Address,
         amount: i128,
-    ) -> i128 {
+    ) -> Result<(), VerifyError> {
         user.require_auth();
-        let mut result: Bytes = public_key.into_val(&env);
+
+        let counter_bytes: Bytes = message.slice(11..=11);
 
         let counter: i128 = 0;
 
-        let check = compare(env.clone(), public_key.clone());
+        env.storage()
+            .instance()
+            .set(&DataKey::Counter((user.clone())), &counter);
 
-        // env.storage()
-        //     .instance()
-        //     .set(&DataKey::Counter((user.clone())), &counter);
+        let mut get_user_counter: i128 = env
+            .storage()
+            .instance()
+            .get(&DataKey::Counter((user.clone())))
+            .unwrap();
 
-        // let user_counter: i128 = env
-        //     .storage()
-        //     .instance()
-        //     .get(&DataKey::Counter((user.clone())))
-        //     .unwrap();
+        let mut random_address: [u8; 100] = [0u8; 100];
+        let (sl, _) = random_address.split_at_mut(counter_bytes.len() as usize);
+        counter_bytes.copy_into_slice(sl);
 
-        env.crypto()
-            .ed25519_verify(&public_key, &message, &signature);
+        let counter_str = core::str::from_utf8(sl).unwrap();
+        let parse_counter: i128 = counter_str.parse().unwrap();
 
-        let counter:Bytes = message.slice(28..28);
-            
-        if check == true {
-            let share_contract = get_token(&env.clone());
-            let client = wrappedtoken::Client::new(&env, &share_contract);
-            client.mint(&user.clone(), &amount);
-            let balance = client.balance(&user);
+        if parse_counter == get_user_counter {
+            let check = compare_validator_public_key(env.clone(), public_key.clone());
 
-            //   balance
-            1 // if true
-              //   user_counter
+            if check == true {
+                env.crypto()
+                    .ed25519_verify(&public_key, &message, &signature);
+
+                let token_address = get_token(&env.clone());
+                let client = wrappedtoken::Client::new(&env, &token_address);
+                client.mint(&user.clone(), &amount);
+
+                get_user_counter = get_user_counter + 1;
+
+                env.storage()
+                    .instance()
+                    .set(&DataKey::Counter((user.clone())), &get_user_counter);
+
+                let method: String = "claim".into_val(&env);
+                let Claim_Counter: i128 = get_user_counter;
+                let user_address: Address = user;
+
+                let claim_event = Claim {
+                    method,
+                    Claim_Counter,
+                    user_address,
+                };
+
+                let symbol: Symbol = symbol_short!("Claim");
+
+                env.events()
+                    .publish((DataKey::Withdraw, symbol), claim_event);
+
+                return Ok(());
+            } else {
+                return Err(VerifyError::InvalidPublickey);
+            }
         } else {
-            //  return Err(VerifyError::InvalidPublickey);
-            0
-            //false
+            return Err(VerifyError::USER_ALREADY_CLAIMED);
         }
-
-        //  Ok(())
     }
 
-    fn withdraw(env: Env, amount: i128, user: Address, to: String) -> i128 {
+    fn withdraw(env: Env, amount: i128, user: Address, recipient: String) -> i128 {
         user.require_auth();
-       
+
         let token_address = get_token(&env);
 
         let client = wrappedtoken::Client::new(&env, &token_address);
 
-         client.burn(&user, &amount);
+        client.burn(&user, &amount);
 
         let balance = client.balance(&user);
 
@@ -245,10 +277,10 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let amount: i128 = amount;
 
         let token_chain: i128 = 456;
-
-        let from: String = to;
-
         let to_chain: i128 = 123;
+
+        let from: Address = user;
+        let receiver_address: String = recipient;
 
         let fee: u32 = 100;
 
@@ -256,8 +288,9 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             method,
             amount,
             token_chain,
-            from,
             to_chain,
+            from,
+            receiver_address,
             fee,
         };
         // //   env.storage().instance().set(&DataKey::Transfer, &transfer);
@@ -266,14 +299,31 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         env.events().publish((DataKey::Withdraw, symbol), transfer);
 
         balance
-       
+
         // share_contract
     }
-    fn release(env: Env, to: Address, amount: i128) -> i128 {
-        to.require_auth();
-        let token_address = get_native_token(&env);
-        let client = token::Client::new(&env, &token_address);
-        client.transfer(&env.current_contract_address(), &to, &amount);
+    fn release(
+        env: Env,
+        public_key: BytesN<32>,
+        message: Bytes,
+        signature: BytesN<64>,
+        receipent: Address,
+        amount: i128,
+    ) -> i128 {
+        receipent.require_auth();
+
+        let check = compare_validator_public_key(env.clone(), public_key.clone());
+
+        if check == true {
+
+            env.crypto()
+                .ed25519_verify(&public_key, &message, &signature);
+
+            let token_address = get_native_token(&env);
+            let client = token::Client::new(&env, &token_address);
+            client.transfer(&env.current_contract_address(), &receipent, &amount);
+        }
+
         0
     }
     fn upgrade(e: Env, new_wasm_hash: BytesN<32>) {

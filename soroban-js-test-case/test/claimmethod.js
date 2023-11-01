@@ -43,7 +43,7 @@ const claim = async (contractId, secret, public_key, messageUint8, signUint8Arra
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);
-    //    console.log("🚀 ~ file: claimmethod.js:46 ~ claim ~ hash:", hash)
+       console.log("🚀 ~ file: claimmethod.js:46 ~ claim ~ hash:", hash)
 
         const sleepTime = Math.min(1000, 60000);
         for (let i = 0; i <= 60000; i += sleepTime) {
@@ -51,7 +51,7 @@ const claim = async (contractId, secret, public_key, messageUint8, signUint8Arra
             try {
                 //get transaction response
                 const response = await server?.getTransaction(hash);
-               // console.log("🚀 ~ file: claimmethod.js:54 ~ claim ~ response:", response)
+                console.log("🚀 ~ file: claimmethod.js:54 ~ claim ~ response:", response)
 
                 if (response.status == "SUCCESS") {
                     //    let result = JSON.parse(JSON.stringify(response.returnValue));
