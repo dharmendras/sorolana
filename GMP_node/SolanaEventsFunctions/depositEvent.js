@@ -160,9 +160,10 @@ async function solanaDeposit(event, slot, transaction_id) {
           destination_chain_id: Number(event.to_chain),
           date: date,
           transaction_hash: `${transaction_id}`,
-          status: "pending",
+          status: "success",
           message: message,
           queue_id: receiverId,
+          is_claimed: 'NO'
         };
         let response = await axios.post(`${base_url}/gmp/Message`, message_data);
         console.log(

@@ -49,7 +49,7 @@ async function pollSorobanDepositEvents() {
           {
             type: "contract",
             contractIds: [
-              "CBJU2VXIICMHETXON4GSMCU4XJR44LS5IYGIUBYBHYI2B3CCOZS5JVPL",
+              "CC2GMSU3J6HWWQLFY6OO23M6PTA7RXWOA7TB3ZL5L3ZS6RDOKKH64RDW",
             ],
             topics: [
               [

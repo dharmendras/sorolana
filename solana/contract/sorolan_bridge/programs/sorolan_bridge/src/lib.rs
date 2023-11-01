@@ -150,7 +150,7 @@ pub mod sorolan_bridge {
             amount: amount,
             token_address: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".to_string(),
             token_chain: 123,
-            reciever_address: to,
+            receiver_address: to,
             to_chain: 456,
             fee: 6000,
         });
@@ -291,7 +291,7 @@ pub mod sorolan_bridge {
         emit!(ClaimEvent {
             amount: amt,
             claim_counter: user_pda_account.claim_counter,
-            user_validator_address: user_pda_account.key()
+            user_validator_address: user_account.key()
         });
 
         user_pda_account.claim_counter += 1;

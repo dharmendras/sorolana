@@ -27,10 +27,11 @@ app.app.post("/gmp/Message", async (req, res) => {
     status,
     message,
     queue_id,
+    is_claimed
   } = req.body;
   try {
     const _query = await gmpdbclient.query(
-      `INSERT INTO message (amount,fromaddress, toaddress, tochain, date, transaction_hash, status, message_info, queue_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+      `INSERT INTO message (amount,fromaddress, toaddress, tochain, date, transaction_hash, status, message_info, queue_id, is_claimed) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
       [
         amount,
         from,
@@ -41,6 +42,7 @@ app.app.post("/gmp/Message", async (req, res) => {
         status,
         message,
         queue_id,
+        is_claimed
       ]
     );
     console.log("fullresponse id aa gyi hai---->", _query);
@@ -55,27 +57,29 @@ app.app.post("/gmp/Message", async (req, res) => {
     });
   }
 });
-app.app.get('/gmp/FullMessage', (req, res) => {
-  console.log("ht")
+app.app.get("/gmp/FullMessage", (req, res) => {
+  console.log("ht");
   try {
-
-      gmpdbclient.query(`SELECT * FROM message JOIN signature on message.id = signature.message_id`, (err, result) => {
-          if (!err) {
-              let _pa = JSON.stringify(result.rows)
-              let _str = JSON.parse(_pa)
-              res.status(200).json({ data: _str })
-              console.log("🚀 ~ file: message.js:50 ~ client.query ~ _str:", _str)
-          }
-          console.log("🚀 ~ file: message.js:64 ~ gmpdbclient.query ~ err:", err)
-      });
+    gmpdbclient.query(
+      `SELECT * FROM message JOIN signature on message.id = signature.message_id`,
+      (err, result) => {
+        if (!err) {
+          let _pa = JSON.stringify(result.rows);
+          let _str = JSON.parse(_pa);
+          res.status(200).json({ data: _str });
+          console.log("🚀 ~ file: message.js:50 ~ client.query ~ _str:", _str);
+        }
+        console.log("🚀 ~ file: message.js:64 ~ gmpdbclient.query ~ err:", err);
+      }
+    );
   } catch (error) {
-      console.log("🚀 ~ file: message.js:70 ~ app.app.get ~ error:", error)
-      console.log(error);
+    console.log("🚀 ~ file: message.js:70 ~ app.app.get ~ error:", error);
+    console.log(error);
   }
-})
+});
 // Post request for the table message_queue, which includes counter
 app.app.post("/gmp/message_queue", async (req, res) => {
-//  console.log("🚀 ~ file: message.js:50 ~ app.app.post ~ res:", res.data.body)
+  //  console.log("🚀 ~ file: message.js:50 ~ app.app.post ~ res:", res.data.body)
   console.log("🚀 ~ file: message.js:40 ~ app.app.post ~ req:", req.body);
   const {
     amount,
@@ -134,17 +138,17 @@ app.app.get("/gmp/message_queue", (req, res) => {
 });
 
 // Delet request for the table message_queue, which includes counter of claimed msg
-app.app.delete("/gmp/message_queue/:receiver_pda", (req, res) => {
-  let receiverPda = req.params.receiver_pda;
+app.app.delete("/gmp/message_queue/:receiver", (req, res) => {
+  let receiver = req.params.receiver;
   const { queue_id } = req.body;
   console.log(
     "🚀 ~ file: message.js:102 ~ app.app.delete ~ req.body:",
     req.body
   );
-  console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", receiverPda);
+  console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", receiver);
   try {
     // let qry = `SELECT queue_id FROM message_queue WHERE receiver_pda = '${receiverPda}'`;
-    let qry = `DELETE FROM message_queue WHERE receiver_pda = '${receiverPda}' and queue_id = '${queue_id}'`;
+    let qry = `DELETE FROM message_queue WHERE receiver = '${receiver}' and queue_id = '${queue_id}'`;
     console.log("🚀 ~ file: message.js:103 ~ app.app.get ~ qry:", qry);
     gmpdbclient.query(qry, (err, result) => {
       if (!err) {
@@ -167,11 +171,11 @@ app.app.delete("/gmp/message_queue/:receiver_pda", (req, res) => {
   }
 });
 // Get request for the table message_queue, which includes counter
-app.app.get("/gmp/message_queue/:receiver_pda", (req, res) => {
-  let receiverPda = req.params.receiver_pda;
-  console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", receiverPda);
+app.app.get("/gmp/message_queue/:receiver", (req, res) => {
+  let receiver = req.params.receiver;
+  console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", receiver);
   try {
-    let qry = `SELECT * FROM message_queue WHERE receiver_pda = '${receiverPda}' ORDER BY queue_id;`;
+    let qry = `SELECT * FROM message_queue WHERE receiver = '${receiver}' ORDER BY queue_id;`;
     console.log("🚀 ~ file: message.js:103 ~ app.app.get ~ qry:", qry);
     gmpdbclient.query(qry, (err, result) => {
       if (!err) {
@@ -180,7 +184,11 @@ app.app.get("/gmp/message_queue/:receiver_pda", (req, res) => {
           "🚀 ~ file: message.js:105 ~ gmpdbclient.query ~ rows:",
           rows.length
         );
-        res.status(200).json({ data: rows });
+        if (rows.length > 0) {
+          res.status(200).json({ data: rows });
+        } else {
+          res.status(200).json({ data: 0 });
+        }
       }
       console.log("🚀 ~ file: message.js:106 ~ app.app.get ~ err:", err);
     });
@@ -286,7 +294,7 @@ app.app.get("/gmp/Message/:userAddress", (req, res) => {
   let accountAddress = req.params.userAddress;
   try {
     gmpdbclient.query(
-      `SELECT * FROM message WHERE toaddress = '${accountAddress}' and status = 'pending'`,
+      `SELECT * FROM message WHERE toaddress = '${accountAddress}' and is_claimed = 'NO'`,
       (err, result) => {
         if (!err) {
           let _data = JSON.stringify(result.rows);
@@ -308,8 +316,9 @@ app.app.put("/gmp/Message/:receiver", (req, res) => {
   console.log("userid--->", receiver);
   try {
     const { rows } = gmpdbclient.query(
-      `UPDATE message SET status = 'success' WHERE receiver = '${receiver}' and queue_id = '${queue_id}'`
+      `UPDATE message SET is_claimed = 'YES' WHERE toaddress = '${receiver}' and queue_id = '${queue_id}'`
     );
+    console.log("🚀 ~ file: message.js:313 ~ app.app.put ~ rows:", rows);
     res.status(201).send({
       message: "Message updated successfully!",
     });

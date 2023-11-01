@@ -38,7 +38,7 @@ pub struct DepositEvent {
     pub amount: u64,        //8
     pub token_address: String, //40
     pub token_chain: u16,   //2
-    pub reciever_address: String, //40
+    pub receiver_address: String, //40
     pub to_chain: u16,  //2
     pub fee: u64,  //8
 }

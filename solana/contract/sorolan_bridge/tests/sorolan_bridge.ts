@@ -20,14 +20,14 @@ import { base64 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 const PROGRAM_SEED_PREFIX = "soroban_solana";
 const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 const AUTHORITY_SEED_PREFIX = "soroban_authority";
-const amount = new anchor.BN(0.001 * LAMPORTS_PER_SOL);
+const amount = new anchor.BN(2 * LAMPORTS_PER_SOL);
 const destination_address =
   "GDUUZPJFLI6BHGUHH32L7UMAJQHCI5VTHETE3PNRXS554W3OV7HBFIVR";
 let user_kp = Keypair.fromSecretKey(
   new Uint8Array(JSON.parse(fs.readFileSync("keys/user.json").toString()))
 );
 let validator0_kp = Keypair.fromSecretKey(
-  new Uint8Array(JSON.parse(fs.readFileSync("keys/validator.json").toString()))
+  new Uint8Array(JSON.parse(fs.readFileSync("keys/validator1.json").toString()))
 );
 let validator1_kp = Keypair.fromSecretKey(
   new Uint8Array(JSON.parse(fs.readFileSync("keys/validator1.json").toString()))
@@ -51,12 +51,13 @@ let sorolanaTokenParams = {
 };
 
 let db_msg = {
-  counter: 1,
+  counter: 5,
+  tokenAddress: "CDILU5GSXZLRM6JTYTGDKBTIPJD43GEBJVSECE6DKNJ4I7KBN2Z4EKRC",
   tokenChain: 456,
-  to: "D47pVE6htYVzdbj9FV7fHiyQ4fhy2EMDocz68D1F1pME",
+  to: "A16ux3PEYppjt4R4KD3m9P9iG8R58sp8YYNzgTAzFh1D",
   toChain: 123,
   fee: 100,
-  method: "Burn",
+  method: "Deposit",
   amount: 10000000,
 };
 
@@ -72,9 +73,9 @@ let Soroban_msg = {
 };
 
 let validator_signature =
-  "31bac2b3800d6d518ac91e70e4b6ccc4583a5646aeb4d08990127f03f152ab2529232f7e48ad86c4148d424e992263158796ce1bf008c817d586a70b1bf4d808";
+  "6369015fa7da1ea96bc8b683ed6b5549b065afae6bd9e6e9f0c108f76f10ce7dd33f76c6e77f1c7f965d82cb542bbe1918f3ae792d2498631977265fa1d3a307";
 let user_kp_pubkey = new PublicKey(
-  "8CSbDYyUJGZRby3nbsJ2FzJS3nzfXojCNHGeSrtTHvGA"
+  "A16ux3PEYppjt4R4KD3m9P9iG8R58sp8YYNzgTAzFh1D"
 );
 // let user_kp_pubkey = new PublicKey(
 //   "Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC"
@@ -268,7 +269,7 @@ describe("sorolan_bridge", () => {
 
   it("Verfiy and mint method: ", async () => {
     if (isRunTestCase) {
-      const message = JSON.stringify(Soroban_msg);
+      const message = JSON.stringify(db_msg);
       console.log("🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:", message);
       const messageBytes = Buffer.from(message, "utf-8");
       console.log(
@@ -284,7 +285,7 @@ describe("sorolan_bridge", () => {
       );
 
       let signature_str = Buffer.from(signature).toString("hex");
-      let signature_buf = Buffer.from(signature_str, "hex");
+      let signature_buf = Buffer.from(validator_signature, "hex");
 
       const result = nacl.sign.detached.verify(
         messageBytes,
@@ -306,9 +307,13 @@ describe("sorolan_bridge", () => {
         user_kp_pubkey,
         validator0_kp.publicKey
       );
+      console.log(
+        "🚀 ~ file: sorolan_bridge.ts:310 ~ it ~ userPda:",
+        userPda.toBase58()
+      );
 
-      let info = await provider.connection.getAccountInfo(userPda);
-      console.log("🚀 ~ file: sorolan_bridge.ts:316 ~ it ~ info:", info);
+      // let info = await provider.connection.getAccountInfo(userPda);
+      // console.log("🚀 ~ file: sorolan_bridge.ts:316 ~ it ~ info:", info);
 
       const claimIx = await program.methods
         .claim(
@@ -338,6 +343,7 @@ describe("sorolan_bridge", () => {
       // Instruction: 1
 
       let claimTx = new web3.Transaction().add(ix01, claimIx);
+      // claimTx.add(web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 }));
       claimTx.recentBlockhash = (
         await provider.connection.getLatestBlockhash()
       ).blockhash;
