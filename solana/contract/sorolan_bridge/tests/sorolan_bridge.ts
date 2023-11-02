@@ -51,14 +51,14 @@ let sorolanaTokenParams = {
 };
 
 let db_msg = {
-  counter: 5,
-  tokenAddress: "CDILU5GSXZLRM6JTYTGDKBTIPJD43GEBJVSECE6DKNJ4I7KBN2Z4EKRC",
+  counter: 10,
+  tokenAddress: "CDILU5GSXZLRM6JTYTGDKBTIPJD43GEBJVSECE6DKNJ4I7KBN2Z4EKAS",
   tokenChain: 456,
   to: "A16ux3PEYppjt4R4KD3m9P9iG8R58sp8YYNzgTAzFh1D",
   toChain: 123,
   fee: 100,
-  method: "Deposit",
-  amount: 10000000,
+  method: "Burn",
+  amount: 100000000,
 };
 
 let Soroban_msg = {
@@ -285,7 +285,7 @@ describe("sorolan_bridge", () => {
       );
 
       let signature_str = Buffer.from(signature).toString("hex");
-      let signature_buf = Buffer.from(validator_signature, "hex");
+      let signature_buf = Buffer.from(signature_str, "hex");
 
       const result = nacl.sign.detached.verify(
         messageBytes,
@@ -343,34 +343,39 @@ describe("sorolan_bridge", () => {
       // Instruction: 1
 
       let claimTx = new web3.Transaction().add(ix01, claimIx);
-      // claimTx.add(web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 }));
+      let budgetIx = web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 })
+      // budgetIx.data.byteLength;
+      console.log("🚀 ~ file: sorolan_bridge.ts:348 ~ it ~ budgetIx.data.byteLength:", budgetIx.data.byteLength)
+      // claimTx.add(budgetIx);
       claimTx.recentBlockhash = (
         await provider.connection.getLatestBlockhash()
       ).blockhash;
       claimTx.feePayer = program.provider.publicKey;
+      console.log("🚀 ~ file: sorolan_bridge.ts:351 ~ it ~ claimTx:", claimTx)
 
-      // try {let signedTx = await provider.wallet.signTransaction(claimTx);
-      // console.log("🚀 ~ file: sorolan_bridge.ts:346 ~ it ~ signedTx:", signedTx)
+      try {let signedTx = await provider.wallet.signTransaction(claimTx);
+      console.log("🚀 ~ file: sorolan_bridge.ts:346 ~ it ~ signedTx:", signedTx.serialize().byteLength)
+      console.log("🚀 ~ file: sorolan_bridge.ts:358 ~ it ~ signedTx:", signedTx)
 
-      // let claimHash = await provider.connection.sendRawTransaction(signedTx.serialize());
-      // console.log("🚀 ~ file: sorolan_bridge.ts:349 ~ it ~ claimHash:", claimHash)}
-      // catch (error) {
-      //   console.log("🚀 ~ file: sorolan_bridge.ts:351 ~ it ~ error:", error)
+      let claimHash = await provider.connection.sendRawTransaction(signedTx.serialize());
+      console.log("🚀 ~ file: sorolan_bridge.ts:349 ~ it ~ claimHash:", claimHash)}
+      catch (error) {
+        console.log("🚀 ~ file: sorolan_bridge.ts:351 ~ it ~ error:", error)
 
-      // }
-      try {
-        let claimHash = await web3.sendAndConfirmTransaction(
-          provider.connection,
-          claimTx,
-          [deployer_kp]
-        );
-        console.log(
-          "🚀 ~ file: sorolan_bridge.ts:213 ~ it ~ claimHash:",
-          claimHash
-        );
-      } catch (error) {
-        console.log("🚀 ~ file: sorolan_bridge.ts:211 ~ it ~ error:", error);
       }
+      // try {
+      //   let claimHash = await web3.sendAndConfirmTransaction(
+      //     provider.connection,
+      //     claimTx,
+      //     [deployer_kp]
+      //   );
+      //   console.log(
+      //     "🚀 ~ file: sorolan_bridge.ts:213 ~ it ~ claimHash:",
+      //     claimHash
+      //   );
+      // } catch (error) {
+      //   console.log("🚀 ~ file: sorolan_bridge.ts:211 ~ it ~ error:", error);
+      // }
     }
   });
 

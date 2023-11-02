@@ -9,9 +9,6 @@ const { AnchorProvider } = require("@coral-xyz/anchor");
 const idl = require("../idl.json");
 
 const { Keypair, PublicKey } = require("@solana/web3.js");
-// TODO: modify to use relative URL
-const validaor_kp_path =
-  "/home/imentus/Documents/imentus_project/sorolana/GMP_node/solana_validators/validator1.json";
 
 const fs = require("fs");
 const dotenv = require("dotenv");
@@ -28,7 +25,9 @@ const program = new Program(idl, programID, provider);
 const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 
 let validator_kp = Keypair.fromSecretKey(
-  new Uint8Array(JSON.parse(fs.readFileSync(`${validaor_kp_path}`).toString()))
+  new Uint8Array(
+    JSON.parse(fs.readFileSync("./solana_validators/validator1.json"))
+  )
 );
 const getUserPda = async (user, validator) => {
   const userPdaInfo = web3.PublicKey.findProgramAddressSync(
@@ -45,11 +44,11 @@ const getUserPda = async (user, validator) => {
 async function solanaWithdraw(event, slot, transaction_id) {
   console.log(
     "🚀 ~ file: depositEvent.js:36 ~ solanaDeposit ~ event.receiver_address:",
-    event.from
+    event
   );
   let receiverId = 0;
   let [receiver_pda, userBump] = await getUserPda(
-    new PublicKey(event.from.toString()),
+    new PublicKey(event.receiver_address.toString()),
     new PublicKey(validator_kp.publicKey.toBase58())
   );
   console.log(
@@ -99,7 +98,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
     counter: receiverId,
     tokenAddress: "CB5AD2U",
     tokenChain: Number(event.token_chain),
-    to: event.from, //Todo: change it in SC
+    to: event.receiver_address, //Todo: change it in SC
     toChain: Number(event.to_chain),
     fee: 100,
     method: event.method,
@@ -118,9 +117,8 @@ async function solanaWithdraw(event, slot, transaction_id) {
       let data = {
         amount: Number(event.amount),
         from: event.from,
-        receiver: event.from,
+        receiver: event.receiver_address,
         destination_chain_id: Number(event.to_chain),
-        // date: formattedDate,
         date: date,
         transaction_hash: `${transaction_id}`,
         status: "pending",
@@ -141,7 +139,7 @@ async function solanaWithdraw(event, slot, transaction_id) {
           );
         });
 
-      let res = await axios.get(`${base_url}/gmp/Message/${event.from}`);
+      let res = await axios.get(`${base_url}/gmp/Message/${event.receiver_address}`);
       console.log(
         "🚀 ~ file: depositEvent.js:142 ~ solanaDeposit ~ res.data.length :",
         res.data.data.length
@@ -150,14 +148,14 @@ async function solanaWithdraw(event, slot, transaction_id) {
         let message_data = {
           amount: Number(event.amount),
           from: event.from,
-          receiver: event.from,
+          receiver: event.receiver_address,
           destination_chain_id: Number(event.to_chain),
           date: date,
           transaction_hash: `${transaction_id}`,
           status: "success",
           message: message,
           queue_id: receiverId,
-          is_claimed: 'NO'
+          is_claimed: "NO",
         };
         let response = await axios.post(
           `${base_url}/gmp/Message`,

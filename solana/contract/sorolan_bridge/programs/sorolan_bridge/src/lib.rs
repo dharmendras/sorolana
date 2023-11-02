@@ -168,7 +168,14 @@ pub mod sorolan_bridge {
         msg!("message{:?}", msg);
         msg!("pubKey{:?}", pubkey);
         msg!("sign of validator{:?}", sig);
-        let ix: Instruction = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;
+        let mut message_string = String::from_utf8(msg.clone().to_vec()).unwrap();
+        let deposit_method = message_string.contains("Deposit");
+        let ix;
+        if deposit_method {
+            ix = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;
+        } else {
+            ix = load_instruction_at_checked(2, &ctx.accounts.ix_sysvar)?;
+        }
         msg!("ix: {:?}", ix);
         utils::verify_ed25519_ix(&ix, &pubkey, &msg, &sig)?;
         msg!("varify done");
@@ -216,9 +223,6 @@ pub mod sorolan_bridge {
         {
             return Err(CustomErrorCode::WrongInvokation.into());
         }
-
-        let mut message_string = String::from_utf8(msg.clone().to_vec()).unwrap();
-        let deposit_method = message_string.contains("Deposit");
 
         // Parse amount
         let split_index = message_string
@@ -319,7 +323,7 @@ pub mod sorolan_bridge {
 
         emit!(WithdrawEvent {
             // sender: ctx.accounts.user.key(),
-            method: "Burn".to_string(),
+            method: "Withdraw".to_string(),
             amount: amount,
             token_address: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U".to_string(),
             token_chain: 123,

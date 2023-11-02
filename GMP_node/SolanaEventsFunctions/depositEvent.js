@@ -9,9 +9,6 @@ const { AnchorProvider } = require("@coral-xyz/anchor");
 const idl = require("../idl.json");
 
 const { Keypair, PublicKey } = require("@solana/web3.js");
-// TODO: modify to use relative URL
-const validaor_kp_path =
-  "/home/imentus/Documents/imentus_project/sorolana/GMP_node/solana_validators/validator1.json";
 
 const fs = require("fs");
 const dotenv = require("dotenv");
@@ -28,17 +25,19 @@ const program = new Program(idl, programID, provider);
 const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 
 let validator_kp = Keypair.fromSecretKey(
-  new Uint8Array(JSON.parse(fs.readFileSync(`${validaor_kp_path}`).toString()))
+  new Uint8Array(
+    JSON.parse(fs.readFileSync("./solana_validators/validator1.json"))
+  )
 );
 const getUserPda = async (user, validator) => {
   const userPdaInfo = web3.PublicKey.findProgramAddressSync(
-      [
-        anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX),
-        validator.toBuffer(),
-        user.toBuffer(),
-      ],
-      program.programId
-    );
+    [
+      anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX),
+      validator.toBuffer(),
+      user.toBuffer(),
+    ],
+    program.programId
+  );
   return userPdaInfo;
 };
 
@@ -106,8 +105,6 @@ async function solanaDeposit(event, slot, transaction_id) {
     // method: "Deposit",
     amount: Number(event.amount),
   };
-  console.log("🚀 ~ file: depositEvent.js:104 ~ solanaDeposit ~ solana_msg:", solana_msg)
-  console.log("🚀 ~ file: depositEvent.js:104 ~ solanaDeposit ~ solana_msg.event.amount:", Number(event.amount))
   const message = JSON.stringify(solana_msg);
   console.log(
     "🚀 ~ file: validator1.js:272 ~ solanaDeposit ~ message:",
@@ -116,17 +113,12 @@ async function solanaDeposit(event, slot, transaction_id) {
 
   if (Number(event.amount) > 0) {
     try {
-      let timestamp = Date.now();
-      let date = new Date(timestamp);
-      const formattedDate = date.toLocaleString();
-      console.log("date-->", formattedDate)
-      // const date = new Date(Date.now()).toLocaleString();
+      const date = new Date(Date.now()).toLocaleString();
       let data = {
         amount: Number(event.amount),
         from: event.from,
         receiver: event.receiver_address,
         destination_chain_id: Number(event.to_chain),
-        // date: formattedDate,
         date: date,
         transaction_hash: `${transaction_id}`,
         status: "pending",
@@ -138,12 +130,14 @@ async function solanaDeposit(event, slot, transaction_id) {
         "🚀 ~ file: validator1.js:185 ~ solanaToSoroban ~ data:",
         data
       );
-      await axios.post(`${base_url}/gmp/message_queue`, data).then((response) => {
-        console.log(
-          "🚀 ~ file: depositEvent.js:149 ~ awaitaxios.post ~ response:",
-          response.data.message
-        );
-      });
+      await axios
+        .post(`${base_url}/gmp/message_queue`, data)
+        .then((response) => {
+          console.log(
+            "🚀 ~ file: depositEvent.js:149 ~ awaitaxios.post ~ response:",
+            response.data.message
+          );
+        });
 
       let res = await axios.get(
         `${base_url}/gmp/Message/${event.receiver_address}`
@@ -163,9 +157,12 @@ async function solanaDeposit(event, slot, transaction_id) {
           status: "success",
           message: message,
           queue_id: receiverId,
-          is_claimed: 'NO'
+          is_claimed: "NO",
         };
-        let response = await axios.post(`${base_url}/gmp/Message`, message_data);
+        let response = await axios.post(
+          `${base_url}/gmp/Message`,
+          message_data
+        );
         console.log(
           "🚀 ~ file: depositEvent.js:165 ~ solanaDeposit ~ response:",
           response.data
