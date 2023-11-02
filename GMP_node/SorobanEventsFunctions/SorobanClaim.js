@@ -21,18 +21,18 @@ const opts = {
 };
 const network = "https://api.devnet.solana.com";
 const connection = new web3.Connection(network, "confirmed");
-const programID = new web3.PublicKey(idl.metadata.address);
-const provider = new AnchorProvider(connection, opts.preflightCommitment);
-const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
-const program = new Program(idl, programID, provider);
+// const programID = new web3.PublicKey(idl.metadata.address);
+// const provider = new AnchorProvider(connection, opts.preflightCommitment);
+// const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
+// const program = new Program(idl, programID, provider);
 
-const getUserPda = async (user) => {
-    const userPdaInfo = web3.PublicKey.findProgramAddressSync(
-        [anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
-        program.programId
-    );
-    return userPdaInfo;
-};
+// const getUserPda = async (user) => {
+//     const userPdaInfo = web3.PublicKey.findProgramAddressSync(
+//         [anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
+//         program.programId
+//     );
+//     return userPdaInfo;
+// };
 
 let receiverId = 0;
 
@@ -51,12 +51,12 @@ async function SorobanClaim(event, slot, transaction_id) {
     );
 
     let tx = await connection.getParsedTransaction(transaction_id);
-    let user_key = tx.transaction.message.accountKeys[1].pubkey;
+    let user_key = tx.transaction.message.accountKeys[0].pubkey;
 
-    let [receiver_pda, userBump] = await getUserPda(user_key);
+    // let [receiver_pda, userBump] = await getUserPda(user_key);
 
     await axios
-        .get(`${base_url}/gmp/userCounter/${receiver_pda.toBase58()}`)
+        .get(`${base_url}/gmp/userCounter/${event.recieverAddress}`)
         .then(async (response) => {
             if (response.data.length == 0) {
                 receiverId = 0;
@@ -65,7 +65,7 @@ async function SorobanClaim(event, slot, transaction_id) {
                     receiverId
                 );
                 let receiverDetails = {
-                    receiver: receiver_pda.toBase58(),
+                    receiver: event.recieverAddress,
                     queue_id: receiverId,
                 };
                 let response = await axios.post(
@@ -79,7 +79,7 @@ async function SorobanClaim(event, slot, transaction_id) {
             } else if (response.data.length > 0) {
                 receiverId = response.data[0].queue_id + 1;
                 let res = await axios.put(
-                    `${base_url}/gmp/userCounter/${receiver_pda.toBase58()}`,
+                    `${base_url}/gmp/userCounter/${event.recieverAddress}`,
                     {
                         queue_id: receiverId,
                     }
@@ -101,7 +101,7 @@ async function SorobanClaim(event, slot, transaction_id) {
         toChain: event.toChain,
         fee: 100,
         method: event.method,
-        amount: parseInt(event.amount.toNumber()),
+        amount: event.amount.toNumber(),
     };
     console.log(
         "🚀 ~ file: solanaWithdrawHandle.js:103 ~ solanaWithdrawEventHandle ~ event.amount.toNumber():",
@@ -126,7 +126,7 @@ async function SorobanClaim(event, slot, transaction_id) {
             status: "pending",
             message: message,
             queue_id: receiverId,
-            receiver_pda: receiver_pda.toBase58(),
+            receiver_pda: "qqqqqqqqqqqq",
         };
         console.log("🚀 ~ file: validator1.js:185 ~ solanaToSoroban ~ data:", data);
         await axios.post(`${base_url}/gmp/message_queue`, data).then((response) => {
@@ -136,13 +136,14 @@ async function SorobanClaim(event, slot, transaction_id) {
             );
         });
 
-        let res = await axios.get(`${base_url}/gmp/Message/${event.withdrawerAddress}`);
+        let res = await axios.get(`${base_url}/gmp/Message/${event.recieverAddress}`);
         console.log(
             "🚀 ~ file: depositEvent.js:142 ~ solanaDeposit ~ res.data.length :",
             res.data.data.length
         );
         // if (!receiverId || res.data.data.length == 0) {
-        if (true) {
+        console.log("🚀 ~ file: SorobanClaim.js:146 ~ receiverId:", receiverId)
+        if (!receiverId || res.data.data.length == 0) {
             let message_data = {
                 amount: event.amount.toNumber(),
                 from: user_key.toBase58(),
@@ -150,9 +151,10 @@ async function SorobanClaim(event, slot, transaction_id) {
                 destination_chain_id: event.toChain,
                 date: date,
                 transaction_hash: `${transaction_id}`,
-                status: "pending",
+                status: "success",
                 message: message,
                 queue_id: receiverId,
+                is_claimed: 'NO'
             };
 
             // Signature
@@ -183,7 +185,7 @@ async function SorobanClaim(event, slot, transaction_id) {
             };
             console.log("🚀 ~ file: SorobanClaim.js:184 ~ validator_data:", validator_data)
             console.log("🚀 ~ file: SorobanClaim.js:184 ~ validator_data.validator_sig:", validator_data.validator_sig)
-            
+
             await axios
                 .post(`${base_url}/gmp/Signature`, validator_data)
                 .then(async (response) => {

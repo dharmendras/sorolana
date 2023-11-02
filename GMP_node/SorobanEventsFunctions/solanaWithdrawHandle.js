@@ -24,13 +24,13 @@ const provider = new AnchorProvider(connection, opts.preflightCommitment);
 const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 const program = new Program(idl, programID, provider);
 
-const getUserPda = async (user) => {
-  const userPdaInfo = web3.PublicKey.findProgramAddressSync(
-    [anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
-    program.programId
-  );
-  return userPdaInfo;
-};
+// const getUserPda = async (user) => {
+//   const userPdaInfo = web3.PublicKey.findProgramAddressSync(
+//     [anchorr.utils.bytes.utf8.encode(USER_SEED_PREFIX), user.toBuffer()],
+//     program.programId
+//   );
+//   return userPdaInfo;
+// };
 
 let receiverId = 0;
 
@@ -49,12 +49,13 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
   );
 
   let tx = await connection.getParsedTransaction(transaction_id);
-  let user_key = tx.transaction.message.accountKeys[1].pubkey;
+  let user_key = tx.transaction.message.accountKeys[0].pubkey;
+  console.log("🚀 ~ file: solanaWithdrawHandle.js:53 ~ x.transaction.message.accountKeys:", tx.transaction.message)
 
-  let [receiver_pda, userBump] = await getUserPda(user_key);
+  // let [receiver_pda, userBump] = await getUserPda(user_key);
 
   await axios
-    .get(`${base_url}/gmp/userCounter/${receiver_pda.toBase58()}`)
+    .get(`${base_url}/gmp/userCounter/${event.withdrawerAddress}`)
     .then(async (response) => {
       if (response.data.length == 0) {
         receiverId = 0;
@@ -63,7 +64,7 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
           receiverId
         );
         let receiverDetails = {
-          receiver: receiver_pda.toBase58(),
+          receiver: event.withdrawerAddress,
           queue_id: receiverId,
         };
         let response = await axios.post(
@@ -77,7 +78,7 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
       } else if (response.data.length > 0) {
         receiverId = response.data[0].queue_id + 1;
         let res = await axios.put(
-          `${base_url}/gmp/userCounter/${receiver_pda.toBase58()}`,
+          `${base_url}/gmp/userCounter/${event.withdrawerAddress}`,
           {
             queue_id: receiverId,
           }
@@ -116,7 +117,7 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
     let data = {
       amount: parseFloat(event.amount.toNumber()),
       from: user_key.toBase58(),
-      receiver: event.receiverAddress,
+      receiver: event.withdrawerAddress,
       destination_chain_id: event.toChain,
       // date: formattedDate,
       date: date,
@@ -124,7 +125,7 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
       status: "pending",
       message: message,
       queue_id: receiverId,
-      receiver_pda: receiver_pda.toBase58(),
+      receiver_pda: event.withdrawerAddress,
     };
     console.log("🚀 ~ file: validator1.js:185 ~ solanaToSoroban ~ data:", data);
     await axios.post(`${base_url}/gmp/message_queue`, data).then((response) => {
@@ -139,18 +140,19 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
       "🚀 ~ file: depositEvent.js:142 ~ solanaDeposit ~ res.data.length :",
       res.data.data.length
     );
-    // if (!receiverId || res.data.data.length == 0) {
-    if (true) {
+    if (!receiverId || res.data.data.length == 0) {
+    // if (true) {
       let message_data = {
         amount: event.amount.toNumber(),
         from: user_key.toBase58(),
-        receiver: event.receiverAddress,
+        receiver: event.withdrawerAddress,
         destination_chain_id: event.toChain,
         date: date,
         transaction_hash: `${transaction_id}`,
-        status: "pending",
+        status: "success",
         message: message,
         queue_id: receiverId,
+        is_claimed: "NO"
       };
 
       // Signature
