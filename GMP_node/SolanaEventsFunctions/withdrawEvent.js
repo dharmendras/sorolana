@@ -44,7 +44,7 @@ const getUserPda = async (user, validator) => {
 async function solanaWithdraw(event, slot, transaction_id) {
   console.log(
     "🚀 ~ file: depositEvent.js:36 ~ solanaDeposit ~ event.receiver_address:",
-    event.withdrawer_Address
+    event
   );
   let receiverId = 0;
   let [receiver_pda, userBump] = await getUserPda(
