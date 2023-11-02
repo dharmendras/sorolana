@@ -52,6 +52,9 @@ const CURRENT_VALIDATOR: [&str; 4] = [
     "dhuypGVkMF4cWvFO+h9XsHuiBe8RH+bawNzhQkTK5bk=",
     "oPAOzqSzSjDhFpcl3+awVhYvnOFr8Bw7YMBSWcgEQJo=",
 ];
+const ONE_DAY_LEDGER: u32 = 17280;
+const HIGH_WATERFALL: u32 = 30 * ONE_DAY_LEDGER;
+const LOW_WATERFALL: u32 = HIGH_WATERFALL - ONE_DAY_LEDGER;
 
 fn compare_validator_public_key(env: Env, key_to_compare: BytesN<32>) -> bool {
     let mut result: Bytes = key_to_compare.into_val(&env);
@@ -73,6 +76,9 @@ fn set_contract_deployer_address(env: Env, admin: Address) {
         .persistent()
         .set(&DataKeyToken::TokenAdmin, &admin);
     // env.storage().persistent().bump( &Globals::Admin, 52600);
+    env.storage()
+        .persistent()
+        .bump(&DataKeyToken::TokenAdmin, LOW_WATERFALL, HIGH_WATERFALL);
 }
 fn get_contract_deployer(env: &Env) -> Address {
     let add: Address = env
@@ -83,25 +89,33 @@ fn get_contract_deployer(env: &Env) -> Address {
     add
 }
 //fn put_native_token()
-fn put_token(e: &Env, contract: Address) {
-    e.storage()
-        .instance()
+fn put_token(env: &Env, contract: Address) {
+    env.storage()
+        .persistent()
         .set(&DataKeyToken::TokenShare, &contract);
+
+    env.storage()
+        .persistent()
+        .bump(&DataKeyToken::TokenShare, LOW_WATERFALL, HIGH_WATERFALL);
 }
 fn get_token(e: &Env) -> Address {
     e.storage()
-        .instance()
+        .persistent()
         .get(&DataKeyToken::TokenShare)
         .unwrap()
 }
 fn put_native_token(e: &Env, token: Address) {
     e.storage()
-        .instance()
+        .persistent()
         .set(&DataKeyToken::NativeToken, &token);
+
+    e.storage()
+        .persistent()
+        .bump(&DataKeyToken::NativeToken, LOW_WATERFALL, HIGH_WATERFALL);
 }
 fn get_native_token(e: &Env) -> Address {
     e.storage()
-        .instance()
+        .persistent()
         .get(&DataKeyToken::NativeToken)
         .unwrap()
 }
@@ -135,7 +149,13 @@ struct SorobanSoloanaBridge;
 
 #[contractimpl]
 impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
-    fn deposit(env: Env, from: Address, token: Address, amount: i128, to: String) -> i128 {
+    fn deposit(
+        env: Env,
+        from: Address,
+        token: Address,
+        amount: i128,
+        recipient_address: String,
+    ) -> i128 {
         from.require_auth();
 
         // // Transfer token from `from` to this contract address.
@@ -150,7 +170,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let token_address: Address = token;
 
         let token_chain: i128 = 456;
-        let receiver_address: String = to;
+        let receiver_address: String = recipient_address;
         let from: Address = from;
         let to_chain: i128 = 123;
         let fee: u32 = 100;
@@ -165,7 +185,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             to_chain,
             fee,
         };
-        // //   env.storage().instance().set(&DataKey::Transfer, &transfer);
+        // //   env.storage().persistent().set(&DataKey::Transfer, &transfer);
         let symbol: Symbol = symbol_short!("deposit");
 
         env.events().publish((DataKey::Transfer, symbol), transfer);
@@ -204,12 +224,18 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let counter: i128 = 0;
 
         env.storage()
-            .instance()
+            .persistent()
             .set(&DataKey::Counter((user.clone())), &counter);
+
+        env.storage().persistent().bump(
+            &DataKey::Counter((user.clone())),
+            LOW_WATERFALL,
+            HIGH_WATERFALL,
+        );
 
         let mut get_user_counter: i128 = env
             .storage()
-            .instance()
+            .persistent()
             .get(&DataKey::Counter((user.clone())))
             .unwrap();
 
@@ -234,8 +260,14 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                 get_user_counter = get_user_counter + 1;
 
                 env.storage()
-                    .instance()
+                    .persistent()
                     .set(&DataKey::Counter((user.clone())), &get_user_counter);
+
+                env.storage().persistent().bump(
+                    &DataKey::Counter((user.clone())),
+                    LOW_WATERFALL,
+                    HIGH_WATERFALL,
+                );
 
                 let method: String = "claim".into_val(&env);
                 let Claim_Counter: i128 = get_user_counter;
@@ -270,6 +302,24 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         client.burn(&user, &amount);
 
+        let mut get_user_counter: i128 = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Counter((user.clone())))
+            .unwrap();
+
+        get_user_counter = get_user_counter + 1;
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::Counter((user.clone())), &get_user_counter);
+
+        env.storage().persistent().bump(
+            &DataKey::Counter((user.clone())),
+            LOW_WATERFALL,
+            HIGH_WATERFALL,
+        );
+
         let balance = client.balance(&user);
 
         let method: String = "Withdraw".into_val(&env);
@@ -279,7 +329,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let token_chain: i128 = 456;
         let to_chain: i128 = 123;
 
-        let from: Address = user;
+        let withdrawer_Address: Address = user;
         let receiver_address: String = recipient;
 
         let fee: u32 = 100;
@@ -289,11 +339,11 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             amount,
             token_chain,
             to_chain,
-            from,
+            withdrawer_Address,
             receiver_address,
             fee,
         };
-        // //   env.storage().instance().set(&DataKey::Transfer, &transfer);
+        // //   env.storage().persistent().set(&DataKey::Transfer, &transfer);
         let symbol: Symbol = symbol_short!("Withdraw");
 
         env.events().publish((DataKey::Withdraw, symbol), transfer);
@@ -315,7 +365,6 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let check = compare_validator_public_key(env.clone(), public_key.clone());
 
         if check == true {
-
             env.crypto()
                 .ed25519_verify(&public_key, &message, &signature);
 
@@ -328,7 +377,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
     }
     fn upgrade(e: Env, new_wasm_hash: BytesN<32>) {
         // // TODO: Only admin can upgrade this contract
-        // let admin: Address = e.storage().instance().get(&DataKey::Admin).unwrap();
+        // let admin: Address = e.storage().persistent().get(&DataKey::Admin).unwrap();
         // admin.require_auth();
 
         e.deployer().update_current_contract_wasm(new_wasm_hash);

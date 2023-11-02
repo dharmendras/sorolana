@@ -46,7 +46,7 @@ function convertToBytes32(address) {
 }
 describe('SorobanTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CDMRAQ52GVWI4JK7DP3EY4J6KCOARUMG6HZTVJYDVQECTWSA42NJ3JZ6';
+    const contractId = 'CBW5IYZWB5A3DJ5ZSXME5ASTENTSTG5U4KB5NHDQTNXIPB7UCT5SCORK';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     //SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C
     //SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO
@@ -57,11 +57,11 @@ describe('SorobanTestSuite', () => {
     const sleepTime = Math.min(1000, 120000);
 
  //  let amount = 1000_000_000_0
-   let amount = 100;
+   let amount = 5000_000_0;
     it('deposit method test case', async () => {
 
       //  await get_balance(native_source_token, user)
-  //   await deposit(contractId, secret_key, native_source_token, amount)
+     await deposit(contractId, secret_key, native_source_token, amount)
      //   await get_balance(native_source_token, user)
 
 
@@ -100,7 +100,7 @@ describe('SorobanTestSuite', () => {
 
         //  console.log("🚀 ========>User Balance Before Claim<========", before_claim)
 
-          await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+      //    await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
 
         //  let after_claim =  await get_balance(custom_source_token, user)
 

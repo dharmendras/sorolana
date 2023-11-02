@@ -23,7 +23,7 @@ pub struct Withdraw {
 
     pub token_chain: i128,
     pub to_chain: i128,
-    pub from: Address,
+    pub withdrawer_Address: Address,
     pub receiver_address: String,
     pub fee: u32,
 }
