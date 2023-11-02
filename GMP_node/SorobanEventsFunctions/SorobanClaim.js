@@ -143,7 +143,8 @@ async function SorobanClaim(event, slot, transaction_id) {
         );
         // if (!receiverId || res.data.data.length == 0) {
         console.log("🚀 ~ file: SorobanClaim.js:146 ~ receiverId:", receiverId)
-        if (!receiverId || res.data.data.length == 0) {
+        // if (!receiverId || res.data.data.length == 0) {
+        if (true) {                 //TODO: update it after listening the claim event of soroban
             let message_data = {
                 amount: event.amount.toNumber(),
                 from: user_key.toBase58(),

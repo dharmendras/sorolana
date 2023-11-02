@@ -140,8 +140,8 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
       "🚀 ~ file: depositEvent.js:142 ~ solanaDeposit ~ res.data.length :",
       res.data.data.length
     );
-    if (!receiverId || res.data.data.length == 0) {
-    // if (true) {
+    // if (!receiverId || res.data.data.length == 0) {
+    if (true) {
       let message_data = {
         amount: event.amount.toNumber(),
         from: user_key.toBase58(),
