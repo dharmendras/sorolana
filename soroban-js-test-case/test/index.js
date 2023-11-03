@@ -46,11 +46,11 @@ function convertToBytes32(address) {
 }
 describe('SorobanTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CDMRAQ52GVWI4JK7DP3EY4J6KCOARUMG6HZTVJYDVQECTWSA42NJ3JZ6';
+    const contractId = 'CCSF7HTFOQ34LGWV2ANPVIINC3AD3M6RHCCFRVYJHOEBEYZY7STEMNHE';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     //SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C
     //SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO
-    const secret_key = 'SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C';
+    const secret_key = 'SAZCVEOZF3PTIS7TZDKX4ECLAHI6G4GSIZGAFMQUX747VGDMVFWVRUFF';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
     let custom_source_token = "CDNMTJA6PYAG6KQBASJU7FLPUS3ZONDYU5ZGQQEVRKX3KK4O5RSG3OQQ"
@@ -133,11 +133,11 @@ describe('SorobanTestSuite', () => {
         const message = util.decodeUTF8(string);
         
         //  console.log("Balance Before  claim method")
-        //  let before_claim =  await get_balance(custom_source_token, user)
+        // let before_claim =  await get_balance(custom_source_token, user)
 
         //  console.log("🚀 ========>User Balance Before Claim<========", before_claim)
 
-       //   await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+          await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
 
         //  let after_claim =  await get_balance(custom_source_token, user)
 

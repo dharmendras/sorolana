@@ -40,6 +40,7 @@ const opts = {
 const network = "https://api.devnet.solana.com";
 const connection = new solanaWeb3.Connection(network, "confirmed");
 const programID = new PublicKey(idl.metadata.address);
+console.log("🚀 ~ file: validator1.js:43 ~ programID:", programID)
 const provider = new AnchorProvider(connection, opts.preflightCommitment);
 const program = new Program(idl, programID, provider);
 const USER_SEED_PREFIX = "prevent_duplicate_claimV1";

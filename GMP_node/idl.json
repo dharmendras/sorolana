@@ -322,7 +322,7 @@
           "index": false
         },
         {
-          "name": "recieverAddress",
+          "name": "receiverAddress",
           "type": "string",
           "index": false
         },
@@ -417,6 +417,6 @@
     }
   ],
   "metadata": {
-    "address": "4YXajmGwhTcszkZoae6TWQKvxwt5XAhvj4naV7biSnpT"
+    "address": "8zRhmZnnpyCTkunFPb6LVSxeh7fyCZ9wH5xGPwu68Trb"
   }
 }
