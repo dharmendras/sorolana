@@ -10,7 +10,6 @@ const { Keypair } = require("@solana/web3.js");
 const { EventParser, BorshCoder, web3 } = require("@coral-xyz/anchor");
 const bs58 = require("bs58");
 const StellarSdk = require("stellar-sdk");
-const ed25519 = require("ed25519");
 const util = require("tweetnacl-util");
 const idl = require("./idl.json");
 const Message = require("../DataBase/message.js");
@@ -27,9 +26,6 @@ const { SorobanClaim } = require("./SorobanEventsFunctions/SorobanClaim.js");
 const { solanaWithdrawEventHandle } = require("./SorobanEventsFunctions/solanaWithdrawHandle.js");
 // import fs from "fs";
 
-
-const db_url = "http://localhost:3400";
-const get_queue_id = "http://localhost:3400/userCounter";
 
 const dotenv = require("dotenv");
 dotenv.config();
