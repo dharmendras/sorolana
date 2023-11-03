@@ -49,7 +49,7 @@ async function pollSorobanDepositEvents() {
           {
             type: "contract",
             contractIds: [
-              "CDAR367JS23AHZLT3UEKTAW34RFC6HPUC4V24NDL6HK4C7A4B63MTJLS",
+              "CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR",
             ],
             topics: [
               [
@@ -157,7 +157,7 @@ async function pollSorobanClaimEvents() {
           {
             type: "contract",
             contractIds: [
-              "CDAR367JS23AHZLT3UEKTAW34RFC6HPUC4V24NDL6HK4C7A4B63MTJLS",
+              "CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR",
             ],
             topics: [
               [
@@ -265,7 +265,7 @@ async function pollSorobanWithdrawEvents() {
           {
             type: "contract",
             contractIds: [
-              "CDAR367JS23AHZLT3UEKTAW34RFC6HPUC4V24NDL6HK4C7A4B63MTJLS",
+              "CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR",
             ],
             topics: [
               [
