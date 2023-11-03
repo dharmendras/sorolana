@@ -18,7 +18,7 @@ use constants::AUTHORITY;
 
 use ins::*;
 use state::{ClaimEvent, CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("4YXajmGwhTcszkZoae6TWQKvxwt5XAhvj4naV7biSnpT");
+declare_id!("8zRhmZnnpyCTkunFPb6LVSxeh7fyCZ9wH5xGPwu68Trb");
 
 #[program]
 pub mod sorolan_bridge {
@@ -169,7 +169,8 @@ pub mod sorolan_bridge {
         msg!("pubKey{:?}", pubkey);
         msg!("sign of validator{:?}", sig);
         let mut message_string = String::from_utf8(msg.clone().to_vec()).unwrap();
-        let deposit_method = message_string.contains("Deposit");
+        let deposit_method = message_string.contains("\"method\":\"D");
+        msg!("Method for mint: {}", deposit_method);
         let ix;
         if deposit_method {
             ix = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;

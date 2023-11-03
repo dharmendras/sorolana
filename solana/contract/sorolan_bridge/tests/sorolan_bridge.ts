@@ -51,13 +51,13 @@ let sorolanaTokenParams = {
 };
 
 let db_msg = {
-  counter: 10,
+  counter: 0,
   tokenAddress: "CDILU5GSXZLRM6JTYTGDKBTIPJD43GEBJVSECE6DKNJ4I7KBN2Z4EKAS",
   tokenChain: 456,
-  to: "A16ux3PEYppjt4R4KD3m9P9iG8R58sp8YYNzgTAzFh1D",
+  to: "DeGYwpUPA5NgrTJvLFJQk63DuqRUJmoyMreHJcsgrHh5",
   toChain: 123,
   fee: 100,
-  method: "Burn",
+  method: "D",
   amount: 100000000,
 };
 
@@ -75,7 +75,7 @@ let Soroban_msg = {
 let validator_signature =
   "6369015fa7da1ea96bc8b683ed6b5549b065afae6bd9e6e9f0c108f76f10ce7dd33f76c6e77f1c7f965d82cb542bbe1918f3ae792d2498631977265fa1d3a307";
 let user_kp_pubkey = new PublicKey(
-  "A16ux3PEYppjt4R4KD3m9P9iG8R58sp8YYNzgTAzFh1D"
+  "DeGYwpUPA5NgrTJvLFJQk63DuqRUJmoyMreHJcsgrHh5"
 );
 // let user_kp_pubkey = new PublicKey(
 //   "Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC"
@@ -96,6 +96,7 @@ describe("sorolan_bridge", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
 
   const program = anchor.workspace.SorolanBridge as Program<SorolanBridge>;
+  console.log("🚀 ~ file: sorolan_bridge.ts:99 ~ describe ~ program:", program.programId)
   let isRunTestCase = true;
 
   // Authority Pda to init the token Address
@@ -150,7 +151,7 @@ describe("sorolan_bridge", () => {
   };
 
   it("Can initialize a authority pda: ", async () => {
-    if (!isRunTestCase) {
+    if (isRunTestCase) {
       const [authorityPda, authorityBump] =
         web3.PublicKey.findProgramAddressSync(
           [
@@ -176,7 +177,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Authority can initialize the mint account: ", async () => {
-    if (!isRunTestCase) {
+    if (isRunTestCase) {
       try {
         let authorityPdaInfo = await getAuthorityPda();
         console.log("authorityPdaInfo:", authorityPdaInfo[0].toBase58());
@@ -204,7 +205,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Users can deposit funds to the program pda: ", async () => {
-    if (!isRunTestCase) {
+    if (isRunTestCase) {
       try {
         const [program_pda, player_bump] = await getProgramPda();
         console.log(
@@ -268,7 +269,7 @@ describe("sorolan_bridge", () => {
   });
 
   it("Verfiy and mint method: ", async () => {
-    if (isRunTestCase) {
+    if (!isRunTestCase) {
       const message = JSON.stringify(db_msg);
       console.log("🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:", message);
       const messageBytes = Buffer.from(message, "utf-8");
