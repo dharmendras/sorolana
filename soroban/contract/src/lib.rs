@@ -76,6 +76,7 @@ fn set_contract_deployer_address(env: Env, admin: Address) {
         .persistent()
         .set(&DataKeyToken::TokenAdmin, &admin);
     // env.storage().persistent().bump( &Globals::Admin, 52600);
+
     env.storage()
         .persistent()
         .bump(&DataKeyToken::TokenAdmin, LOW_WATERFALL, HIGH_WATERFALL);
@@ -89,12 +90,12 @@ fn get_contract_deployer(env: &Env) -> Address {
     add
 }
 //fn put_native_token()
-fn put_token(env: &Env, contract: Address) {
-    env.storage()
+fn put_token(e: &Env, contract: Address) {
+    e.storage()
         .persistent()
         .set(&DataKeyToken::TokenShare, &contract);
 
-    env.storage()
+    e.storage()
         .persistent()
         .bump(&DataKeyToken::TokenShare, LOW_WATERFALL, HIGH_WATERFALL);
 }
@@ -136,9 +137,9 @@ pub trait SorobanSoloanaBridgeTrait {
     fn withdraw(env: Env, amount: i128, user: Address, to: String) -> (i128);
     fn release(
         env: Env,
-        public_key: BytesN<32>,
-        message: Bytes,
-        signature: BytesN<64>,
+        // public_key: BytesN<32>,
+        // message: Bytes,
+        // signature: BytesN<64>,
         user: Address,
         amount: i128,
     ) -> (i128);
@@ -149,13 +150,7 @@ struct SorobanSoloanaBridge;
 
 #[contractimpl]
 impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
-    fn deposit(
-        env: Env,
-        from: Address,
-        token: Address,
-        amount: i128,
-        recipient_address: String,
-    ) -> i128 {
+    fn deposit(env: Env, from: Address, token: Address, amount: i128, to: String) -> i128 {
         from.require_auth();
 
         // // Transfer token from `from` to this contract address.
@@ -170,7 +165,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let token_address: Address = token;
 
         let token_chain: i128 = 456;
-        let receiver_address: String = recipient_address;
+        let receiver_address: String = to;
         let from: Address = from;
         let to_chain: i128 = 123;
         let fee: u32 = 100;
@@ -201,7 +196,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let client = wrappedtoken::Client::new(&env, &share_contract);
         client.initialize(
             &env.current_contract_address(),
-            &8,
+            &9,
             &"solana".into_val(&env),
             &"WSOL".into_val(&env),
         );
@@ -246,7 +241,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let counter_str = core::str::from_utf8(sl).unwrap();
         let parse_counter: i128 = counter_str.parse().unwrap();
 
-        if parse_counter == get_user_counter {
+        // if parse_counter == get_user_counter {
             let check = compare_validator_public_key(env.clone(), public_key.clone());
 
             if check == true {
@@ -270,7 +265,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                 );
 
                 let method: String = "claim".into_val(&env);
-                let Claim_Counter: i128 = get_user_counter;
+                let Claim_Counter: i128 =  counter;
                 let user_address: Address = user;
 
                 let claim_event = Claim {
@@ -288,9 +283,9 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             } else {
                 return Err(VerifyError::InvalidPublickey);
             }
-        } else {
-            return Err(VerifyError::USER_ALREADY_CLAIMED);
-        }
+          //else {
+        //     return Err(VerifyError::USER_ALREADY_CLAIMED);
+        // }
     }
 
     fn withdraw(env: Env, amount: i128, user: Address, recipient: String) -> i128 {
@@ -301,24 +296,6 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let client = wrappedtoken::Client::new(&env, &token_address);
 
         client.burn(&user, &amount);
-
-        let mut get_user_counter: i128 = env
-            .storage()
-            .persistent()
-            .get(&DataKey::Counter((user.clone())))
-            .unwrap();
-
-        get_user_counter = get_user_counter + 1;
-
-        env.storage()
-            .persistent()
-            .set(&DataKey::Counter((user.clone())), &get_user_counter);
-
-        env.storage().persistent().bump(
-            &DataKey::Counter((user.clone())),
-            LOW_WATERFALL,
-            HIGH_WATERFALL,
-        );
 
         let balance = client.balance(&user);
 
@@ -352,26 +329,50 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         // share_contract
     }
+
     fn release(
         env: Env,
-        public_key: BytesN<32>,
-        message: Bytes,
-        signature: BytesN<64>,
+        // public_key: BytesN<32>,
+        // message: Bytes,
+        // signature: BytesN<64>,
         receipent: Address,
         amount: i128,
     ) -> i128 {
         receipent.require_auth();
 
-        let check = compare_validator_public_key(env.clone(), public_key.clone());
+        // let counter_bytes: Bytes = message.slice(11..=11);
 
-        if check == true {
-            env.crypto()
-                .ed25519_verify(&public_key, &message, &signature);
+        // let mut random_address: [u8; 100] = [0u8; 100];
+        // let (sl, _) = random_address.split_at_mut(counter_bytes.len() as usize);
+        // counter_bytes.copy_into_slice(sl);
 
-            let token_address = get_native_token(&env);
-            let client = token::Client::new(&env, &token_address);
-            client.transfer(&env.current_contract_address(), &receipent, &amount);
-        }
+        // let counter_str = core::str::from_utf8(sl).unwrap();
+        // let parse_counter: i128 = counter_str.parse().unwrap();
+
+        // let mut get_user_counter: i128 = env
+        //     .storage()
+        //     .persistent()
+        //     .get(&DataKey::Counter((receipent.clone())))
+        //     .unwrap();
+
+      //  if parse_counter == get_user_counter {
+         //   let check = compare_validator_public_key(env.clone(), public_key.clone());
+
+          //   if check == true {
+                // env.crypto()
+                //     .ed25519_verify(&public_key, &message, &signature);
+
+                let token_address = get_native_token(&env);
+                let client = token::Client::new(&env, &token_address);
+                client.transfer(&env.current_contract_address(), &receipent, &amount);
+
+                // get_user_counter = get_user_counter + 1;
+
+                // env.storage()
+                //     .persistent()
+                //     .set(&DataKey::Counter((receipent.clone())), &get_user_counter);
+          //  }
+        //}
 
         0
     }
