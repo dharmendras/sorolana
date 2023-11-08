@@ -3,53 +3,35 @@ use anchor_lang::solana_program::sysvar::instructions::ID as IX_ID;
 use anchor_spl::token:: {Mint, Token, TokenAccount};
 use anchor_spl::associated_token::AssociatedToken;
 
-use crate::constants::{AUTHORITY_SEED_PREFIX, USER_SEED_PREFIX};
-use crate::state::{AuthorityPda, UserPda};
+use crate::constants::{USER_SEED_PREFIX, TOKEN_SEED_PREFIX};
+use crate::state::UserPda;
 
 #[derive(Accounts)]
-pub struct AccountsForInitAuthorityPda<'info>{
+#[instruction(
+  _token_seed: String
+)]
+pub struct AccountsForInitToken<'info>{
+  /// CHECK: New Metaplex Account being created
   #[account(mut)]
-  pub authority: Signer<'info>,
+  pub metadata: UncheckedAccount<'info>,
   #[account(
-    init, 
-    payer = authority, 
-    space = AuthorityPda::LEN + 8,
-    seeds = [
-      AUTHORITY_SEED_PREFIX.as_bytes(),
-      authority.key().as_ref()
-    ],
-    bump
-  )]
-  pub authority_pda: Account<'info, AuthorityPda>,
-  pub system_program: Program<'info, System>,
-}
-#[derive(Accounts)]
-pub struct AccountsInvolvedInInitMintToken<'info> 
-{
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    #[account(
-      mut,
-      seeds = [
-        AUTHORITY_SEED_PREFIX.as_bytes(),
-        authority_pda.authority.as_ref(),
-      ],
-      bump = authority_pda.bump,
-    )]
-    pub authority_pda: Account<'info, AuthorityPda>,
-    #[account(
       init,
+      seeds = [_token_seed.as_bytes(),],
+      bump,
       payer = authority,
       mint::decimals = 7,
-      mint::authority = authority_pda,
-      mint::freeze_authority = authority_pda,
-    )]
-    pub mint: Account<'info, Mint>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
-  }
-
+      mint::authority = mint,
+  )]
+  pub mint: Account<'info, Mint>,
+  #[account(mut)]
+  pub authority: Signer<'info>,
+  pub rent: Sysvar<'info, Rent>,
+  pub system_program: Program<'info, System>,
+  pub token_program: Program<'info, Token>,
+  /// CHECK: account constraint checked in account trait
+  #[account(address = mpl_token_metadata::ID)]
+  pub token_metadata_program: UncheckedAccount<'info>,
+}
 #[derive(Accounts)]
 pub struct AccountsForDeposit<'info> {
   #[account(mut)]
@@ -96,15 +78,15 @@ pub struct AccountsForDeposit<'info> {
     #[account(mut)]
     pub program_pda: AccountInfo<'info>,
 
-    #[account(
-      mut,
-      seeds = [
-        AUTHORITY_SEED_PREFIX.as_bytes(),
-        authority_pda.authority.as_ref(),
-      ],
-      bump = authority_pda.bump,
-    )]
-    pub authority_pda: Account<'info, AuthorityPda>,            // mint authority, used in mint method
+    // #[account(
+    //   mut,
+    //   seeds = [
+    //     AUTHORITY_SEED_PREFIX.as_bytes(),
+    //     authority_pda.authority.as_ref(),
+    //   ],
+    //   bump = authority_pda.bump,
+    // )]
+    // pub authority_pda: Account<'info, AuthorityPda>,            // mint authority, used in mint method
   
     #[account(
       init_if_needed, 
@@ -124,12 +106,17 @@ pub struct AccountsForDeposit<'info> {
     )]
     pub token_account: Account<'info, TokenAccount>,
     /// CHECK: This is the token that we want to mint
-    #[account(mut)]
+    #[account(mut,
+      seeds = [TOKEN_SEED_PREFIX.as_bytes(),],
+      bump,
+      mint::authority = mint,
+    )]
     pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     /// CHECK:` doc comment explaining why no checks through types are necessary
     #[account(address = IX_ID)]
     pub ix_sysvar: AccountInfo<'info>,
+    pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
     }

@@ -11,22 +11,24 @@ const client = new Client({
       rejectUnauthorized: false, // This option might be needed for self-signed certificates
     },
 });
+
+// const gmpdbclient = new Client({
+//    host: "43.205.254.49",
+//    user: "postgres",
+//    port: 5432,
+//    password: "imentus123",
+//    database: "gmpdb"
+ 
+// });
+
 const gmpdbclient = new Client({
-   host: "43.205.254.49",
+   host: "65.2.160.56",
    user: "postgres",
    port: 5432,
    password: "imentus123",
    database: "gmpdb"
  
 });
-// gmpdbclient.connect()
-
-//    .then(() => {
-//       console.log("Connected to PostgreSQL database");
-//    })
-//    .catch((err) => {
-//       console.error("Error connecting to PostgreSQL database:", err);
-//    });
 
 module.exports =  gmpdbclient;
 

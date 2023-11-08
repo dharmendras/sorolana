@@ -1,7 +1,6 @@
 mod constants;
 mod ins;
 mod state;
-// use solana_program::ed25519_program::ID as ED25519_ID;
 
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::ed25519_program::ID as ED25519_ID;
@@ -12,109 +11,108 @@ use anchor_lang::solana_program::{
     system_instruction,
 };
 use anchor_spl::token::{mint_to, Burn, MintTo};
-use mpl_token_metadata::instructions::CreateMetadataAccountV3;
+use mpl_token_metadata::instructions::{
+    CreateMetadataAccountV3, CreateMetadataAccountV3InstructionArgs,
+};
+use mpl_token_metadata::types::DataV2;
 
-use constants::AUTHORITY;
+use constants::{AUTHORITY, TOKEN_SEED_PREFIX};
 
 use ins::*;
 use state::{ClaimEvent, CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("8zRhmZnnpyCTkunFPb6LVSxeh7fyCZ9wH5xGPwu68Trb");
+declare_id!("BsuhhGUFJNDNamgfpMZAJTyAhVhyhSZdAtRU1Zakre56");
 
 #[program]
 pub mod sorolan_bridge {
 
-    // use crate::constants::PROGRAM_SEED_PREFIX;
-
-    // use mpl_token_metadata::{instructions::CreateMetadataAccountV3InstructionArgs, types::DataV2};
-
     use super::*;
 
+    // Initialize token address
     #[access_control(authorized_admin(&ctx.accounts.authority))]
-    pub fn init_authority_pda(ctx: Context<AccountsForInitAuthorityPda>, bump: u8) -> Result<()> {
-        let authority_pda_account = &mut ctx.accounts.authority_pda;
-        authority_pda_account.authority = ctx.accounts.authority.key();
-        authority_pda_account.bump = bump;
-        msg!(
-            "Authority pda created successfully: {}",
-            authority_pda_account.key()
-        );
+    pub fn init_token_address(
+        ctx: Context<AccountsForInitToken>,
+        _token_seed: String,
+        bump: u8,
+        token_name: String,
+        token_symbol: String,
+        token_uri: String,
+    ) -> Result<()> {
+        let mint_account = &mut ctx.accounts.mint;
+        let meta_account = &mut ctx.accounts.metadata;
+        let authority = &mut ctx.accounts.authority;
+        let token_metadata_account = &mut ctx.accounts.token_metadata_program;
+        let token_program = &mut ctx.accounts.token_program;
+        let system_account = &mut ctx.accounts.system_program;
+        let rent_account = &mut ctx.accounts.rent;
+        msg!("Mint address: {}", mint_account.key());
+
+        let seeds = &[TOKEN_SEED_PREFIX.as_bytes(), &[bump]];
+        let signer = [&seeds[..]];
+
+        let account_info = vec![
+            meta_account.to_account_info(),
+            mint_account.to_account_info(),
+            authority.to_account_info(),
+            token_metadata_account.to_account_info(),
+            token_program.to_account_info(),
+            system_account.to_account_info(),
+            rent_account.to_account_info(),
+        ];
+
+        let data = DataV2 {
+            name: token_name,
+            symbol: token_symbol,
+            uri: token_uri,
+            seller_fee_basis_points: 0,
+            creators: None,
+            collection: None,
+            uses: None,
+        };
+
+        let args = CreateMetadataAccountV3InstructionArgs {
+            data,
+            is_mutable: true,
+            collection_details: None,
+        };
+
+        let acnts = CreateMetadataAccountV3 {
+            metadata: meta_account.key(),
+            mint: mint_account.key(),
+            mint_authority: mint_account.key(),
+            payer: authority.key(),
+            update_authority: authority.key(),
+            system_program: system_account.key(),
+            rent: Some(rent_account.key()),
+        };
+        let ix = CreateMetadataAccountV3::instruction(&acnts, args);
+
+        invoke_signed(&ix, account_info.as_slice(), &signer)?;
+        msg!("Token initialized successfully!!!");
         Ok(())
     }
 
-    // pub fn initialize(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {
-    //     let seeds = &["mint".as_bytes(), &[*ctx.bumps.get("mint").unwrap()]];
-    //     let signer = [&seeds[..]];
-
-    //     let account_info = vec![
-    //         ctx.accounts.metadata.to_account_info(),
-    //         ctx.accounts.mint.to_account_info(),
-    //         ctx.accounts.authority.to_account_info(),
-    //         ctx.accounts.token_metadata_program.to_account_info(),
-    //         ctx.accounts.token_program.to_account_info(),
-    //         ctx.accounts.system_program.to_account_info(),
-    //         ctx.accounts.rent.to_account_info(),
-    //     ];
-
-    //     let data: DataV2 = mpl_token_metadata::types::DataV2 {
-    //         name: "Wrapped XLM",
-    //         symbol: "W-XLM",
-    //         uri: "ertyuio",
-    //         seller_fee_basis_points: 100,
-    //         creators: ,
-    //         collection: None,
-    //         uses: None,
-    //     };
-
-    //     let c = CreateMetadataAccountV3InstructionArgs{
-    //          data: {
-    //             name: "Wrapped XLM",
-    //             symbol: "W-XLM",
-    //             uri: "ertyuio",
-    //             seller_fee_basis_points: 100,
-    //             creators: ,
-    //             collection: None,
-    //             uses: None,
-    //         },
-    //          is_mutable: true,
-    //          collection_details: None,
-    //     };
-    //     let i = CreateMetadataAccountV3::instruction(c);
-
-    //     invoke_signed(
-    //         &CreateMetadataAccountV3::instruction(
-    //             ctx.accounts.token_metadata_program.key(), // token metadata program
-    //             ctx.accounts.metadata.key(),               // metadata account PDA for mint
-    //             ctx.accounts.mint.key(),                   // mint account
-    //             ctx.accounts.mint.key(),                   // mint authority
-    //             ctx.accounts.user.key(),                   // payer for transaction
-    //             ctx.accounts.mint.key(),                   // update authority
-    //             name,                                      // name
-    //             symbol,                                    // symbol
-    //             uri,                                       // uri (offchain metadata)
-    //             None,                                      // (optional) creators
-    //             0,                                         // seller free basis points
-    //             true,                                      // (bool) update authority is signer
-    //             true,                                      // (bool) is mutable
-    //             None,                                      // (optional) collection
-    //             None,                                      // (optional) uses
-    //             None,                                      // (optional) collection details
-    //         ),
-    //         account_info.as_slice(),
-    //         &signer,
-    //     )?;
+    // #[access_control(authorized_admin(&ctx.accounts.authority))]
+    // pub fn init_authority_pda(ctx: Context<AccountsForInitAuthorityPda>, bump: u8) -> Result<()> {
+    //     let authority_pda_account = &mut ctx.accounts.authority_pda;
+    //     authority_pda_account.authority = ctx.accounts.authority.key();
+    //     authority_pda_account.bump = bump;
+    //     msg!(
+    //         "Authority pda created successfully: {}",
+    //         authority_pda_account.key()
+    //     );
     //     Ok(())
     // }
 
-    #[access_control(authorized_admin(&ctx.accounts.authority))]
-    pub fn init_token_mint(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {
-        let program_authority = &mut ctx.accounts.authority;
-        msg!(
-            "Program Pda is initialized successfully, the authority of the pda is : {}",
-            program_authority.key()
-        );
-        msg!("Token mint created successfully.");
-        Ok(())
-    }
+    // #[access_control(authorized_admin(&ctx.accounts.authority))]
+    // pub fn init_token_mint(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {
+    //     let program_authority = &mut ctx.accounts.authority;
+    //     msg!(
+    //         "Program Pda is initialized successfully, the authority of the pda is : {}",
+    //         program_authority.key()
+    //     );
+    //     msg!("Token mint created successfully.");
+    //     Ok(())
+    // }
 
     pub fn deposit(ctx: Context<AccountsForDeposit>, amount: u64, to: String) -> Result<()> {
         let program_id = ctx.program_id;
@@ -125,7 +123,10 @@ pub mod sorolan_bridge {
         msg!("Program Address: {:?}", program_address);
 
         let (program_pda, _pda_bump) = Pubkey::find_program_address(
-            &[b"soroban_solana", ctx.accounts.authority.key().as_ref()],
+            &[
+                b"soroban_solana_stag",
+                ctx.accounts.authority.key().as_ref(),
+            ],
             ctx.program_id,
         );
 
@@ -163,6 +164,7 @@ pub mod sorolan_bridge {
         msg: Vec<u8>,
         sig: [u8; 64],
         bump: u8,
+        mint_bump: u8,
     ) -> Result<()> {
         msg!("claim method start executing");
         msg!("message{:?}", msg);
@@ -243,35 +245,28 @@ pub mod sorolan_bridge {
 
         if deposit_method {
             msg!("Mint method invoked");
+            let seeds = &[TOKEN_SEED_PREFIX.as_bytes(), &[mint_bump]];
+            let signer = [&seeds[..]];
 
-            let authority_account = &mut ctx.accounts.authority_pda;
-
-            let signer_seed = [
-                constants::AUTHORITY_SEED_PREFIX.as_bytes(),
-                authority_account.authority.as_ref(),
-                &[authority_account.bump],
-            ];
-            let cpi_accounts = MintTo {
-                mint: ctx.accounts.mint.to_account_info(),
-                to: ctx.accounts.token_account.to_account_info(),
-                authority: authority_account.to_account_info(),
-            };
-            let binding = [&signer_seed[..]];
-            let cpi_ctx = CpiContext::new_with_signer(
-                ctx.accounts.token_program.to_account_info(),
-                cpi_accounts,
-                &binding,
-            );
-            // let cpi_program = ctx.accounts.token_program.to_account_info();
-            // // Create the CpiContext we need for the request
-            // let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-
-            // // Execute anchor's helper function to mint tokens
-            let _a = mint_to(cpi_ctx, amt)?;
+            mint_to(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(),
+                    MintTo {
+                        authority: ctx.accounts.mint.to_account_info(),
+                        to: ctx.accounts.token_account.to_account_info(),
+                        mint: ctx.accounts.mint.to_account_info(),
+                    },
+                    &signer,
+                ),
+                amt,
+            )?;
         } else {
             msg!("Release method invoked");
             let (program_pda, generic_bump_seed) = Pubkey::find_program_address(
-                &[b"soroban_solana", ctx.accounts.authority.key().as_ref()],
+                &[
+                    b"soroban_solana_stag",
+                    ctx.accounts.authority.key().as_ref(),
+                ],
                 ctx.program_id,
             );
             invoke_signed(
@@ -286,7 +281,7 @@ pub mod sorolan_bridge {
                     ctx.accounts.system_program.to_account_info(),
                 ],
                 &[&[
-                    "soroban_solana".as_ref(), // since signing using PDA, therefore passing signers seeds
+                    "soroban_solana_stag".as_ref(), // since signing using PDA, therefore passing signers seeds
                     ctx.accounts.authority.key().as_ref(),
                     &[generic_bump_seed],
                 ]],
