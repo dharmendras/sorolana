@@ -170,7 +170,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let to_chain: i128 = 123;
         let fee: u32 = 100;
 
-        let transfer = Transfer {
+        let depositevent = DepositEvent {
             method,
             amount,
             token_address,
@@ -183,7 +183,8 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         // //   env.storage().persistent().set(&DataKey::Transfer, &transfer);
         let symbol: Symbol = symbol_short!("deposit");
 
-        env.events().publish((DataKey::Transfer, symbol), transfer);
+        env.events()
+            .publish((DataKey::DepositEvent, symbol), depositevent);
         // //env.events().publish( symbol, transfer);
         balance
     }
@@ -218,22 +219,6 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         let counter: i128 = 0;
 
-        env.storage()
-            .persistent()
-            .set(&DataKey::Counter((user.clone())), &counter);
-
-        env.storage().persistent().bump(
-            &DataKey::Counter((user.clone())),
-            LOW_WATERFALL,
-            HIGH_WATERFALL,
-        );
-
-        let mut get_user_counter: i128 = env
-            .storage()
-            .persistent()
-            .get(&DataKey::Counter((user.clone())))
-            .unwrap();
-
         let mut random_address: [u8; 100] = [0u8; 100];
         let (sl, _) = random_address.split_at_mut(counter_bytes.len() as usize);
         counter_bytes.copy_into_slice(sl);
@@ -241,51 +226,112 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         let counter_str = core::str::from_utf8(sl).unwrap();
         let parse_counter: i128 = counter_str.parse().unwrap();
 
-        // if parse_counter == get_user_counter {
-            let check = compare_validator_public_key(env.clone(), public_key.clone());
+        let is_available = env
+            .storage()
+            .persistent()
+            .has(&DataKey::Counter((user.clone())));
 
-            if check == true {
-                env.crypto()
-                    .ed25519_verify(&public_key, &message, &signature);
+        if is_available {
+            let mut get_user_counter: i128 = env
+                .storage()
+                .persistent()
+                .get(&DataKey::Counter((user.clone())))
+                .unwrap();
 
-                let token_address = get_token(&env.clone());
-                let client = wrappedtoken::Client::new(&env, &token_address);
-                client.mint(&user.clone(), &amount);
+            if parse_counter == get_user_counter {
+                let check = compare_validator_public_key(env.clone(), public_key.clone());
 
-                get_user_counter = get_user_counter + 1;
+                if check == true {
+                    env.crypto()
+                        .ed25519_verify(&public_key, &message, &signature);
 
-                env.storage()
-                    .persistent()
-                    .set(&DataKey::Counter((user.clone())), &get_user_counter);
+                    let token_address = get_token(&env.clone());
+                    let client = wrappedtoken::Client::new(&env, &token_address);
+                    client.mint(&user.clone(), &amount);
 
-                env.storage().persistent().bump(
-                    &DataKey::Counter((user.clone())),
-                    LOW_WATERFALL,
-                    HIGH_WATERFALL,
-                );
+                    get_user_counter += 1;
 
-                let method: String = "claim".into_val(&env);
-                let Claim_Counter: i128 =  counter;
-                let user_address: Address = user;
+                    env.storage()
+                        .persistent()
+                        .set(&DataKey::Counter((user.clone())), &get_user_counter);
+              
+                        let method: String = "claim".into_val(&env);
+                        let Claim_Counter: i128 =  get_user_counter;
+                        let user_address: Address = user;
 
-                let claim_event = Claim {
-                    method,
-                    Claim_Counter,
-                    user_address,
-                };
+                        let claim_event = ClaimEvent {
+                            method,
+                            Claim_Counter,
+                            user_address,
+                        };
+        
+                        let symbol: Symbol = symbol_short!("Claim");
+        
+                        env.events()
+                            .publish((DataKey::ClaimEvent, symbol), claim_event);
+                } else {
+                    // validator public key not valid
+                }
 
-                let symbol: Symbol = symbol_short!("Claim");
-
-                env.events()
-                    .publish((DataKey::Withdraw, symbol), claim_event);
-
-                return Ok(());
+                Ok(())
             } else {
-                return Err(VerifyError::InvalidPublickey);
+                //     // parse counter does not matched
+                //return -1
+                return Err(VerifyError::USER_ALREADY_CLAIMED);
             }
-          //else {
-        //     return Err(VerifyError::USER_ALREADY_CLAIMED);
-        // }
+        } else {
+            env.storage()
+                .persistent()
+                .set(&DataKey::Counter((user.clone())), &counter);
+
+            let mut get_user_counter: i128 = env
+                .storage()
+                .persistent()
+                .get(&DataKey::Counter((user.clone())))
+                .unwrap();
+            if parse_counter == get_user_counter {
+                let check = compare_validator_public_key(env.clone(), public_key.clone());
+
+                if check == true {
+                    env.crypto()
+                        .ed25519_verify(&public_key, &message, &signature);
+
+                    let token_address = get_token(&env.clone());
+                    let client = wrappedtoken::Client::new(&env, &token_address);
+                    client.mint(&user.clone(), &amount);
+
+                    get_user_counter += 1;
+
+                    env.storage()
+                        .persistent()
+                        .set(&DataKey::Counter((user.clone())), &get_user_counter);
+              
+                        let method: String = "claim".into_val(&env);
+                        let Claim_Counter: i128 =  counter;
+                        let user_address: Address = user;
+
+                        let claim_event = ClaimEvent {
+                            method,
+                            Claim_Counter,
+                            user_address,
+                        };
+        
+                        let symbol: Symbol = symbol_short!("Claim");
+        
+                        env.events()
+                            .publish((DataKey::ClaimEvent, symbol), claim_event);
+                } else {
+                    // validator public key not valid
+                }
+
+                Ok(())
+            } else {
+                //     // parse counter does not matched
+                //return -1
+                return Err(VerifyError::USER_ALREADY_CLAIMED);
+            }
+          
+        }
     }
 
     fn withdraw(env: Env, amount: i128, user: Address, recipient: String) -> i128 {
@@ -311,7 +357,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         let fee: u32 = 100;
 
-        let transfer = Withdraw {
+        let withdrawevent = WithdrawEvent {
             method,
             amount,
             token_chain,
@@ -323,7 +369,8 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         // //   env.storage().persistent().set(&DataKey::Transfer, &transfer);
         let symbol: Symbol = symbol_short!("Withdraw");
 
-        env.events().publish((DataKey::Withdraw, symbol), transfer);
+        env.events()
+            .publish((DataKey::WithdrawEvent, symbol), withdrawevent);
 
         balance
 
@@ -355,23 +402,23 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         //     .get(&DataKey::Counter((receipent.clone())))
         //     .unwrap();
 
-      //  if parse_counter == get_user_counter {
-         //   let check = compare_validator_public_key(env.clone(), public_key.clone());
+        //  if parse_counter == get_user_counter {
+        //   let check = compare_validator_public_key(env.clone(), public_key.clone());
 
-          //   if check == true {
-                // env.crypto()
-                //     .ed25519_verify(&public_key, &message, &signature);
+        //   if check == true {
+        // env.crypto()
+        //     .ed25519_verify(&public_key, &message, &signature);
 
-                let token_address = get_native_token(&env);
-                let client = token::Client::new(&env, &token_address);
-                client.transfer(&env.current_contract_address(), &receipent, &amount);
+        let token_address = get_native_token(&env);
+        let client = token::Client::new(&env, &token_address);
+        client.transfer(&env.current_contract_address(), &receipent, &amount);
 
-                // get_user_counter = get_user_counter + 1;
+        // get_user_counter = get_user_counter + 1;
 
-                // env.storage()
-                //     .persistent()
-                //     .set(&DataKey::Counter((receipent.clone())), &get_user_counter);
-          //  }
+        // env.storage()
+        //     .persistent()
+        //     .set(&DataKey::Counter((receipent.clone())), &get_user_counter);
+        //  }
         //}
 
         0

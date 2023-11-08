@@ -58,8 +58,8 @@ async function SorobanClaim(event, slot, transaction_id) {
 
     let tx = await connection.getParsedTransaction(transaction_id);
     let user_key = tx.transaction.message.accountKeys[0].pubkey;
-
-    // let [receiver_pda, userBump] = await getUserPda(user_key);
+    console.log("====> user_key <===", user_key)
+    // // let [receiver_pda, userBump] = await getUserPda(user_key);
 
     await axios
         .get(`${base_url}/gmp/userCounter/${receiver}`)
@@ -148,8 +148,8 @@ async function SorobanClaim(event, slot, transaction_id) {
         );
         // if (!receiverId || res.data.data.length == 0) {
         console.log("🚀 ~ file: SorobanClaim.js:146 ~ receiverId:", receiverId)
-        // if (!receiverId || res.data.data.length == 0) {
-        if (true) {                 //TODO: update it after listening the claim event of soroban
+        if (!receiverId || res.data.data.length == 0) {
+            // if (true) {                 //TODO: update it after listening the claim event of soroban
             let message_data = {
                 amount: amount,
                 from: user_key.toBase58(),

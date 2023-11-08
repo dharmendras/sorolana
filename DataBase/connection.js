@@ -11,7 +11,6 @@ const client = new Client({
       rejectUnauthorized: false, // This option might be needed for self-signed certificates
     },
 });
-
 // const gmpdbclient = new Client({
 //    host: "43.205.254.49",
 //    user: "postgres",
@@ -20,7 +19,6 @@ const client = new Client({
 //    database: "gmpdb"
  
 // });
-
 const gmpdbclient = new Client({
    host: "65.2.160.56",
    user: "postgres",

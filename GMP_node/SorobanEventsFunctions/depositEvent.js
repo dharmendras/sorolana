@@ -10,10 +10,11 @@ const {SorobanClaimEventHandle} = require('./sorobanclaimEventHandle')
 //const {post_api} = require('./server')
 // Create an Express app
 const app = express();
-
+//CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR
 // Define a global variable to store the last ledger number
 let lastLedger = null;
-
+ process.env.CONTRACT_ID
+console.log("🚀 ~ file: depositEvent.js:17 ~ contract_id:", contract_id)
 // Define a function to poll the Soroban .getEvents
 function convertBigIntToString(obj) {
   for (const key in obj) {
@@ -50,11 +51,11 @@ async function pollSorobanDepositEvents() {
           {
             type: "contract",
             contractIds: [
-              "CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR",
+              process.env.CONTRACT_ID
             ],
             topics: [
               [
-                "AAAAEAAAAAEAAAABAAAADwAAAAhUcmFuc2Zlcg==",
+                "AAAAEAAAAAEAAAABAAAADwAAAAxEZXBvc2l0RXZlbnQ=",
                 "AAAADwAAAAdkZXBvc2l0AA==",
 
               ],
@@ -158,11 +159,11 @@ async function pollSorobanClaimEvents() {
           {
             type: "contract",
             contractIds: [
-              "CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR"
+              process.env.CONTRACT_ID
             ],
             topics: [
               [
-                "AAAAEAAAAAEAAAABAAAADwAAAAhXaXRoZHJhdw==",
+                "AAAAEAAAAAEAAAABAAAADwAAAApDbGFpbUV2ZW50AAA=",
                 "AAAADwAAAAVDbGFpbQAAAA==",
 
               ],
@@ -234,7 +235,7 @@ async function pollSorobanClaimEvents() {
     let soroban_deposit_random_transaction_hash = "e4eb26470ad1f19f900b1e943d8bd5edf71bc1e8c3fd6ca9b39b93fbf4936b40" // TODO: Triggering Event should give tx hash
 
     // Event data will be inserted to Postgres DB in below function
-    await SorobanClaimEventHandle(converted_value , 0 , soroban_deposit_random_transaction_hash);
+  await SorobanClaimEventHandle(converted_value , 0 , soroban_deposit_random_transaction_hash);
   //  await solanaDeposit(converted_value, 0, soroban_deposit_random_transaction_hash)
     console.log("🚀 ~ fyile: depositEvent.js:129 ~ pollSorobanDepositEvents ~ converted_value:", converted_value)
 
@@ -267,7 +268,7 @@ async function pollSorobanWithdrawEvents() {
           {
             type: "contract",
             contractIds: [
-              "CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR",
+              process.env.CONTRACT_ID,
             ],
             topics: [
               [
@@ -356,4 +357,4 @@ async function pollSorobanWithdrawEvents() {
  cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
 cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
 // Start listening on port 3000
-app.listen(3000, () => console.log("Server is listening on port 3000."));
+app.listen(3100, () => console.log("Server is listening on port 3100."));

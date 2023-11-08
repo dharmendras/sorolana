@@ -2,7 +2,7 @@ const SorobanClient = require('soroban-client')
 const encode = require('./encode')
 const { use } = require('chai')
 
-const claim = async (contractId, secret, public_key, messageUint8, signUint8Array, user, amount) => {
+const claim = async (contractId, secret_key, public_key, messageUint8, signUint8Array, amount) => {
     
 
     const server = new SorobanClient.Server(
@@ -10,8 +10,9 @@ const claim = async (contractId, secret, public_key, messageUint8, signUint8Arra
     );
     const contract = new SorobanClient.Contract(contractId);
   
-     let keypair = SorobanClient.Keypair.fromSecret(secret)
+     let keypair = SorobanClient.Keypair.fromSecret(secret_key)
    //  console.log("🚀 ~ file: claimmethod.js:14 ~ claim ~ keypair:", keypair)
+  // const account = await server.getAccount(keypair.publicKey());
 
     const account = await server.getAccount(keypair.publicKey());
   //  console.log("🚀 ~ file: claimmethod.js:17 ~ claim ~ account:", account)
@@ -19,7 +20,7 @@ const claim = async (contractId, secret, public_key, messageUint8, signUint8Arra
     const obj1 = { type: 'bytes', value: public_key };
     const obj2 = { type: 'bytes', value: messageUint8 };
     const obj3 = { type: 'bytes', value: signUint8Array }
-    const obj4 = { type: 'address', value: user }
+    const obj4 = { type: 'address', value: keypair.publicKey() }
     const obj5 = { type: 'scoI128', value: amount };
 
     const params = [encode(obj1), encode(obj2), encode(obj3), encode(obj4), encode(obj5)]
@@ -39,7 +40,7 @@ const claim = async (contractId, secret, public_key, messageUint8, signUint8Arra
 //    console.log("🚀 ~ file: claimmethod.js:39 ~ claim ~ sim:", sim)
 
     let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
-    _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
+    _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret_key))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);

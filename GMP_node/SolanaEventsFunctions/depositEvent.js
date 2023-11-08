@@ -23,10 +23,10 @@ const programID = new PublicKey(idl.metadata.address);
 const provider = new AnchorProvider(connection, opts.preflightCommitment);
 const program = new Program(idl, programID, provider);
 const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
-
 let validator_kp = Keypair.fromSecretKey(
   new Uint8Array(
-    JSON.parse(fs.readFileSync("./solana_validators/validator1.json"))
+   // JSON.parse(fs.readFileSync("./solana_validators/validator1.json"))
+   JSON.parse(fs.readFileSync("/home/imentus/Documents/imentus_project/sorolana/GMP_node/solana_validators/validator1.json"))
   )
 );
 const getUserPda = async (user, validator) => {

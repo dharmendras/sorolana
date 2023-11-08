@@ -19,7 +19,7 @@ const opts = {
 };
 const network = "https://api.devnet.solana.com";
 const connection = new web3.Connection(network, "confirmed");
-async function SorobanClaimEventHandle(event, slot, transaction_id) {
+async function  SorobanClaimEventHandle(event, slot, transaction_id) {
     console.log("🚀 ~ file: sorobanclaimEventHandle.js:3 ~ SorobanClaimEventHandle ~ transaction_id:", transaction_id)
     console.log("🚀 ~ file: sorobanclaimEventHandle.js:4 ~ SorobanClaimEventHandle ~ slot:", slot)
     console.log("🚀 ~ file: sorobanclaimEventHandle.js:5 ~ SorobanClaimEventHandle ~ event:", event)
@@ -31,6 +31,7 @@ async function SorobanClaimEventHandle(event, slot, transaction_id) {
 
     let userAddress = event.user_address;
     let userCounter = Number(event.Claim_Counter)
+    console.log("🚀 ~ file: sorobanclaimEventHandle.js:34 ~ SorobanClaimEventHandle ~ userCounter:", userCounter)
 
     let message_data = {
         queue_id: userCounter,

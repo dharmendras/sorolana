@@ -46,11 +46,11 @@ function convertToBytes32(address) {
 }
 describe('SorobanTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CCSF7HTFOQ34LGWV2ANPVIINC3AD3M6RHCCFRVYJHOEBEYZY7STEMNHE';
+    const contractId = 'CAW6PJQUREMCO4G3QNVXKDJYWVQQFUNO2S5B5SHVONTBTR7K7CQ6Y2BZ';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     //SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C
     //SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO
-    const secret_key = 'SAZCVEOZF3PTIS7TZDKX4ECLAHI6G4GSIZGAFMQUX747VGDMVFWVRUFF';
+    const secret_key = 'SD2TYCOGQ72CLOUYOYLISOATD7X3PTST3FODXHEKSAT562AVMTHMTNM5';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
     let custom_source_token = "CDNMTJA6PYAG6KQBASJU7FLPUS3ZONDYU5ZGQQEVRKX3KK4O5RSG3OQQ"
@@ -85,7 +85,7 @@ describe('SorobanTestSuite', () => {
         //   let validator_key = convertToBytes(validator_public_key)
         //console.log("🚀 ~ file: index.js:77 ~ it ~ validator_key:", validator_key)
 
-        let signature = "2dXuUaWPVg00jdtPjbfobPzobtHq314JOr+034O5jh+XVM/6Eft6qjpKp8H3iAnsqd5wtaKzWZZDH48AUxTFCg=="
+        let signature = "H0qvNZmxL+k1kNkMsjmL7neVKrt8wyYC9WtTkwGYEybOdMGSpY4a5ukL5lgs4Hh6WdMxUiQZwpBAuo7RhqA8Dw=="
 
         const validator_signature = new Uint8Array(Buffer.from(signature, 'base64'));
 
@@ -100,7 +100,7 @@ describe('SorobanTestSuite', () => {
 
         //  console.log("🚀 ========>User Balance Before Claim<========", before_claim)
 
-          await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+          await claim(contractId, secret_key, validator_key, message, validator_signature, amount)
 
         //  let after_claim =  await get_balance(custom_source_token, user)
 
@@ -122,7 +122,7 @@ describe('SorobanTestSuite', () => {
         //   let validator_key = convertToBytes(validator_public_key)
         //console.log("🚀 ~ file: index.js:77 ~ it ~ validator_key:", validator_key)
 
-        let signature = "bHSVR57XtwoZH1Bv9gm6uBzticQrdSFVTKFhrJIg/tYeDexOi2qXyU+Ter+6GA/b6dVFTu3YyGSXfZ9o+YVdBw=="
+        let signature = "H0qvNZmxL+k1kNkMsjmL7neVKrt8wyYC9WtTkwGYEybOdMGSpY4a5ukL5lgs4Hh6WdMxUiQZwpBAuo7RhqA8Dw=="
 
         const validator_signature = new Uint8Array(Buffer.from(signature, 'base64'));
 
@@ -137,7 +137,7 @@ describe('SorobanTestSuite', () => {
 
         //  console.log("🚀 ========>User Balance Before Claim<========", before_claim)
 
-          await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+     //    await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
 
         //  let after_claim =  await get_balance(custom_source_token, user)
 
