@@ -3,46 +3,20 @@
   "name": "sorolan_bridge",
   "instructions": [
     {
-      "name": "initAuthorityPda",
+      "name": "initTokenAddress",
       "accounts": [
         {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "authorityPda",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "bump",
-          "type": "u8"
-        }
-      ]
-    },
-    {
-      "name": "initTokenMint",
-      "accounts": [
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "authorityPda",
+          "name": "metadata",
           "isMut": true,
           "isSigner": false
         },
         {
           "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
           "isMut": true,
           "isSigner": true
         },
@@ -60,9 +34,31 @@
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        },
+        {
+          "name": "tokenName",
+          "type": "string"
+        },
+        {
+          "name": "tokenSymbol",
+          "type": "string"
+        },
+        {
+          "name": "tokenUri",
+          "type": "string"
+        }
+      ]
     },
     {
       "name": "deposit",
@@ -128,11 +124,6 @@
           "isSigner": false
         },
         {
-          "name": "authorityPda",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "userPda",
           "isMut": true,
           "isSigner": false
@@ -159,6 +150,11 @@
         },
         {
           "name": "ixSysvar",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
           "isMut": false,
           "isSigner": false
         },
@@ -193,6 +189,10 @@
         },
         {
           "name": "bump",
+          "type": "u8"
+        },
+        {
+          "name": "mintBump",
           "type": "u8"
         }
       ]
@@ -245,22 +245,6 @@
           },
           {
             "name": "user",
-            "type": "publicKey"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AuthorityPda",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "authority",
             "type": "publicKey"
           },
           {
@@ -322,7 +306,7 @@
           "index": false
         },
         {
-          "name": "recieverAddress",
+          "name": "receiverAddress",
           "type": "string",
           "index": false
         },
@@ -417,6 +401,6 @@
     }
   ],
   "metadata": {
-    "address": "4YXajmGwhTcszkZoae6TWQKvxwt5XAhvj4naV7biSnpT"
+    "address": "BsuhhGUFJNDNamgfpMZAJTyAhVhyhSZdAtRU1Zakre56"
   }
 }
