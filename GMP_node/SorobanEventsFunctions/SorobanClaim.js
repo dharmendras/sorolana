@@ -104,7 +104,7 @@ async function SorobanClaim(event, slot, transaction_id) {
         tokenAddress: tokenAddress,
         tokenChain: tokenChain,
         to: receiver,
-        toChain: tokenChain,
+        toChain: toChain,
         fee: 100,
         method: method_name,
         amount: amount,

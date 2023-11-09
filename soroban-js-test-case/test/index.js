@@ -50,7 +50,7 @@ describe('SorobanTestSuite', () => {
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     //SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C
     //SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO
-    const secret_key = 'SD2TYCOGQ72CLOUYOYLISOATD7X3PTST3FODXHEKSAT562AVMTHMTNM5';
+    const secret_key = 'SD22EO6EYH4SFNXFE5KH2TIWYSKBYQECVNL5VOHWOFSVSLSVJ3O4U2S6';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
     let custom_source_token = "CDNMTJA6PYAG6KQBASJU7FLPUS3ZONDYU5ZGQQEVRKX3KK4O5RSG3OQQ"
@@ -85,7 +85,7 @@ describe('SorobanTestSuite', () => {
         //   let validator_key = convertToBytes(validator_public_key)
         //console.log("🚀 ~ file: index.js:77 ~ it ~ validator_key:", validator_key)
 
-        let signature = "H0qvNZmxL+k1kNkMsjmL7neVKrt8wyYC9WtTkwGYEybOdMGSpY4a5ukL5lgs4Hh6WdMxUiQZwpBAuo7RhqA8Dw=="
+        let signature = "KC7v0ppfeHwaoqBleNlPRv534jvskOBXQWs3bz5F3aFAzKdgRFNzsaK1VC6Ix7m1a55pQijL48oQFC+uVHPtDw=="
 
         const validator_signature = new Uint8Array(Buffer.from(signature, 'base64'));
 

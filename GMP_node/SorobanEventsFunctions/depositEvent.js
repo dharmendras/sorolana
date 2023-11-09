@@ -13,8 +13,7 @@ const app = express();
 //CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR
 // Define a global variable to store the last ledger number
 let lastLedger = null;
- process.env.CONTRACT_ID
-console.log("🚀 ~ file: depositEvent.js:17 ~ contract_id:", contract_id)
+ 
 // Define a function to poll the Soroban .getEvents
 function convertBigIntToString(obj) {
   for (const key in obj) {
@@ -272,7 +271,7 @@ async function pollSorobanWithdrawEvents() {
             ],
             topics: [
               [
-                "AAAAEAAAAAEAAAABAAAADwAAAAhXaXRoZHJhdw==",
+                "AAAAEAAAAAEAAAABAAAADwAAAA1XaXRoZHJhd0V2ZW50AAAA",
                 "AAAADwAAAAhXaXRoZHJhdw=="
               ],
             ],
@@ -357,4 +356,4 @@ async function pollSorobanWithdrawEvents() {
  cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
 cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
 // Start listening on port 3000
-app.listen(3100, () => console.log("Server is listening on port 3100."));
+app.listen(3000, () => console.log("Server is listening on port 3000."));
