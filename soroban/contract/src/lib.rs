@@ -71,6 +71,7 @@ fn compare_validator_public_key(env: Env, key_to_compare: BytesN<32>) -> bool {
         false
     }
 }
+
 fn set_contract_deployer_address(env: Env, admin: Address) {
     env.storage()
         .persistent()
@@ -255,6 +256,10 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                         .persistent()
                         .set(&DataKey::Counter((user.clone())), &get_user_counter);
               
+                        env.storage()
+                        .persistent()
+                        .bump(&DataKey::Counter(user.clone()), LOW_WATERFALL, HIGH_WATERFALL);
+
                         let method: String = "claim".into_val(&env);
                         let Claim_Counter: i128 =  get_user_counter;
                         let user_address: Address = user;
@@ -280,9 +285,14 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                 return Err(VerifyError::USER_ALREADY_CLAIMED);
             }
         } else {
+
             env.storage()
                 .persistent()
                 .set(&DataKey::Counter((user.clone())), &counter);
+
+                env.storage()
+                .persistent()
+                .bump(&DataKey::Counter(user.clone()), LOW_WATERFALL, HIGH_WATERFALL);
 
             let mut get_user_counter: i128 = env
                 .storage()
@@ -305,6 +315,10 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                     env.storage()
                         .persistent()
                         .set(&DataKey::Counter((user.clone())), &get_user_counter);
+
+                        env.storage()
+                        .persistent()
+                        .bump(&DataKey::Counter(user.clone()), LOW_WATERFALL, HIGH_WATERFALL);
               
                         let method: String = "claim".into_val(&env);
                         let Claim_Counter: i128 =  counter;
