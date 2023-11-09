@@ -6,14 +6,14 @@ const SorobanClient = require('soroban-client')
 // const Message = require("../DataBase/message.js");
 const { solanaDeposit } = require('../SolanaEventsFunctions/depositEvent')
 const { solanaWithdraw } = require('../SolanaEventsFunctions/withdrawEvent')
-const {SorobanClaimEventHandle} = require('./sorobanclaimEventHandle')
+const { SorobanClaimEventHandle } = require('./sorobanclaimEventHandle')
 //const {post_api} = require('./server')
 // Create an Express app
 const app = express();
 //CCYK2Y6E476UWZH2YM3WBE25FMSVBQ4CEPW7QOEY2QQRFGS4N3W6LMKR
 // Define a global variable to store the last ledger number
 let lastLedger = null;
- 
+
 // Define a function to poll the Soroban .getEvents
 function convertBigIntToString(obj) {
   for (const key in obj) {
@@ -234,8 +234,8 @@ async function pollSorobanClaimEvents() {
     let soroban_deposit_random_transaction_hash = "e4eb26470ad1f19f900b1e943d8bd5edf71bc1e8c3fd6ca9b39b93fbf4936b40" // TODO: Triggering Event should give tx hash
 
     // Event data will be inserted to Postgres DB in below function
-  await SorobanClaimEventHandle(converted_value , 0 , soroban_deposit_random_transaction_hash);
-  //  await solanaDeposit(converted_value, 0, soroban_deposit_random_transaction_hash)
+    await SorobanClaimEventHandle(converted_value, 0, soroban_deposit_random_transaction_hash);
+    //  await solanaDeposit(converted_value, 0, soroban_deposit_random_transaction_hash)
     console.log("🚀 ~ fyile: depositEvent.js:129 ~ pollSorobanDepositEvents ~ converted_value:", converted_value)
 
   } catch (error) {
@@ -352,8 +352,8 @@ async function pollSorobanWithdrawEvents() {
 
 // Schedule a cron job to run every 15 seconds and call pollSorobanEvents
 // cron.schedule("*/1 * * * *", pollSorobanEvents);
- cron.schedule("*/15 * * * * *", pollSorobanDepositEvents);
- cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
+cron.schedule("*/15 * * * * *", pollSorobanDepositEvents);
+cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
 cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
 // Start listening on port 3000
 app.listen(3000, () => console.log("Server is listening on port 3000."));
