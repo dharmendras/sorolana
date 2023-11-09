@@ -7,16 +7,16 @@ use crate::constants::{USER_SEED_PREFIX, TOKEN_SEED_PREFIX};
 use crate::state::UserPda;
 
 #[derive(Accounts)]
-#[instruction(
-  _token_seed: String
-)]
+// #[instruction(
+//   _token_seed: String
+// )]
 pub struct AccountsForInitToken<'info>{
   /// CHECK: New Metaplex Account being created
   #[account(mut)]
   pub metadata: UncheckedAccount<'info>,
   #[account(
       init,
-      seeds = [_token_seed.as_bytes(),],
+      seeds = [TOKEN_SEED_PREFIX.as_bytes(),],
       bump,
       payer = authority,
       mint::decimals = 7,

@@ -20,7 +20,7 @@ use constants::{AUTHORITY, TOKEN_SEED_PREFIX};
 
 use ins::*;
 use state::{ClaimEvent, CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("BsuhhGUFJNDNamgfpMZAJTyAhVhyhSZdAtRU1Zakre56");
+declare_id!("HADg73vhw376PgZ7UcVU25s7ag8aidbBf1ZLB41d6EC7");
 
 #[program]
 pub mod sorolan_bridge {
@@ -31,7 +31,7 @@ pub mod sorolan_bridge {
     #[access_control(authorized_admin(&ctx.accounts.authority))]
     pub fn init_token_address(
         ctx: Context<AccountsForInitToken>,
-        _token_seed: String,
+        // _token_seed: String,
         bump: u8,
         token_name: String,
         token_symbol: String,
@@ -90,29 +90,6 @@ pub mod sorolan_bridge {
         msg!("Token initialized successfully!!!");
         Ok(())
     }
-
-    // #[access_control(authorized_admin(&ctx.accounts.authority))]
-    // pub fn init_authority_pda(ctx: Context<AccountsForInitAuthorityPda>, bump: u8) -> Result<()> {
-    //     let authority_pda_account = &mut ctx.accounts.authority_pda;
-    //     authority_pda_account.authority = ctx.accounts.authority.key();
-    //     authority_pda_account.bump = bump;
-    //     msg!(
-    //         "Authority pda created successfully: {}",
-    //         authority_pda_account.key()
-    //     );
-    //     Ok(())
-    // }
-
-    // #[access_control(authorized_admin(&ctx.accounts.authority))]
-    // pub fn init_token_mint(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {
-    //     let program_authority = &mut ctx.accounts.authority;
-    //     msg!(
-    //         "Program Pda is initialized successfully, the authority of the pda is : {}",
-    //         program_authority.key()
-    //     );
-    //     msg!("Token mint created successfully.");
-    //     Ok(())
-    // }
 
     pub fn deposit(ctx: Context<AccountsForDeposit>, amount: u64, to: String) -> Result<()> {
         let program_id = ctx.program_id;
