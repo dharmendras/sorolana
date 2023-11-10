@@ -76,7 +76,6 @@ fn set_contract_deployer_address(env: Env, admin: Address) {
     env.storage()
         .persistent()
         .set(&DataKeyToken::TokenAdmin, &admin);
-    // env.storage().persistent().bump( &Globals::Admin, 52600);
 
     env.storage()
         .persistent()
@@ -90,11 +89,10 @@ fn get_contract_deployer(env: &Env) -> Address {
         .unwrap();
     add
 }
-//fn put_native_token()
-fn put_token(e: &Env, contract: Address) {
+fn put_token(e: &Env, token_address: Address) {
     e.storage()
         .persistent()
-        .set(&DataKeyToken::TokenShare, &contract);
+        .set(&DataKeyToken::TokenShare, &token_address);
 
     e.storage()
         .persistent()
@@ -114,6 +112,10 @@ fn put_native_token(e: &Env, token: Address) {
     e.storage()
         .persistent()
         .bump(&DataKeyToken::NativeToken, LOW_WATERFALL, HIGH_WATERFALL);
+
+        // e.storage()
+        // .persistent()
+        // .bump(&token, LOW_WATERFALL, HIGH_WATERFALL);
 }
 fn get_native_token(e: &Env) -> Address {
     e.storage()
@@ -194,16 +196,16 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         set_contract_deployer_address(env, admin);
     }
     fn createwrappedtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> Address {
-        let share_contract = create_wtoken(&env, token_wasm_hash, salt);
-        let client = wrappedtoken::Client::new(&env, &share_contract);
+        let token_address = create_wtoken(&env, token_wasm_hash, salt);
+        let client = wrappedtoken::Client::new(&env, &token_address);
         client.initialize(
             &env.current_contract_address(),
             &9,
             &"solana".into_val(&env),
             &"WSOL".into_val(&env),
         );
-        put_token(&env, share_contract.clone());
-        share_contract
+        put_token(&env, token_address.clone());
+        token_address
     }
 
     fn claim(
