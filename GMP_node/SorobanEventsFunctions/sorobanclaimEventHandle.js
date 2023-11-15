@@ -69,7 +69,7 @@ async function SorobanClaimEventHandle(event, slot, transaction_id) {
             "🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:",
             message
           );
-          const messageBytes = Buffer.from(message, "utf-8");
+          const messageBytes =Buffer.from(JSON.stringify(message));
 
           console.log(
             "🚀 ~ file: sorolan_bridge.ts:152 ~ it ~ messageBytes:",
