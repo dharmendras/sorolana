@@ -354,6 +354,6 @@ async function pollSorobanWithdrawEvents() {
 // cron.schedule("*/1 * * * *", pollSorobanEvents);
 cron.schedule("*/15 * * * * *", pollSorobanDepositEvents);
 cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
-// cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
+ cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
 // Start listening on port 3000
 app.listen(3000, () => console.log("Server is listening on port 3000."));

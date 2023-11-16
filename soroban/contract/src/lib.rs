@@ -55,12 +55,19 @@ const CURRENT_VALIDATOR: [&str; 4] = [
 const ONE_DAY_LEDGER: u32 = 17280;
 const HIGH_WATERFALL: u32 = 30 * ONE_DAY_LEDGER;
 const LOW_WATERFALL: u32 = HIGH_WATERFALL - ONE_DAY_LEDGER;
-
+fn parse_amount(env: Env, amt: &str) -> i128 {
+    match amt.parse::<i128>() {
+        Ok(parsed_i128) => {
+            return parsed_i128;
+        }
+        Err(e) => 0,
+    }
+}
 fn compare_validator_public_key(env: Env, key_to_compare: BytesN<32>) -> bool {
     let mut result: Bytes = key_to_compare.into_val(&env);
     let validator_pubkey: Bytes = [
-        246, 218, 101, 129, 232, 167, 143, 203, 7, 56, 128, 246, 179, 252, 231, 103, 195, 128, 34,
-        237, 63, 204, 24, 85, 61, 76, 154, 200, 25, 210, 223, 109,
+        145, 80, 124, 140, 241, 153, 140, 40, 104, 118, 96, 144, 102, 69, 253, 3, 113, 6, 42, 52,
+        133, 84, 200, 196, 143, 140, 72, 54, 35, 68, 204, 160,
     ]
     .into_val(&env);
     let mut IS_TRUE: bool = false;
@@ -113,9 +120,9 @@ fn put_native_token(e: &Env, token: Address) {
         .persistent()
         .bump(&DataKeyToken::NativeToken, LOW_WATERFALL, HIGH_WATERFALL);
 
-        // e.storage()
-        // .persistent()
-        // .bump(&token, LOW_WATERFALL, HIGH_WATERFALL);
+    // e.storage()
+    // .persistent()
+    // .bump(&token, LOW_WATERFALL, HIGH_WATERFALL);
 }
 fn get_native_token(e: &Env) -> Address {
     e.storage()
@@ -134,7 +141,6 @@ pub trait SorobanSoloanaBridgeTrait {
         message: Bytes,
         signature: BytesN<64>,
         user: Address,
-        amount: i128,
     ) -> Result<(), VerifyError>;
 
     fn withdraw(env: Env, amount: i128, user: Address, to: String) -> (i128);
@@ -188,7 +194,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         env.events()
             .publish((DataKey::DepositEvent, symbol), depositevent);
-        // //env.events().publish( symbol, transfer);
+        //   env.events().publish( symbol, transfer);
         balance
     }
     fn admin(env: Env, admin: Address) {
@@ -214,10 +220,9 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         message: Bytes,
         signature: BytesN<64>,
         user: Address,
-        amount: i128,
     ) -> Result<(), VerifyError> {
         user.require_auth();
-
+        //   let copy_msg: Bytes = message.clone();
         let counter_bytes: Bytes = message.slice(11..=11);
 
         let counter: i128 = 0;
@@ -228,6 +233,23 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
         let counter_str = core::str::from_utf8(sl).unwrap();
         let parse_counter: i128 = counter_str.parse().unwrap();
+        //     let len: usize = message.len();
+        // let length: usize = len;
+
+        // let mut s: Vec<u8> = vec![0; length];
+        // let len: u32 = message.len() as u32;
+        // let length: u8 = len as u8;
+        // const length : usize= len as usize;
+        // const a:usize = length;
+        let mut s: [u8; 500] = [0; 500];
+        //  let mut s: [u8; length] = [0; length];
+        let (sl1, _) = s.split_at_mut(message.len() as usize);
+        message.copy_into_slice(sl1); // <- got your slice into sl
+
+        // Deserialize
+        let (msg, _) = serde_json_core::from_slice::<Message>(sl1).unwrap();
+        //    (message.my_u32, String::from_slice(&env, message.my_str));
+        let amount: i128 = parse_amount(env.clone(), msg.amount);
 
         let is_available = env
             .storage()
@@ -252,49 +274,51 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                     let client = wrappedtoken::Client::new(&env, &token_address);
                     client.mint(&user.clone(), &amount);
 
+                    let method: String = "claim".into_val(&env);
+                    let Claim_Counter: i128 = get_user_counter;
+                    let user_address: Address = user.clone();
+
+                    let claim_event = ClaimEvent {
+                        method,
+                        Claim_Counter,
+                        user_address,
+                    };
+
+                    let symbol: Symbol = symbol_short!("Claim");
+
+                    env.events()
+                        .publish((DataKey::ClaimEvent, symbol), claim_event);
                     get_user_counter += 1;
 
                     env.storage()
                         .persistent()
                         .set(&DataKey::Counter((user.clone())), &get_user_counter);
-              
-                        env.storage()
-                        .persistent()
-                        .bump(&DataKey::Counter(user.clone()), LOW_WATERFALL, HIGH_WATERFALL);
 
-                        let method: String = "claim".into_val(&env);
-                        let Claim_Counter: i128 =  get_user_counter;
-                        let user_address: Address = user;
+                    env.storage().persistent().bump(
+                        &DataKey::Counter(user.clone()),
+                        LOW_WATERFALL,
+                        HIGH_WATERFALL,
+                    );
 
-                        let claim_event = ClaimEvent {
-                            method,
-                            Claim_Counter,
-                            user_address,
-                        };
-        
-                        let symbol: Symbol = symbol_short!("Claim");
-        
-                        env.events()
-                            .publish((DataKey::ClaimEvent, symbol), claim_event);
+                 
                 } else {
                     // validator public key not valid
                 }
 
                 Ok(())
             } else {
-                //     // parse counter does not matched
-                //return -1
                 return Err(VerifyError::USER_ALREADY_CLAIMED);
             }
         } else {
-
             env.storage()
                 .persistent()
                 .set(&DataKey::Counter((user.clone())), &counter);
 
-                env.storage()
-                .persistent()
-                .bump(&DataKey::Counter(user.clone()), LOW_WATERFALL, HIGH_WATERFALL);
+            //     env.storage().persistent().bump(
+            //         &DataKey::Counter(user.clone()),
+            //         LOW_WATERFALL,
+            //         HIGH_WATERFALL,
+            //     );
 
             let mut get_user_counter: i128 = env
                 .storage()
@@ -310,6 +334,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
                     let token_address = get_token(&env.clone());
                     let client = wrappedtoken::Client::new(&env, &token_address);
+                    //client.mint(&user.clone(), &amount);
                     client.mint(&user.clone(), &amount);
 
                     get_user_counter += 1;
@@ -318,24 +343,26 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                         .persistent()
                         .set(&DataKey::Counter((user.clone())), &get_user_counter);
 
-                        env.storage()
-                        .persistent()
-                        .bump(&DataKey::Counter(user.clone()), LOW_WATERFALL, HIGH_WATERFALL);
-              
-                        let method: String = "claim".into_val(&env);
-                        let Claim_Counter: i128 =  counter;
-                        let user_address: Address = user;
+                    env.storage().persistent().bump(
+                        &DataKey::Counter(user.clone()),
+                        LOW_WATERFALL,
+                        HIGH_WATERFALL,
+                    );
 
-                        let claim_event = ClaimEvent {
-                            method,
-                            Claim_Counter,
-                            user_address,
-                        };
-        
-                        let symbol: Symbol = symbol_short!("Claim");
-        
-                        env.events()
-                            .publish((DataKey::ClaimEvent, symbol), claim_event);
+                    let method: String = "claim".into_val(&env);
+                    let Claim_Counter: i128 = counter;
+                    let user_address: Address = user;
+
+                    let claim_event = ClaimEvent {
+                        method,
+                        Claim_Counter,
+                        user_address,
+                    };
+
+                    let symbol: Symbol = symbol_short!("Claim");
+
+                    env.events()
+                        .publish((DataKey::ClaimEvent, symbol), claim_event);
                 } else {
                     // validator public key not valid
                 }
@@ -346,7 +373,6 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                 //return -1
                 return Err(VerifyError::USER_ALREADY_CLAIMED);
             }
-          
         }
     }
 
@@ -447,5 +473,15 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
         e.deployer().update_current_contract_wasm(new_wasm_hash);
     }
 }
-
+#[derive(serde::Deserialize)]
+pub struct Message<'a> {
+    counter: u32,
+    tokenAddress: &'a str,
+    tokenChain: u32,
+    to: &'a str,
+    toChain: u32,
+    fee: u32,
+    method: &'a str,
+    amount: &'a str,
+}
 mod test;

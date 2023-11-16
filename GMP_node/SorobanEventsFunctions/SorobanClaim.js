@@ -49,7 +49,7 @@ async function SorobanClaim(event, slot, transaction_id) {
     );
 
     let method_name = event.method;
-    let amount = event.amount.toNumber();
+    let amount = event.amount.toString()
     let tokenAddress = event.tokenAddress;
     let tokenChain = event.tokenChain;
     let receiver = event.receiverAddress;
@@ -148,8 +148,8 @@ async function SorobanClaim(event, slot, transaction_id) {
         );
         // if (!receiverId || res.data.data.length == 0) {
         console.log("🚀 ~ file: SorobanClaim.js:146 ~ receiverId:", receiverId)
-        // if (!receiverId || res.data.data.length == 0) {
-            if (true) {                 //TODO: update it after listening the claim event of soroban
+         if (!receiverId || res.data.data.length == 0) {
+          //  if (true) {                 //TODO: update it after listening the claim event of soroban
             let message_data = {
                 amount: amount,
                 from: user_key.toBase58(),

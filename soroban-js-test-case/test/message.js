@@ -1,2 +1,3 @@
-let data = {"counter":1,"tokenAddress":"CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U","tokenChain":123,"to":"GB6SJN5EVJJ3UE5DO3GBTNT3R4TC3SZ44ZNVAXXPC74VF5RHLWVYFMFQ","toChain":123,"fee":100,"method":"Deposit","amount":10000000}                                                                                                                                                                           
+let data = {"counter":0,"tokenAddress":"CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U","tokenChain":123,"to":"GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W","toChain":456,"fee":100,"method":"Deposit","amount":"10000000"}                                                                                                                                                                           
+
 module.exports = { data }

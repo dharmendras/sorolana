@@ -1,20 +1,17 @@
 let base_url = "http://localhost:3400";
 const axios = require("axios");
 const bs58 = require("bs58");
-const nacl = require("tweetnacl");
-const { Keypair, PublicKey } = require("@solana/web3.js");
-const v = require("../solana_validators/validator1.json");
-//const abc = '/home/imentus/Documents/Sorolana/sorolana/GMP_node/solana_validators/validator1.json';
-const fs = require("fs");
+// const nacl = require("tweetnacl");
+const StellarSdk = require('stellar-sdk');
+
+// const { Keypair, PublicKey } = require("@solana/web3.js");
+// const v = require("../solana_validators/validator1.json");
+// //const abc = '/home/imentus/Documents/Sorolana/sorolana/GMP_node/solana_validators/validator1.json';
+// const fs = require("fs");
 const dotenv = require("dotenv");
 dotenv.config();
 
-let validator_kp = Keypair.fromSecretKey(
-  // new Uint8Array(JSON.parse(fs.readFileSync(`${validatorPath}`).toString()))
-  new Uint8Array(
-    JSON.parse(fs.readFileSync("./solana_validators/validator1.json"))
-  )
-);
+
 
 async function SorobanClaimEventHandle(event, slot, transaction_id) {
   console.log(
@@ -55,21 +52,24 @@ async function SorobanClaimEventHandle(event, slot, transaction_id) {
         "🚀 ~ file: validator1.js:201 ~ axios.get ~ response:",
         response.data
       );
+      console.log("====>line number 58 <======", response.data.data)
       if (response.data.data != 0) {
         console.log(
           "🚀 ~ file: claimEvent.js:61 ~ .then ~ userCounter:",
           userCounter
         );
+        console.log("====>line number 64  <======", response.data.data[0].queue_id)
         if (response.data.data[0].queue_id == userCounter + 1) {
           let res = response.data.data[0];
           let msg = response.data.data[0].message_info;
 
           const message = msg;
+
           console.log(
             "🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:",
             message
           );
-          const messageBytes =Buffer.from(JSON.stringify(message));
+          const messageBytes = Buffer.from(JSON.stringify(message));
 
           console.log(
             "🚀 ~ file: sorolan_bridge.ts:152 ~ it ~ messageBytes:",
@@ -77,32 +77,19 @@ async function SorobanClaimEventHandle(event, slot, transaction_id) {
           );
           let stellar_kp = StellarSdk.Keypair.fromSecret(process.env.PRIVATE_KEY);
 
-          let buffer_signatures = stellar_kp.sign(Buffer.from(messageBytes));
+
+
+          let buffer_signatures = stellar_kp.sign(messageBytes);
 
           let buffer_raw_public_key = stellar_kp.rawPublicKey();
 
           let validator_pkey = buffer_raw_public_key.toString("base64");
+          console.log("🚀 ~ file: sorobanclaimEventHandle.js:88 ~ .then ~ validator_pkey:", validator_pkey)
 
           let va_sign = buffer_signatures.toString("base64");
+          console.log("🚀 ~ file: sorobanclaimEventHandle.js:94 ~ .then ~ va_sign:", va_sign)
 
-        //   const signer_pkey = validator_kp.publicKey.toBytes();
-        //   console.log(
-        //     "🚀 ~ file: sorolan_bridge.ts:155 ~ it ~ signer_pkey:",
-        //     signer_pkey
-        //   );
 
-        //   const signature = nacl.sign.detached(
-        //     messageBytes,
-        //     validator_kp.secretKey
-        //   );
-        //   console.log(
-        //     "🚀 ~ file: sorolan_bridge.ts:154 ~ it ~ signature:",
-        //     signature
-        //   );
-        //   console.log(
-        //     "🚀 ~ file: validator1.js:354 ~ .then ~ Buffer.from(signature).toString('base64'):",
-        //     Buffer.from(signature).toString("hex")
-        //   );
 
           // First insert the details of the signed message into the message table
           let message_queue_data = {
@@ -123,11 +110,11 @@ async function SorobanClaimEventHandle(event, slot, transaction_id) {
             `${base_url}/gmp/Message`,
             message_queue_data
           );
-          console.log("🚀 ~ file: claimEvent.js:115 ~ .then ~ message_res:", message_res)
+          console.log("🚀 ~ file: claimEvent.js:117 ~ .then ~ message_res:", message_res)
 
           let validator_data = {
-            validator_sig: Buffer.from(signature).toString("hex"),
-            validator_pkey: validator_kp.publicKey.toBase58(),
+            validator_sig: va_sign,
+            validator_pkey: validator_pkey,
             message_id: message_res.data.row_id,
           };
           console.log(
@@ -149,3 +136,35 @@ async function SorobanClaimEventHandle(event, slot, transaction_id) {
     });
 }
 module.exports = { SorobanClaimEventHandle };
+
+
+
+// let stellar_kp = StellarSdk.Keypair.fromSecret(process.env.PRIVATE_KEY);
+// console.log("🚀 ~ file: validator4.js:6 ~ stellar_kp:", stellar_kp)
+
+// let buffer_raw_public_key = stellar_kp.rawPublicKey()
+// let buffer_raw_public = stellar_kp.publicKey();
+// console.log("🚀 ~ file: validator4.js:10 ~ buffer_raw_public:", buffer_raw_public.length)
+
+// console.log("🚀 ~ file: validator4.js:9 ~ buffer_raw_public_key:", buffer_raw_public_key)
+
+
+// console.log("🚀 ~ file: validator4.js:16 ~ buffer_raw_public_key:", buffer_raw_public_key.toString('base64'))
+// console.log("🚀 ~ file: validator4.js:16 ~ buffer_raw_public_key:", buffer_raw_public_key.length)
+// //:1000000
+// // Message
+// let data = { "counter": 0, "tokenAddress": "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U", "tokenChain": 123, "to": "GCUQL2FJEXKLIM56RSW3ZGRRLUXNCE3XUM475MRBOJU7LSMYJZLRPOMS", "toChain": 456, "fee": 100, "method": "Deposit", "amount": "10000000" }
+
+
+// let buffer_data = Buffer.from(JSON.stringify(data));
+
+// console.log("🚀 ~ file: validator4.js:29 ~ buffer_data:", buffer_data)
+// console.log("🚀 ~ file: validator4.js:29 ~ buffer_data:", buffer_data.length)
+
+// let buffer_signatures = stellar_kp.sign(buffer_data);
+
+// console.log("🚀 ~ file: validator4.js:34 ~ buffer_signatures:", buffer_signatures.toString('base64'))
+// console.log("🚀 ~ file: validator4.js:34 ~ buffer_signatures:", buffer_signatures.length)
+
+// let verify_sign = stellar_kp.verify(buffer_data, buffer_signatures);
+// console.log("🚀 ~ file: validator4.js:38 ~ verify_sign:", verify_sign)

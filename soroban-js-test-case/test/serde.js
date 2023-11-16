@@ -2,7 +2,7 @@ const SorobanClient = require('soroban-client')
 const encode = require('./encode')
 const { use } = require('chai')
 
-const claim = async (contractId, secret_key, public_key, messageUint8, signUint8Array) => {
+const testclaim = async (contractId, secret_key, message) => {
     
 
     const server = new SorobanClient.Server(
@@ -17,13 +17,13 @@ const claim = async (contractId, secret_key, public_key, messageUint8, signUint8
     const account = await server.getAccount(keypair.publicKey());
   //  console.log("🚀 ~ file: claimmethod.js:17 ~ claim ~ account:", account)
 
-    const obj1 = { type: 'bytes', value: public_key };
-    const obj2 = { type: 'bytes', value: messageUint8 };
-    const obj3 = { type: 'bytes', value: signUint8Array }
-    const obj4 = { type: 'address', value: keypair.publicKey() }
+    // const obj1 = { type: 'bytes', value: public_key };
+    const obj1 = { type: 'bytes', value: message };
+    // const obj3 = { type: 'bytes', value: signUint8Array }
+    // const obj4 = { type: 'address', value: keypair.publicKey() }
     // const obj5 = { type: 'scoI128', value: amount };
 
-    const params = [encode(obj1), encode(obj2), encode(obj3), encode(obj4)]
+    const params = [encode(obj1)]
 
     const method = 'claim';
 
@@ -55,10 +55,10 @@ const claim = async (contractId, secret_key, public_key, messageUint8, signUint8
                 console.log("🚀 ~ file: claimmethod.js:54 ~ claim ~ response:", response)
 
                 if (response.status == "SUCCESS") {
-                    //    let result = JSON.parse(JSON.stringify(response.returnValue));
-                    //    let return_vaule = returnval.scvalToBigNumber(result._arm,result);
-                    //   //  console.log("return value" , return_vaule)
-                    //     return return_vaule
+                       let result = JSON.parse(JSON.stringify(response.returnValue));
+                       let return_vaule = returnval.scvalToBigNumber(result._arm,result);
+                       console.log("return value" , return_vaule)
+                        return return_vaule
                     break
                 }
 
@@ -81,4 +81,4 @@ const claim = async (contractId, secret_key, public_key, messageUint8, signUint8
 async function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
-module.exports = claim
+module.exports = testclaim

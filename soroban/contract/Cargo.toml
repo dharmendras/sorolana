@@ -8,6 +8,8 @@ crate-type = ["cdylib"]
 doctest = false
 
 [dependencies]
+serde-json-core = "0.5.1"
+serde = {default-features=false, features = ["derive"]}
 soroban-sdk = { version = "20.0.0-rc2" }
 base64 = "0.13.0"
 

@@ -2,6 +2,7 @@ const claim = require('./claimmethod')
 const deposit = require('./deposit')
 const customtoken = require('./customtoken')
 const withdraw = require('./withdraw')
+const testclaim = require('./serde')
 const release = require('./release')
 const get_balance = require('./getbalance')
 const upgrade = require('./upgrademethod')
@@ -46,23 +47,23 @@ function convertToBytes32(address) {
 }
 describe('SorobanTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CAW6PJQUREMCO4G3QNVXKDJYWVQQFUNO2S5B5SHVONTBTR7K7CQ6Y2BZ';
+    const contractId = 'CC4YLQZGQKJMMU4KDXEMFHNL2BCFE62SIMWSJMDDF2PZ64YLN2IFJB34';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     //SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C
     //SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO
-    const secret_key = 'SD22EO6EYH4SFNXFE5KH2TIWYSKBYQECVNL5VOHWOFSVSLSVJ3O4U2S6';
+    const secret_key = 'SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
     let custom_source_token = "CDNMTJA6PYAG6KQBASJU7FLPUS3ZONDYU5ZGQQEVRKX3KK4O5RSG3OQQ"
     const sleepTime = Math.min(1000, 120000);
 
- //  let amount = 1000_000_000_0
-   let amount = 100;
+    //  let amount = 1000_000_000_0
+    let amount = 100;
     it('deposit method test case', async () => {
 
-      //  await get_balance(native_source_token, user)
-  //   await deposit(contractId, secret_key, native_source_token, amount)
-     //   await get_balance(native_source_token, user)
+        //  await get_balance(native_source_token, user)
+           await deposit(contractId, secret_key, native_source_token, amount)
+        //   await get_balance(native_source_token, user)
 
 
     });
@@ -85,7 +86,7 @@ describe('SorobanTestSuite', () => {
         //   let validator_key = convertToBytes(validator_public_key)
         //console.log("🚀 ~ file: index.js:77 ~ it ~ validator_key:", validator_key)
 
-        let signature = "KC7v0ppfeHwaoqBleNlPRv534jvskOBXQWs3bz5F3aFAzKdgRFNzsaK1VC6Ix7m1a55pQijL48oQFC+uVHPtDw=="
+        let signature = "CHmdjFSuoKhvzP/COGCemlQBDyh5b+lapIrsJ+Z0gZoaLplxffXJZbTbEHDbO+kacU5gfpv/tuRVMMy1GHMFBA=="
 
         const validator_signature = new Uint8Array(Buffer.from(signature, 'base64'));
 
@@ -94,13 +95,13 @@ describe('SorobanTestSuite', () => {
         let string = jsonString.toString();
 
         const message = util.decodeUTF8(string);
-        
+
         //  console.log("Balance Before  claim method")
         //  let before_claim =  await get_balance(custom_source_token, user)
 
         //  console.log("🚀 ========>User Balance Before Claim<========", before_claim)
 
-          await claim(contractId, secret_key, validator_key, message, validator_signature, amount)
+    //    await claim(contractId, secret_key, validator_key, message, validator_signature)
 
         //  let after_claim =  await get_balance(custom_source_token, user)
 
@@ -131,13 +132,13 @@ describe('SorobanTestSuite', () => {
         let string = jsonString.toString();
 
         const message = util.decodeUTF8(string);
-        
+
         //  console.log("Balance Before  claim method")
         // let before_claim =  await get_balance(custom_source_token, user)
 
         //  console.log("🚀 ========>User Balance Before Claim<========", before_claim)
 
-     //    await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
+        //    await claim(contractId, secret_key, validator_key, message, validator_signature, user, amount)
 
         //  let after_claim =  await get_balance(custom_source_token, user)
 
@@ -170,6 +171,23 @@ describe('SorobanTestSuite', () => {
         let custom_contract_wasm_hash = "a0801bbaf040dc96d1466d5c7ea9797438c3b31e786c877fcb4b7595ee882673"
 
         //  await  upgrade(contractId ,secret_key, custom_contract_wasm_hash)
+
+
+    });
+
+    it('deposit method test case', async () => {
+       let msg =  {"my_u32":1,"my_str":"this is a str"}
+      //  let msg = "{\"my_u32\": 14, \"my_str\": \"this is a str\"}"
+
+        let jsonString = JSON.stringify(msg)
+
+        let string = jsonString.toString();
+
+        const message = util.decodeUTF8(string);
+        console.log("🚀 ~ file: index.js:187 ~ it ~ message:", message)
+        //  await get_balance(native_source_token, user)
+    //    await testclaim(contractId, secret_key, message)
+        //   await get_balance(native_source_token, user)
 
 
     });
