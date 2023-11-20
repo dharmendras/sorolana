@@ -47,11 +47,11 @@ function convertToBytes32(address) {
 }
 describe('SorobanTestSuite', () => {
     //  this.timeout(10000)
-    const contractId = 'CC4YLQZGQKJMMU4KDXEMFHNL2BCFE62SIMWSJMDDF2PZ64YLN2IFJB34';
+    const contractId = 'CAG2EVLT7TOELZOEWLZB5N3EGKAJPZWLXO4COYR4BMK6AKQPT6AZTL5J';
     // const pblic_key = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     //SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C
     //SCTD6IW4WTEHXKURKIQKL2URWA3WTZFZJYX373GG2KH5CARX4P56JAYO
-    const secret_key = 'SCYBSBDINLEJQY6ZSKOAMF6L7PGURHK45C5ETGRORRFWJXQIPWFN6A6C';
+    const secret_key = 'SCLJTRG6DDU4XFKYKOHEQINWGXWSXFXYGZIEH5HEORRS2NRKH2MLXH7Y';
     const user = 'GBTTNN33W77EZX4EBG6OV7A3UORCMZOGREXTHN46HXYML623RHZMAW6W';
     let native_source_token = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT"
     let custom_source_token = "CDNMTJA6PYAG6KQBASJU7FLPUS3ZONDYU5ZGQQEVRKX3KK4O5RSG3OQQ"
@@ -86,7 +86,7 @@ describe('SorobanTestSuite', () => {
         //   let validator_key = convertToBytes(validator_public_key)
         //console.log("🚀 ~ file: index.js:77 ~ it ~ validator_key:", validator_key)
 
-        let signature = "CHmdjFSuoKhvzP/COGCemlQBDyh5b+lapIrsJ+Z0gZoaLplxffXJZbTbEHDbO+kacU5gfpv/tuRVMMy1GHMFBA=="
+        let signature = "sDiHkNrqb5u4/N3Zi5doZIY9jmJvkKCj/8XvM/50/ISMs2SFc+bqkId8difC0oaUdaE8UkW7f7/9h0LVOcY4AQ=="
 
         const validator_signature = new Uint8Array(Buffer.from(signature, 'base64'));
 
