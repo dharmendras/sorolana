@@ -111,7 +111,7 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
     "🚀 ~ file: validator1.js:272 ~ solanaDeposit ~ message:",
     message
   );
-
+if (event.amount.toNumber() > 0){ 
   try {
     const date = new Date(Date.now()).toLocaleString();
     let data = {
@@ -140,8 +140,8 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
       "🚀 ~ file: depositEvent.js:142 ~ solanaDeposit ~ res.data.length :",
       res.data.data.length
     );
-    // if (!receiverId || res.data.data.length == 0) {
-    if (true) {
+     if (!receiverId || res.data.data.length == 0) {
+    
       let message_data = {
         amount: event.amount.toNumber(),
         from: user_key.toBase58(),
@@ -195,6 +195,10 @@ async function solanaWithdrawEventHandle(event, slot, transaction_id) {
       "🚀 ~ file: solanaWithdrawHandle.js:118 ~ solanaWithdrawEventHandle ~ error:",
       error
     );
+  }
+} 
+  else { 
+    console.log("Not Matched")
   }
 }
 

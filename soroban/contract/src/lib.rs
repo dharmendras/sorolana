@@ -55,7 +55,7 @@ const CURRENT_VALIDATOR: [&str; 4] = [
 const ONE_DAY_LEDGER: u32 = 17280;
 const HIGH_WATERFALL: u32 = 30 * ONE_DAY_LEDGER;
 const LOW_WATERFALL: u32 = HIGH_WATERFALL - ONE_DAY_LEDGER;
-fn parse_amount(env: Env, amt: &str) -> i128 {
+fn parse_message_data(env: Env, amt: &str) -> i128 {
     match amt.parse::<i128>() {
         Ok(parsed_i128) => {
             return parsed_i128;
@@ -146,12 +146,12 @@ pub trait SorobanSoloanaBridgeTrait {
     fn withdraw(env: Env, amount: i128, user: Address, to: String) -> (i128);
     fn release(
         env: Env,
-        // public_key: BytesN<32>,
-        // message: Bytes,
-        // signature: BytesN<64>,
-        user: Address,
-        amount: i128,
-    ) -> (i128);
+
+        public_key: BytesN<32>,
+        message: Bytes,
+        signature: BytesN<64>,
+        receipent: Address,
+    ) -> Result<(), VerifyError>;
     fn upgrade(e: Env, new_wasm_hash: BytesN<32>);
 }
 #[contract]
@@ -223,33 +223,17 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
     ) -> Result<(), VerifyError> {
         user.require_auth();
         //   let copy_msg: Bytes = message.clone();
-        let counter_bytes: Bytes = message.slice(11..=11);
 
         let counter: i128 = 0;
 
-        let mut random_address: [u8; 100] = [0u8; 100];
-        let (sl, _) = random_address.split_at_mut(counter_bytes.len() as usize);
-        counter_bytes.copy_into_slice(sl);
-
-        let counter_str = core::str::from_utf8(sl).unwrap();
-        let parse_counter: i128 = counter_str.parse().unwrap();
-        //     let len: usize = message.len();
-        // let length: usize = len;
-
-        // let mut s: Vec<u8> = vec![0; length];
-        // let len: u32 = message.len() as u32;
-        // let length: u8 = len as u8;
-        // const length : usize= len as usize;
-        // const a:usize = length;
         let mut s: [u8; 500] = [0; 500];
-        //  let mut s: [u8; length] = [0; length];
         let (sl1, _) = s.split_at_mut(message.len() as usize);
         message.copy_into_slice(sl1); // <- got your slice into sl
 
-        // Deserialize
+        // // Deserialize
         let (msg, _) = serde_json_core::from_slice::<Message>(sl1).unwrap();
-        //    (message.my_u32, String::from_slice(&env, message.my_str));
-        let amount: i128 = parse_amount(env.clone(), msg.amount);
+        let parse_counter: i128 = parse_message_data(env.clone(), msg.counter);
+        let amount: i128 = parse_message_data(env.clone(), msg.amount);
 
         let is_available = env
             .storage()
@@ -299,15 +283,16 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
                         LOW_WATERFALL,
                         HIGH_WATERFALL,
                     );
-
-                 
+                    Ok(())
                 } else {
                     // validator public key not valid
+                    return Err(VerifyError::InvalidPublickey);
+
                 }
 
-                Ok(())
+               // Ok(())
             } else {
-                return Err(VerifyError::USER_ALREADY_CLAIMED);
+               return Err(VerifyError::USER_ALREADY_CLAIMED);
             }
         } else {
             env.storage()
@@ -363,17 +348,21 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
                     env.events()
                         .publish((DataKey::ClaimEvent, symbol), claim_event);
+                    Ok(())
                 } else {
                     // validator public key not valid
+                    return Err(VerifyError::InvalidPublickey);
+
                 }
 
-                Ok(())
+              //  
             } else {
                 //     // parse counter does not matched
                 //return -1
                 return Err(VerifyError::USER_ALREADY_CLAIMED);
             }
         }
+        
     }
 
     fn withdraw(env: Env, amount: i128, user: Address, recipient: String) -> i128 {
@@ -421,49 +410,149 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 
     fn release(
         env: Env,
-        // public_key: BytesN<32>,
-        // message: Bytes,
-        // signature: BytesN<64>,
+        public_key: BytesN<32>,
+        message: Bytes,
+        signature: BytesN<64>,
         receipent: Address,
-        amount: i128,
-    ) -> i128 {
+    ) -> Result<(), VerifyError> {
         receipent.require_auth();
+        let counter: i128 = 0;
 
-        // let counter_bytes: Bytes = message.slice(11..=11);
+        let mut s: [u8; 500] = [0; 500];
+        let (sl1, _) = s.split_at_mut(message.len() as usize);
+        message.copy_into_slice(sl1); // <- got your slice into sl
 
-        // let mut random_address: [u8; 100] = [0u8; 100];
-        // let (sl, _) = random_address.split_at_mut(counter_bytes.len() as usize);
-        // counter_bytes.copy_into_slice(sl);
+        // // Deserialize
+        let (msg, _) = serde_json_core::from_slice::<Message>(sl1).unwrap();
+        let parse_counter: i128 = parse_message_data(env.clone(), msg.counter);
+        let amount: i128 = parse_message_data(env.clone(), msg.amount);
 
-        // let counter_str = core::str::from_utf8(sl).unwrap();
-        // let parse_counter: i128 = counter_str.parse().unwrap();
+        let is_available = env
+            .storage()
+            .persistent()
+            .has(&DataKey::ReleaseCounter((receipent.clone())));
 
-        // let mut get_user_counter: i128 = env
-        //     .storage()
-        //     .persistent()
-        //     .get(&DataKey::Counter((receipent.clone())))
-        //     .unwrap();
+        if is_available {
+            let mut get_user_counter: i128 = env
+                .storage()
+                .persistent()
+                .get(&DataKey::ReleaseCounter((receipent.clone())))
+                .unwrap();
 
-        //  if parse_counter == get_user_counter {
-        //   let check = compare_validator_public_key(env.clone(), public_key.clone());
+            if parse_counter == get_user_counter {
+                let check = compare_validator_public_key(env.clone(), public_key.clone());
 
-        //   if check == true {
-        // env.crypto()
-        //     .ed25519_verify(&public_key, &message, &signature);
+                if check == true {
+                    env.crypto()
+                        .ed25519_verify(&public_key, &message, &signature);
+                    let token_address = get_native_token(&env);
+                    let client = token::Client::new(&env, &token_address);
+                    client.transfer(&env.current_contract_address(), &receipent, &amount);
 
-        let token_address = get_native_token(&env);
-        let client = token::Client::new(&env, &token_address);
-        client.transfer(&env.current_contract_address(), &receipent, &amount);
+                    let method: String = "release".into_val(&env);
+                    let Release_Counter: i128 = get_user_counter;
+                    let user_address: Address = receipent.clone();
 
-        // get_user_counter = get_user_counter + 1;
+                    let release_event = ReleaseEvent {
+                        method,
+                        Release_Counter,
+                        user_address,
+                    };
 
-        // env.storage()
-        //     .persistent()
-        //     .set(&DataKey::Counter((receipent.clone())), &get_user_counter);
-        //  }
-        //}
+                    let symbol: Symbol = symbol_short!("Release");
 
-        0
+                    env.events()
+                        .publish((DataKey::ReleaseEvent, symbol), release_event);
+
+                    get_user_counter += 1;
+
+                    env.storage().persistent().set(
+                        &DataKey::ReleaseCounter((receipent.clone())),
+                        &get_user_counter,
+                    );
+
+                    env.storage().persistent().bump(
+                        &DataKey::ReleaseCounter(receipent.clone()),
+                        LOW_WATERFALL,
+                        HIGH_WATERFALL,
+                    );
+                    //   return get_user_counter;
+                    Ok(())
+                } else {
+                    // validator public key not valid
+                    return Err(VerifyError::InvalidPublickey);
+                }
+
+                // Ok(())
+            } else {
+                //   return -1;
+                return Err(VerifyError::USER_ALREADY_CLAIMED);
+            }
+        } else {
+            env.storage()
+                .persistent()
+                .set(&DataKey::ReleaseCounter((receipent.clone())), &counter);
+
+            //     env.storage().persistent().bump(
+            //         &DataKey::ReleaseCounter(user.clone()),
+            //         LOW_WATERFALL,
+            //         HIGH_WATERFALL,
+            //     );
+
+            let mut get_user_counter: i128 = env
+                .storage()
+                .persistent()
+                .get(&DataKey::ReleaseCounter((receipent.clone())))
+                .unwrap();
+            if parse_counter == get_user_counter {
+                let check = compare_validator_public_key(env.clone(), public_key.clone());
+
+                if check == true {
+                    env.crypto()
+                        .ed25519_verify(&public_key, &message, &signature);
+                    let token_address = get_native_token(&env);
+                    let client = token::Client::new(&env, &token_address);
+                    client.transfer(&env.current_contract_address(), &receipent, &amount);
+
+                    get_user_counter += 1;
+
+                    let method: String = "rlaim".into_val(&env);
+                    let Release_Counter: i128 = counter;
+                    let user_address: Address = receipent.clone();
+
+                    let release_event = ReleaseEvent {
+                        method,
+                        Release_Counter,
+                        user_address,
+                    };
+
+                    let symbol: Symbol = symbol_short!("Release");
+
+                    env.events()
+                        .publish((DataKey::ReleaseEvent, symbol), release_event);
+
+                    env.storage().persistent().set(
+                        &DataKey::ReleaseCounter((receipent.clone())),
+                        &get_user_counter,
+                    );
+
+                    env.storage().persistent().bump(
+                        &DataKey::ReleaseCounter(receipent.clone()),
+                        LOW_WATERFALL,
+                        HIGH_WATERFALL,
+                    );
+                    //   return get_user_counter;
+                    Ok(())
+                } else {
+                    // validator public key not valid
+                    return Err(VerifyError::InvalidPublickey);
+                }
+            } else {
+                //     // parse counter does not matched
+                //return -1
+                return Err(VerifyError::USER_ALREADY_CLAIMED);
+            }
+        }
     }
     fn upgrade(e: Env, new_wasm_hash: BytesN<32>) {
         // // TODO: Only admin can upgrade this contract
@@ -475,7 +564,7 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
 }
 #[derive(serde::Deserialize)]
 pub struct Message<'a> {
-    counter: u32,
+    counter: &'a str,
     tokenAddress: &'a str,
     tokenChain: u32,
     to: &'a str,
@@ -484,4 +573,5 @@ pub struct Message<'a> {
     method: &'a str,
     amount: &'a str,
 }
+
 mod test;

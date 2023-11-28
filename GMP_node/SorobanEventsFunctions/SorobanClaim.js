@@ -100,7 +100,7 @@ async function SorobanClaim(event, slot, transaction_id) {
         });
 
     let soroban_msg = {
-        counter: receiverId,
+        counter: receiverId.toString(),
         tokenAddress: tokenAddress,
         tokenChain: tokenChain,
         to: receiver,

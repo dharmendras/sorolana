@@ -35,6 +35,16 @@ pub struct ClaimEvent {
     pub user_address: Address,
    
 }
+
+#[derive(Clone, Debug)]
+#[contracttype]
+
+pub struct ReleaseEvent {
+    pub method: String,
+    pub Release_Counter: i128,
+    pub user_address: Address,
+   
+}
 #[derive(Clone, Debug)]
 #[contracttype]
 
@@ -51,8 +61,9 @@ pub struct Customtokenstruct {
 #[contracttype]
 
 pub enum DataKey {
-    DepositEvent,   WithdrawEvent , ClaimEvent,
+    DepositEvent,   WithdrawEvent , ClaimEvent , ReleaseEvent,
     Counter (Address),
+    ReleaseCounter(Address),
 }
 
 #[derive(Clone)]
