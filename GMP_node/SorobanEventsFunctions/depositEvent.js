@@ -45,7 +45,7 @@ async function pollSorobanDepositEvents() {
         //227000
         // If lastLedger is null, use "227000" as the start ledger
         // Otherwise, increment lastLedger by one and use it as the start ledger
-        startLedger: lastLedger ? (lastLedger + 1).toString() : startTimeLedger.toString(),
+        startLedger: lastLedger ? (lastLedger + 1) : startTimeLedger,
         filters: [
           {
             type: "contract",
@@ -106,12 +106,8 @@ async function pollSorobanDepositEvents() {
       return
     }
 
-    let store_events_value;
-    let val = events?.map((e) => {
-      //   console.log("eee",e?.value)
-      // let scVal = SorobanClient.xdr.ScVal.fromXDR(event.events[0]?.value.xdr,"base64")
-      store_events_value = e?.value.xdr;
-    })
+    let store_events_value = events[0].value;
+    
     let scVal = SorobanClient.xdr.ScVal.fromXDR(store_events_value, "base64")
 
     let converted_value = SorobanClient.scValToNative(scVal)
@@ -153,7 +149,7 @@ async function pollSorobanClaimEvents() {
         //227000
         // If lastLedger is null, use "227000" as the start ledger
         // Otherwise, increment lastLedger by one and use it as the start ledger
-        startLedger: lastLedger ? (lastLedger + 1).toString() : startTimeLedger.toString(),
+        startLedger: lastLedger ? (lastLedger + 1) : startTimeLedger,
         filters: [
           {
             type: "contract",
@@ -214,16 +210,21 @@ async function pollSorobanClaimEvents() {
       return
     }
 
-    let store_events_value;
-    let val = events?.map((e) => {
-      //   console.log("eee",e?.value)
-      // let scVal = SorobanClient.xdr.ScVal.fromXDR(event.events[0]?.value.xdr,"base64")
-      store_events_value = e?.value.xdr;
-    })
+    let store_events_value = events[0].value;
+    
     let scVal = SorobanClient.xdr.ScVal.fromXDR(store_events_value, "base64")
 
     let converted_value = SorobanClient.scValToNative(scVal)
-    console.log("🚀 ~ file: depositEvent.js:108 ~ pollSorobanEvents ~ converted_value:", converted_value);
+    console.log("🚀 ~ file: depositEvent.js:108 ~ pollSorobanEvents ~ converted_value:", converted_value);    
+    // let val = events?.map((e) => {
+    //   //   console.log("eee",e?.value)
+    //   // let scVal = SorobanClient.xdr.ScVal.fromXDR(event.events[0]?.value.xdr,"base64")
+    //   store_events_value = e?.value.xdr;
+    // })
+    // let scVal = SorobanClient.xdr.ScVal.fromXDR(store_events_value, "base64")
+
+    // let converted_value = SorobanClient.scValToNative(scVal)
+    // console.log("🚀 ~ file: depositEvent.js:108 ~ pollSorobanEvents ~ converted_value:", converted_value);
 
     // try {
     //   convertedData = convertBigIntToString(converted_value);
@@ -262,7 +263,7 @@ async function pollSorobanWithdrawEvents() {
         //227000
         // If lastLedger is null, use "227000" as the start ledger
         // Otherwise, increment lastLedger by one and use it as the start ledger
-        startLedger: lastLedger ? (lastLedger + 1).toString() : startTimeLedger.toString(),
+        startLedger: lastLedger ? (lastLedger + 1) : startTimeLedger,
         filters: [
           {
             type: "contract",
@@ -321,17 +322,22 @@ async function pollSorobanWithdrawEvents() {
       console.log("No events recorded in this interval: ", lastLedger);
       return
     }
-
-    let store_events_value;
-    let val = events?.map((e) => {
-      //   console.log("eee",e?.value)
-      // let scVal = SorobanClient.xdr.ScVal.fromXDR(event.events[0]?.value.xdr,"base64")
-      store_events_value = e?.value.xdr;
-    })
+    let store_events_value = events[0].value;
+    
     let scVal = SorobanClient.xdr.ScVal.fromXDR(store_events_value, "base64")
 
     let converted_value = SorobanClient.scValToNative(scVal)
     console.log("🚀 ~ file: depositEvent.js:108 ~ pollSorobanEvents ~ converted_value:", converted_value);
+    // let store_events_value;
+    // let val = events?.map((e) => {
+    //   //   console.log("eee",e?.value)
+    //   // let scVal = SorobanClient.xdr.ScVal.fromXDR(event.events[0]?.value.xdr,"base64")
+    //   store_events_value = e?.value.xdr;
+    // })
+    // let scVal = SorobanClient.xdr.ScVal.fromXDR(store_events_value, "base64")
+
+    // let converted_value = SorobanClient.scValToNative(scVal)
+    // console.log("🚀 ~ file: depositEvent.js:108 ~ pollSorobanEvents ~ converted_value:", converted_value);
 
     try {
       convertedData = convertBigIntToString(converted_value);
@@ -354,6 +360,6 @@ async function pollSorobanWithdrawEvents() {
 // cron.schedule("*/1 * * * *", pollSorobanEvents);
 cron.schedule("*/15 * * * * *", pollSorobanDepositEvents);
 cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
-// cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
+ cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
 // Start listening on port 3000
 app.listen(3000, () => console.log("Server is listening on port 3000."));
