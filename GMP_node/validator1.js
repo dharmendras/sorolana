@@ -1,5 +1,3 @@
-const { hash } = require("soroban-client");
-const SorobanClient = require("soroban-client");
 const NETWORK_PASSPHRASE = "Test SDF Future Network ; October 2022";
 const SOROBAN_RPC_URL = "https://rpc-futurenet.stellar.org:443/";
 const scvalToBigNumber = require("./convert.js");
@@ -55,7 +53,7 @@ const getUserPda = async (user) => {
   return userPdaInfo;
 };
 
-const server = new StellarSdk.Server("https://horizon-testnet.stellar.org/");
+// const server = new StellarSdk.Server("https://horizon-testnet.stellar.org/");
 
 program.addEventListener("DepositEvent", (event, slot, transaction_id) => {
  console.log("🚀 ~ file: validator1.js:65 ~ program.addEventListener ~ event:", event)
