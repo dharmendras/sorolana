@@ -1,17 +1,20 @@
-const SorobanClient = require('soroban-client')
+// const SorobanClient = require('soroban-client')
+const stellar_sdk = require('stellar-sdk')
+
 const encode = require('./encode')
 const { use } = require('chai')
 
 const withdraw = async (contractId, secret, amount, user) => {
+   console.log("🚀 ~ file: withdraw.js:8 ~ withdraw ~ contractId:", contractId)
    
 
-    const server = new SorobanClient.Server(
+    const server = new stellar_sdk.SorobanRpc.Server(
         `https://rpc-futurenet.stellar.org:443`
     );
-    const contract = new SorobanClient.Contract(contractId);
+    const contract = new stellar_sdk.Contract(contractId);
   //  console.log("🚀 ~ file: withdraw.js:12 ~ withdraw ~ contract:", contract)
     
-    let keypair = SorobanClient.Keypair.fromSecret(secret)
+    let keypair = stellar_sdk.Keypair.fromSecret(secret)
  //   console.log("🚀 ~ file: withdraw.js:15 ~ withdraw ~ keypair:", keypair)
 
     const account = await server.getAccount(keypair.publicKey());
@@ -26,20 +29,20 @@ const withdraw = async (contractId, secret, amount, user) => {
     ]
     const method = 'withdraw';
 
-    let tx = new SorobanClient.TransactionBuilder(account, {
+    let tx = new stellar_sdk.TransactionBuilder(account, {
         fee: '200',
-        networkPassphrase: SorobanClient.Networks.FUTURENET,
+        networkPassphrase: stellar_sdk.Networks.FUTURENET,
     })
         .addOperation(contract.call(method, ...params))
-        .setTimeout(SorobanClient.TimeoutInfinite)
+        .setTimeout(stellar_sdk.TimeoutInfinite)
         .build();
    // console.log("🚀 ~ file: withdraw.js:35 ~ withdraw ~ tx:", tx)
 
     const sim = await server.simulateTransaction(tx);
   //  console.log("🚀 ~ file: withdraw.js:38 ~ withdraw ~ sim:", sim)
 
-    let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
-    _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
+    let _prepareTx = await server.prepareTransaction(tx, stellar_sdk.Networks.FUTURENET)
+    _prepareTx.sign(stellar_sdk.Keypair.fromSecret(secret))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);

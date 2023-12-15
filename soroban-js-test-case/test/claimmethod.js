@@ -1,45 +1,45 @@
-const SorobanClient = require('soroban-client')
 const encode = require('./encode')
 const { use } = require('chai')
+const stellar_sdk = require('stellar-sdk')
 
-const claim = async (contractId, secret, public_key, messageUint8, signUint8Array, user, amount) => {
+const claim = async (contractId, secret, public_key, messageUint8, signUint8Array, amount) => {
     
-
-    const server = new SorobanClient.Server(
+ 
+    const server = new stellar_sdk.SorobanRpc.Server(
         `https://rpc-futurenet.stellar.org:443`
     );
-    const contract = new SorobanClient.Contract(contractId);
+    const contract = new stellar_sdk.Contract(contractId);
   
-     let keypair = SorobanClient.Keypair.fromSecret(secret)
-   //  console.log("🚀 ~ file: claimmethod.js:14 ~ claim ~ keypair:", keypair)
+     let keypair = stellar_sdk.Keypair.fromSecret(secret)
 
     const account = await server.getAccount(keypair.publicKey());
-  //  console.log("🚀 ~ file: claimmethod.js:17 ~ claim ~ account:", account)
-
+    console.log("🚀 ~ file: claimmethod.js:18 ~ claim ~ account:", account)
+  
     const obj1 = { type: 'bytes', value: public_key };
     const obj2 = { type: 'bytes', value: messageUint8 };
     const obj3 = { type: 'bytes', value: signUint8Array }
-    const obj4 = { type: 'address', value: user }
+    const obj4 = { type: 'address', value: keypair.publicKey() }
     const obj5 = { type: 'scoI128', value: amount };
 
     const params = [encode(obj1), encode(obj2), encode(obj3), encode(obj4), encode(obj5)]
+   // console.log("🚀 ~ file: claimmethod.js:34 ~ claim ~ params:", params)
 
     const method = 'claim';
-
-    let tx = new SorobanClient.TransactionBuilder(account, {
+   
+    let tx = new stellar_sdk.TransactionBuilder(account, {
         fee: '200',
-        networkPassphrase: SorobanClient.Networks.FUTURENET,
+        networkPassphrase: stellar_sdk.Networks.FUTURENET,
     })
         .addOperation(contract.call(method, ...params))
-        .setTimeout(SorobanClient.TimeoutInfinite)
+        .setTimeout(stellar_sdk.TimeoutInfinite)
         .build();
-  //  console.log("🚀 ~ file: claimmethod.js:36 ~ claim ~ tx:", tx)
+    console.log("🚀 ~ file: claimmethod.js:45 ~ claim ~ tx:", tx)
 
     const sim = await server.simulateTransaction(tx);
-//    console.log("🚀 ~ file: claimmethod.js:39 ~ claim ~ sim:", sim)
+    console.log("🚀 ~ file: claimmethod.js:49 ~ claim ~ sim:", sim)
 
-    let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
-    _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
+    let _prepareTx = await server.prepareTransaction(tx, stellar_sdk.Networks.FUTURENET)
+    _prepareTx.sign(stellar_sdk.Keypair.fromSecret(secret))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);
@@ -50,7 +50,7 @@ const claim = async (contractId, secret, public_key, messageUint8, signUint8Arra
             await sleep(sleepTime);
             try {
                 //get transaction response
-                const response = await server?.getTransaction(hash);
+                const response = await  server._getTransaction(hash);
                 console.log("🚀 ~ file: claimmethod.js:54 ~ claim ~ response:", response)
 
                 if (response.status == "SUCCESS") {
@@ -74,6 +74,7 @@ const claim = async (contractId, secret, public_key, messageUint8, signUint8Arra
         }
     }
     catch (err) {
+    console.log("🚀 ~ file: claimmethod.js:86 ~ claim ~ err:", err)
 
     }
 }

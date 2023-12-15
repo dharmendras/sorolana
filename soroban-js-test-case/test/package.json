@@ -4,19 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --timeout 100000"
+    "test": "mocha index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "crypto": "^1.0.1",
+    "mocha": "^10.2.0",
     "soroban-client": "*",
-    "stellar-sdk": "^10.4.1",
+    "stellar-sdk": "^11.0.1",
     "tweetnacl-util": "^0.15.1"
   },
   "devDependencies": {
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0"
+    "chai": "^4.3.10"
   }
 }

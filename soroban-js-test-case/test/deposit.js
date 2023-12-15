@@ -1,86 +1,64 @@
-const SorobanClient = require('soroban-client')
 const encode = require('./encode')
 const { use } = require('chai')
-
+const stellar_sdk = require('stellar-sdk')
 const deposit = async (contractId, secret, source_token, amount) => {
-   
+    //const server = new stellar_sdk.SorobanRpc.Server(`https://rpc-futurenet.stellar.org:443`)
 
-    const server = new SorobanClient.Server(
+    const server = new stellar_sdk.SorobanRpc.Server(
         `https://rpc-futurenet.stellar.org:443`
     );
-    const contract = new SorobanClient.Contract(contractId);
-
-    let keypair = SorobanClient.Keypair.fromSecret(secret)
-    //console.log("🚀 ~ file: deposit.js:14 ~ deposit ~ keypair:", keypair)
+    const contract = new stellar_sdk.Contract(contractId)
+   
+    let keypair = stellar_sdk.Keypair.fromSecret(secret)
 
     const account = await server.getAccount(keypair.publicKey());
-   // console.log("🚀 ~ file: deposit.js:17 ~ deposit ~ account:", account)
 
-    // const obj1 = { type: 'address', value: keypair.publicKey() };
-    // const obj2 = { type: 'address', value: source_token };
-    // const obj3 = { type: 'scoI128', value: amount };
-    // const obj4 = { type: 'scvString', value: "deposit" };
 
-    // const params = [encode(obj1),
-    // encode(obj2),
-    // encode(obj3),
-    // encode(obj4)]
+    let param1 = stellar_sdk.nativeToScVal(keypair.publicKey(), { type: 'address' })
+    let param2 = stellar_sdk.nativeToScVal(source_token, { type: 'address' })
+    let param3 = stellar_sdk.nativeToScVal(amount, { type: 'i128' })
+    let param4 = stellar_sdk.nativeToScVal('9cxGAnXieeQ4dGYFK5QAAJtdBCVnRM1pWZDHDB9PCEW3', { type: 'string' })
 
-    let param1 = SorobanClient.nativeToScVal(keypair.publicKey() , {type: 'address'})
-    let param2 = SorobanClient.nativeToScVal(source_token , {type: 'address'})
-    let param3 = SorobanClient.nativeToScVal(amount , {type: 'i128'})
-    let param4 = SorobanClient.nativeToScVal('9cxGAnXieeQ4dGYFK5QAAJtdBCVnRM1pWZDHDB9PCEW3' , {type: 'string'})
+    const params = [param1, param2, param3, param4]
 
-    const params = [param1 , param2 , param3 , param4]
-
-    // console.log("🚀 ~ file: deposit.js:28 ~ deposit ~ encode(obj1):", encode(obj1))
-    // console.log("🚀 ~ file: deposit.js:28 ~ deposit ~ encode(obj2):", encode(obj2))
-    // console.log("🚀 ~ file: deposit.js:28 ~ deposit ~ encode(obj3):", encode(obj3))
-    // console.log("🚀 ~ file: deposit.js:28 ~ deposit ~ encode(obj4):", encode(obj4))
-
+    
     const method = 'deposit';
 
-    let tx = new SorobanClient.TransactionBuilder(account, {
+    let tx = new stellar_sdk.TransactionBuilder(account, {
         fee: '200',
-        networkPassphrase: SorobanClient.Networks.FUTURENET,
+        networkPassphrase: stellar_sdk.Networks.FUTURENET,
     })
         .addOperation(contract.call(method, ...params))
-        .setTimeout(SorobanClient.TimeoutInfinite)
+        .setTimeout(stellar_sdk.TimeoutInfinite)
         .build();
-  // console.log("🚀 ~ file: deposit.js:37 ~ deposit ~ tx:", tx)
+    // console.log("🚀 ~ file: deposit.js:37 ~ deposit ~ tx:", tx)
 
 
     const sim = await server.simulateTransaction(tx);
-  // console.log("🚀 ~ file: deposit.js:41 ~ deposit ~ sim:", sim)
 
-    let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
-    _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
- //   console.log("🚀 ~ file: deposit.js:50 ~ deposit ~ _prepareTx:", _prepareTx)
+    let _prepareTx = await server.prepareTransaction(tx, stellar_sdk.Networks.FUTURENET)
+    _prepareTx.sign(stellar_sdk.Keypair.fromSecret(secret))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);
-     //   console.log("🚀 ~ file: deposit.js:48 ~ deposit ~ hash:", hash)
-        
+        console.log("🚀 ~ file: deposit.js:62 ~ deposit ~ hash:", hash)
+
         const sleepTime = Math.min(1000, 60000);
 
         for (let i = 0; i <= 60000; i += sleepTime) {
             await sleep(sleepTime);
             try {
-                //get transaction response
-                const response = await server?.getTransaction(hash);
-          //      console.log("🚀 ~ file: deposit.js:57 ~ deposit ~ response:", response)
+                
+                const response = await  server._getTransaction(hash);
 
                 if (response.status == "SUCCESS") {
-                    //    let result = JSON.parse(JSON.stringify(response.returnValue));
-                    //    let return_vaule = returnval.scvalToBigNumber(result._arm,result);
-                    //   //  console.log("return value" , return_vaule)
-                    //     return return_vaule
+                  
                     break
                 }
 
             } catch (err) {
                 if ('code' in err && err.code === 404) {
-                console.log("🚀 ~ file: deposit.js:69 ~ deposit ~ err:", err)
+                    console.log("🚀 ~ file: deposit.js:69 ~ deposit ~ err:", err)
 
                 } else {
                     throw err;

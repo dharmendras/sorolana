@@ -1,4 +1,5 @@
-const SorobanClient = require('soroban-client')
+const stellar_sdk = require('stellar-sdk')
+
 const encode = require('./encode')
 const { use } = require('chai')
 function convertBigIntToString(obj) {
@@ -12,11 +13,11 @@ function convertBigIntToString(obj) {
     return obj;
   }
 const get_balance = async (contractId, holder) => {
-    const server = new SorobanClient.Server(
+    const server = new stellar_sdk.SorobanRpc.Server(
         `https://rpc-futurenet.stellar.org:443`
     )
 
-    const contract = new SorobanClient.Contract(contractId);
+    const contract = new  stellar_sdk.Contract(contractId);
 
 
     const obj1 = { type: 'address', value: holder };
@@ -27,12 +28,12 @@ const get_balance = async (contractId, holder) => {
 
     const account = await server.getAccount(holder);
 
-    let tx = new SorobanClient.TransactionBuilder(account, {
+    let tx = new stellar_sdk.TransactionBuilder(account, {
         fee: '200',
-        networkPassphrase: SorobanClient.Networks.FUTURENET,
+        networkPassphrase: stellar_sdk.Networks.FUTURENET,
     })
         .addOperation(contract.call(method, ...params))
-        .setTimeout(SorobanClient.TimeoutInfinite)
+        .setTimeout(stellar_sdk.TimeoutInfinite)
         .build();
    // console.log("🚀 ~ file: getbalance.js:27 ~ constget_balance= ~ tx:", tx)
 

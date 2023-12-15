@@ -1,6 +1,6 @@
-const SorobanClient = require('soroban-client')
-let xdr = SorobanClient.xdr;
-const StellarSdk = require("stellar-sdk");
+// const SorobanClient = require('soroban-client')
+// let xdr = SorobanClient.xdr;
+const stellar_sdk = require('stellar-sdk')
 
 const convertData = (arm, data) => {
   // console.log("🚀 ~ file: convertreturn.js:6 ~ convertData ~ arm:", arm)

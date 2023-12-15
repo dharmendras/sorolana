@@ -1,18 +1,18 @@
-const SorobanClient = require('soroban-client')
 const encode = require('./encode')
 const convertData = require('./convertreturn')
+const stellar_sdk = require('stellar-sdk')
 
 const { use } = require('chai')
 
 const customtoken = async (contractId, secret, wasm_hash, salt) => {
    
 
-    const server = new SorobanClient.Server(
+    const server = new stellar_sdk.SorobanRpc.Server(
         `https://rpc-futurenet.stellar.org:443`
     );
-    const contract = new SorobanClient.Contract(contractId);
+    const contract = new stellar_sdk.Contract(contractId);
 
-    let keypair = SorobanClient.Keypair.fromSecret(secret)
+    let keypair = stellar_sdk.Keypair.fromSecret(secret)
    // console.log("🚀 ~ file: customtoken.js:16 ~ customtoken ~ keypair:", keypair)
 
     const account = await server.getAccount(keypair.publicKey());
@@ -27,20 +27,20 @@ const customtoken = async (contractId, secret, wasm_hash, salt) => {
     ]
     const method = 'createwrappedtoken';
 
-    let tx = new SorobanClient.TransactionBuilder(account, {
+    let tx = new stellar_sdk.TransactionBuilder(account, {
         fee: '200',
-        networkPassphrase: SorobanClient.Networks.FUTURENET,
+        networkPassphrase: stellar_sdk.Networks.FUTURENET,
     })
         .addOperation(contract.call(method, ...params))
-        .setTimeout(SorobanClient.TimeoutInfinite)
+        .setTimeout(stellar_sdk.TimeoutInfinite)
         .build();
   //  console.log("🚀 ~ file: customtoken.js:37 ~ customtoken ~ tx:", tx)
 
     const sim = await server.simulateTransaction(tx);
    // console.log("🚀 ~ file: customtoken.js:40 ~ customtoken ~ sim:", sim)
 
-    let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
-    _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
+    let _prepareTx = await server.prepareTransaction(tx, stellar_sdk.Networks.FUTURENET)
+    _prepareTx.sign(stellar_sdk.Keypair.fromSecret(secret))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);

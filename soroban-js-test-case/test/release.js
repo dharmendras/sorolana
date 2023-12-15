@@ -1,16 +1,18 @@
-const SorobanClient = require('soroban-client')
+// const SorobanClient = require('soroban-client')
 const encode = require('./encode')
 const { use } = require('chai')
+const stellar_sdk = require('stellar-sdk')
 
 const release = async (contractId, secret , amount) => {
+    console.log("🚀 ~ file: release.js:7 ~ release ~ contractId:", contractId)
     
 
-    const server = new SorobanClient.Server(
+    const server = new stellar_sdk.SorobanRpc.Server(
         `https://rpc-futurenet.stellar.org:443`
     );
-    const contract = new SorobanClient.Contract(contractId);
+    const contract = new stellar_sdk.Contract(contractId);
 
-    let keypair = SorobanClient.Keypair.fromSecret(secret)
+    let keypair = stellar_sdk.Keypair.fromSecret(secret)
    // console.log("🚀 ~ file: release.js:14 ~ release ~ keypair:", keypair)
 
     const account = await server.getAccount(keypair.publicKey());
@@ -25,24 +27,24 @@ const release = async (contractId, secret , amount) => {
     ]
     const method = 'release';
 
-    let tx = new SorobanClient.TransactionBuilder(account, {
+    let tx = new  stellar_sdk.TransactionBuilder(account, {
         fee: '200',
-        networkPassphrase: SorobanClient.Networks.FUTURENET,
+        networkPassphrase: stellar_sdk.Networks.FUTURENET,
     })
         .addOperation(contract.call(method, ...params))
-        .setTimeout(SorobanClient.TimeoutInfinite)
+        .setTimeout(stellar_sdk.TimeoutInfinite)
         .build();
   //  console.log("🚀 ~ file: release.js:35 ~ release ~ tx:", tx)
 
     const sim = await server.simulateTransaction(tx);
   //  console.log("🚀 ~ file: release.js:38 ~ release ~ sim:", sim)
 
-    let _prepareTx = await server.prepareTransaction(tx, SorobanClient.Networks.FUTURENET)
-    _prepareTx.sign(SorobanClient.Keypair.fromSecret(secret))
+    let _prepareTx = await server.prepareTransaction(tx, stellar_sdk.Networks.FUTURENET)
+    _prepareTx.sign(stellar_sdk.Keypair.fromSecret(secret))
 
     try {
         let { hash } = await server.sendTransaction(_prepareTx);
-    //    console.log("🚀 ~ file: release.js:45 ~ release ~ hash:", hash)
+       console.log("🚀 ~ file: release.js:45 ~ release ~ hash:", hash)
         
         const sleepTime = Math.min(1000, 60000);
 
@@ -51,7 +53,7 @@ const release = async (contractId, secret , amount) => {
             try {
                 //get transaction response
                 const response = await server?.getTransaction(hash);
-              //  console.log("🚀 ~ file: release.js:54 ~ release ~ response:", response)
+                console.log("🚀 ~ file: release.js:54 ~ release ~ response:", response)
 
                 if (response.status == "SUCCESS") {
                     //    let result = JSON.parse(JSON.stringify(response.returnValue));
