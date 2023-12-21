@@ -2,7 +2,7 @@
 const { Client } = require("pg");
 
 const client = new Client({
-   host: "43.205.254.49",
+   host: "43.204.232.218",
    user: "postgres",
    port: 5432,
    password: "imentus123",
@@ -12,7 +12,7 @@ const client = new Client({
     },
 });
 const gmpdbclient = new Client({
-   host: "43.205.254.49",
+   host: "43.204.232.218",
    user: "postgres",
    port: 5432,
    password: "imentus123",
