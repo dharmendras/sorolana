@@ -155,11 +155,11 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
     fn deposit(env: Env, from: Address, token: Address, amount: i128, to: String) -> i128 {
         from.require_auth();
 
-        // // Transfer token from `from` to this contract address.
-        let client = token::Client::new(&env, &token);
+        
+        // // // Transfer token from `from` to this contract address.
+         let client = token::Client::new(&env, &token);
         client.transfer(&from, &env.current_contract_address(), &amount);
-
-        let balance = client.balance(&env.current_contract_address());
+        // let balance = client.balance(&env.current_contract_address());
         put_native_token(&env, token.clone());
         // //message
         let method: String = "Deposit".into_val(&env);
@@ -182,13 +182,15 @@ impl SorobanSoloanaBridgeTrait for SorobanSoloanaBridge {
             to_chain,
             fee,
         };
-        // //   env.storage().persistent().set(&DataKey::Transfer, &transfer);
+        // // //   env.storage().persistent().set(&DataKey::Transfer, &transfer);
         let symbol: Symbol = symbol_short!("deposit");
 
         env.events()
             .publish((DataKey::DepositEvent, symbol), depositevent);
-        // //env.events().publish( symbol, transfer);
-        balance
+        // // //env.events().publish( symbol, transfer);
+        // balance
+        amount
+
     }
     fn createwrappedtoken(env: Env, token_wasm_hash: BytesN<32>, salt: BytesN<32>) -> Address {
         let share_contract = create_wtoken(&env, token_wasm_hash, salt);
