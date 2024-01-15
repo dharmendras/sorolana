@@ -2,7 +2,7 @@
 use soroban_sdk::{xdr::ToXdr, Address, Bytes, BytesN, Env};
 
 soroban_sdk::contractimport!(
-    file = "/home/imentus/Documents/imentus_project/sorolana/soroban/contract/token/soroban_token_contract.wasm"
+    file = "./token/soroban_token_contract.wasm"
 );
 
 pub fn create_wtoken(

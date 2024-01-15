@@ -13,7 +13,7 @@ use super::*;
 mod contract {
     soroban_sdk::contractimport!(
         file =
-            "/home/imentus/Documents/imentus_project/sorolana/soroban/contract/token/soroban_token_contract.wasm"
+            "./token/soroban_token_contract.wasm"
     );
 }
 

@@ -1,6 +1,7 @@
 mod constants;
 mod ins;
 mod state;
+// use solana_program::ed25519_program::ID as ED25519_ID;
 
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::ed25519_program::ID as ED25519_ID;
@@ -11,83 +12,120 @@ use anchor_lang::solana_program::{
     system_instruction,
 };
 use anchor_spl::token::{mint_to, Burn, MintTo};
-use mpl_token_metadata::instructions::{
-    CreateMetadataAccountV3, CreateMetadataAccountV3InstructionArgs,
-};
-use mpl_token_metadata::types::DataV2;
+use mpl_token_metadata::instructions::CreateMetadataAccountV3;
 
-use constants::{AUTHORITY, TOKEN_SEED_PREFIX};
+use constants::AUTHORITY;
 
 use ins::*;
 use state::{ClaimEvent, CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("HADg73vhw376PgZ7UcVU25s7ag8aidbBf1ZLB41d6EC7");
+declare_id!("iJwTrtis4FHdPmqgGpE8qH5XrbhN6SRpYD5xiX8cEf2");
 
 #[program]
 pub mod sorolan_bridge {
 
+    // use crate::constants::PROGRAM_SEED_PREFIX;
+
+    // use mpl_token_metadata::{instructions::CreateMetadataAccountV3InstructionArgs, types::DataV2};
+
     use super::*;
 
-    // Initialize token address
     #[access_control(authorized_admin(&ctx.accounts.authority))]
-    pub fn init_token_address(
-        ctx: Context<AccountsForInitToken>,
-        // _token_seed: String,
+
+    pub fn init_authority_pda(ctx: Context<AccountsForInitAuthorityPda>, bump: u8) -> Result<()> {
+        let authority_pda_account = &mut ctx.accounts.authority_pda;
+        authority_pda_account.authority = ctx.accounts.authority.key();
+        authority_pda_account.bump = bump;
+        msg!(
+            "Authority pda created successfully: {}",
+            authority_pda_account.key()
+        );
+        Ok(())
+    }
+    pub fn initialize_single_tx_pda(
+        ctx: Context<AccountsInInitializeSingleTxPda>,
         bump: u8,
-        token_name: String,
-        token_symbol: String,
-        token_uri: String,
     ) -> Result<()> {
-        let mint_account = &mut ctx.accounts.mint;
-        let meta_account = &mut ctx.accounts.metadata;
-        let authority = &mut ctx.accounts.authority;
-        let token_metadata_account = &mut ctx.accounts.token_metadata_program;
-        let token_program = &mut ctx.accounts.token_program;
-        let system_account = &mut ctx.accounts.system_program;
-        let rent_account = &mut ctx.accounts.rent;
-        msg!("Mint address: {}", mint_account.key());
+        let singletx_pda_account = &mut ctx.accounts.singleTxPda;
+        singletx_pda_account.owner = ctx.accounts.initializer.key();
 
-        let seeds = &[TOKEN_SEED_PREFIX.as_bytes(), &[bump]];
-        let signer = [&seeds[..]];
+        singletx_pda_account.bump = bump;
+        singletx_pda_account.verification_counter = 0;
 
-        let account_info = vec![
-            meta_account.to_account_info(),
-            mint_account.to_account_info(),
-            authority.to_account_info(),
-            token_metadata_account.to_account_info(),
-            token_program.to_account_info(),
-            system_account.to_account_info(),
-            rent_account.to_account_info(),
-        ];
+        Ok(())
+    }
 
-        let data = DataV2 {
-            name: token_name,
-            symbol: token_symbol,
-            uri: token_uri,
-            seller_fee_basis_points: 0,
-            creators: None,
-            collection: None,
-            uses: None,
-        };
+    // pub fn initialize(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {
+    //     let seeds = &["mint".as_bytes(), &[*ctx.bumps.get("mint").unwrap()]];
+    //     let signer = [&seeds[..]];
 
-        let args = CreateMetadataAccountV3InstructionArgs {
-            data,
-            is_mutable: true,
-            collection_details: None,
-        };
+    //     let account_info = vec![
+    //         ctx.accounts.metadata.to_account_info(),
+    //         ctx.accounts.mint.to_account_info(),
+    //         ctx.accounts.authority.to_account_info(),
+    //         ctx.accounts.token_metadata_program.to_account_info(),
+    //         ctx.accounts.token_program.to_account_info(),
+    //         ctx.accounts.system_program.to_account_info(),
+    //         ctx.accounts.rent.to_account_info(),
+    //     ];
 
-        let acnts = CreateMetadataAccountV3 {
-            metadata: meta_account.key(),
-            mint: mint_account.key(),
-            mint_authority: mint_account.key(),
-            payer: authority.key(),
-            update_authority: authority.key(),
-            system_program: system_account.key(),
-            rent: Some(rent_account.key()),
-        };
-        let ix = CreateMetadataAccountV3::instruction(&acnts, args);
+    //     let data: DataV2 = mpl_token_metadata::types::DataV2 {
+    //         name: "Wrapped XLM",
+    //         symbol: "W-XLM",
+    //         uri: "ertyuio",
+    //         seller_fee_basis_points: 100,
+    //         creators: ,
+    //         collection: None,
+    //         uses: None,
+    //     };
 
-        invoke_signed(&ix, account_info.as_slice(), &signer)?;
-        msg!("Token initialized successfully!!!");
+    //     let c = CreateMetadataAccountV3InstructionArgs{
+    //          data: {
+    //             name: "Wrapped XLM",
+    //             symbol: "W-XLM",
+    //             uri: "ertyuio",
+    //             seller_fee_basis_points: 100,
+    //             creators: ,
+    //             collection: None,
+    //             uses: None,
+    //         },
+    //          is_mutable: true,
+    //          collection_details: None,
+    //     };
+    //     let i = CreateMetadataAccountV3::instruction(c);
+
+    //     invoke_signed(
+    //         &CreateMetadataAccountV3::instruction(
+    //             ctx.accounts.token_metadata_program.key(), // token metadata program
+    //             ctx.accounts.metadata.key(),               // metadata account PDA for mint
+    //             ctx.accounts.mint.key(),                   // mint account
+    //             ctx.accounts.mint.key(),                   // mint authority
+    //             ctx.accounts.user.key(),                   // payer for transaction
+    //             ctx.accounts.mint.key(),                   // update authority
+    //             name,                                      // name
+    //             symbol,                                    // symbol
+    //             uri,                                       // uri (offchain metadata)
+    //             None,                                      // (optional) creators
+    //             0,                                         // seller free basis points
+    //             true,                                      // (bool) update authority is signer
+    //             true,                                      // (bool) is mutable
+    //             None,                                      // (optional) collection
+    //             None,                                      // (optional) uses
+    //             None,                                      // (optional) collection details
+    //         ),
+    //         account_info.as_slice(),
+    //         &signer,
+    //     )?;
+    //     Ok(())
+    // }
+
+    #[access_control(authorized_admin(&ctx.accounts.authority))]
+    pub fn init_token_mint(ctx: Context<AccountsInvolvedInInitMintToken>) -> Result<()> {
+        let program_authority = &mut ctx.accounts.authority;
+        msg!(
+            "Program Pda is initialized successfully, the authority of the pda is : {}",
+            program_authority.key()
+        );
+        msg!("Token mint created successfully.");
         Ok(())
     }
 
@@ -100,10 +138,7 @@ pub mod sorolan_bridge {
         msg!("Program Address: {:?}", program_address);
 
         let (program_pda, _pda_bump) = Pubkey::find_program_address(
-            &[
-                b"soroban_solana_stag",
-                ctx.accounts.authority.key().as_ref(),
-            ],
+            &[b"soroban_solana", ctx.accounts.authority.key().as_ref()],
             ctx.program_id,
         );
 
@@ -141,141 +176,173 @@ pub mod sorolan_bridge {
         msg: Vec<u8>,
         sig: [u8; 64],
         bump: u8,
-        mint_bump: u8,
     ) -> Result<()> {
         msg!("claim method start executing");
         msg!("message{:?}", msg);
         msg!("pubKey{:?}", pubkey);
         msg!("sign of validator{:?}", sig);
+
         let mut message_string = String::from_utf8(msg.clone().to_vec()).unwrap();
-        let deposit_method = message_string.contains("\"method\":\"D");
-        msg!("Method for mint: {}", deposit_method);
-        let ix;
-        if deposit_method {
-            ix = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;
-        } else {
-            ix = load_instruction_at_checked(2, &ctx.accounts.ix_sysvar)?;
-        }
+
+        let deposit_method = message_string.contains("Deposit");
+
+        msg!(" deposit_method {:?}", deposit_method);
+
+        let singleTxPda_account = &mut ctx.accounts.single_tx_pda;
+
+        let ix = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;
+        // if deposit_method {
+        //     ix = load_instruction_at_checked(0, &ctx.accounts.ix_sysvar)?;
+        // } else {
+        //     ix = load_instruction_at_checked(2, &ctx.accounts.ix_sysvar)?;
+        // }
         msg!("ix: {:?}", ix);
         utils::verify_ed25519_ix(&ix, &pubkey, &msg, &sig)?;
-        msg!("varify done");
+        msg!("verification  done");
 
-        let user_pda_account = &mut ctx.accounts.user_pda;
-        let user_account = &mut ctx.accounts.user;
-        msg!("user pda counter: {}", user_pda_account.claim_counter);
-        if user_pda_account.claim_counter == 0 {
-            user_pda_account.bump = bump;
-            user_pda_account.claim_counter = 0;
-            user_pda_account.user = user_account.key();
+        singleTxPda_account.verification_counter += 1;
+        msg!(
+            " singleTxPDA Counter: {}",
+            singleTxPda_account.verification_counter
+        );
+
+        if singleTxPda_account.verification_counter == 5 {
 
             msg!(
-                "User pda {} initialized successfully.",
-                user_pda_account.key()
+                " singleTxPDA Counter: {}",
+                singleTxPda_account.verification_counter
             );
-        }
+    
+            let user_pda_account = &mut ctx.accounts.user_pda;
+            let user_account = &mut ctx.accounts.user;
+            msg!("user pda counter: {}", user_pda_account.claim_counter);
+            if user_pda_account.claim_counter == 0 {
+                user_pda_account.bump = bump;
+                user_pda_account.claim_counter = 0;
+                user_pda_account.user = user_account.key();
 
-        // Parse counter
-        let dummy_msg = msg.clone();
-        let mut msg_str = String::from_utf8(dummy_msg.to_vec()).unwrap();
-        let ctr_index = msg_str.find("\"tokenAddress\":").unwrap_or(msg_str.len());
+                msg!(
+                    "User pda {} initialized successfully.",
+                    user_pda_account.key()
+                );
+            }
 
-        let mut counter_string: String =
-            msg_str.drain(..ctr_index).collect::<String>().split_off(11);
-        let passed_counter = counter_string
-            .drain(..counter_string.len() - 1)
-            .collect::<String>()
-            .parse::<u64>()
-            .unwrap();
-        msg!("🚀 ~ file: a1.rs:45 ~ ctr: {}", passed_counter);
+            // Parse counter
+            let dummy_msg = msg.clone();
+            let mut msg_str = String::from_utf8(dummy_msg.to_vec()).unwrap();
+            let ctr_index = msg_str.find("\"tokenAddress\":").unwrap_or(msg_str.len());
 
-        let to_index = msg_str.find(",\"toChain\":").unwrap_or(msg_str.len());
+            let mut counter_string: String =
+                msg_str.drain(..ctr_index).collect::<String>().split_off(11);
+            let passed_counter = counter_string
+                .drain(..counter_string.len() - 1)
+                .collect::<String>()
+                .parse::<u64>()
+                .unwrap();
+            msg!("🚀 ~ file: a1.rs:45 ~ ctr: {}", passed_counter);
 
-        let mut to_string: String = msg_str.drain(..to_index).collect::<String>();
-        let _to = to_string.drain(..to_string.len() - 46).collect::<String>();
+            let to_index = msg_str.find(",\"toChain\":").unwrap_or(msg_str.len());
 
-        msg!("User address in msg {}", to_string);
-        msg!(
-            "User address in accounts {}",
-            user_account.key().to_string()
-        );
-        if user_pda_account.claim_counter != passed_counter
-            && user_account.key().to_string() != to_string
-        {
-            return Err(CustomErrorCode::WrongInvokation.into());
-        }
+            let mut to_string: String = msg_str.drain(..to_index).collect::<String>();
+            let _to = to_string.drain(..to_string.len() - 46).collect::<String>();
 
-        // Parse amount
-        let split_index = message_string
-            .find("\"amount\":")
-            .unwrap_or(message_string.len());
-        let _amount_string = message_string.drain(..split_index).collect::<String>();
-        let mut amount = message_string.split_off(9);
-        msg!("Amount to be mint in str: {}", amount);
+            msg!("User address in msg {}", to_string);
+            msg!(
+                "User address in accounts {}",
+                user_account.key().to_string()
+            );
+            if user_pda_account.claim_counter != passed_counter
+                && user_account.key().to_string() != to_string
+            {
+                return Err(CustomErrorCode::WrongInvokation.into());
+            }
 
-        let amt = amount
-            .drain(..amount.len() - 1)
-            .collect::<String>()
-            .parse::<u64>()
-            .unwrap();
-        msg!("Amount to be mint: {}", amt);
-        // Create the MintTo struct for our context
+            // Parse amount
+            let split_index = message_string
+                .find("\"amount\":")
+                .unwrap_or(message_string.len());
+            let _amount_string = message_string.drain(..split_index).collect::<String>();
+            let mut amount = message_string.split_off(9);
+            msg!("Amount to be mint in str: {}", amount);
 
-        if deposit_method {
-            msg!("Mint method invoked");
-            let seeds = &[TOKEN_SEED_PREFIX.as_bytes(), &[mint_bump]];
-            let signer = [&seeds[..]];
+            let amt = amount
+                .drain(..amount.len() - 1)
+                .collect::<String>()
+                .parse::<u64>()
+                .unwrap();
+            msg!("Amount to be mint: {}", amt);
+            // Create the MintTo struct for our context
 
-            mint_to(
-                CpiContext::new_with_signer(
+            if deposit_method {
+                msg!("Mint method invoked");
+
+                let authority_account = &mut ctx.accounts.authority_pda;
+
+                let signer_seed = [
+                    constants::AUTHORITY_SEED_PREFIX.as_bytes(),
+                    authority_account.authority.as_ref(),
+                    &[authority_account.bump],
+                ];
+                let cpi_accounts = MintTo {
+                    mint: ctx.accounts.mint.to_account_info(),
+                    to: ctx.accounts.token_account.to_account_info(),
+                    authority: authority_account.to_account_info(),
+                };
+                let binding = [&signer_seed[..]];
+                let cpi_ctx = CpiContext::new_with_signer(
                     ctx.accounts.token_program.to_account_info(),
-                    MintTo {
-                        authority: ctx.accounts.mint.to_account_info(),
-                        to: ctx.accounts.token_account.to_account_info(),
-                        mint: ctx.accounts.mint.to_account_info(),
-                    },
-                    &signer,
-                ),
-                amt,
-            )?;
-        } else {
-            msg!("Release method invoked");
-            let (program_pda, generic_bump_seed) = Pubkey::find_program_address(
-                &[
-                    b"soroban_solana_stag",
-                    ctx.accounts.authority.key().as_ref(),
-                ],
-                ctx.program_id,
+                    cpi_accounts,
+                    &binding,
+                );
+                // let cpi_program = ctx.accounts.token_program.to_account_info();
+                // // Create the CpiContext we need for the request
+                // let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+                // // Execute anchor's helper function to mint tokens
+                let _a = mint_to(cpi_ctx, amt)?;
+            } else {
+                msg!("Release method invoked");
+                let (program_pda, generic_bump_seed) = Pubkey::find_program_address(
+                    &[b"soroban_solana", ctx.accounts.authority.key().as_ref()],
+                    ctx.program_id,
+                );
+                invoke_signed(
+                    &system_instruction::transfer(
+                        &program_pda.key(),  // local var .key() // from
+                        &user_account.key(), // to // double checked by deriving treasury PDA in program itself
+                        amt,
+                    ),
+                    &[
+                        ctx.accounts.program_pda.to_account_info(), // from
+                        user_account.to_account_info(),             // to
+                        ctx.accounts.system_program.to_account_info(),
+                    ],
+                    &[&[
+                        "soroban_solana".as_ref(), // since signing using PDA, therefore passing signers seeds
+                        ctx.accounts.authority.key().as_ref(),
+                        &[generic_bump_seed],
+                    ]],
+                )?;
+            }
+
+            emit!(ClaimEvent {
+                amount: amt,
+                claim_counter: user_pda_account.claim_counter,
+                user_validator_address: user_account.key()
+            });
+
+            user_pda_account.claim_counter += 1;
+            msg!(
+                "Now pda counter is increased to: {}",
+                user_pda_account.claim_counter
             );
-            invoke_signed(
-                &system_instruction::transfer(
-                    &program_pda.key(),  // local var .key() // from
-                    &user_account.key(), // to // double checked by deriving treasury PDA in program itself
-                    amt,
-                ),
-                &[
-                    ctx.accounts.program_pda.to_account_info(), // from
-                    user_account.to_account_info(),             // to
-                    ctx.accounts.system_program.to_account_info(),
-                ],
-                &[&[
-                    "soroban_solana_stag".as_ref(), // since signing using PDA, therefore passing signers seeds
-                    ctx.accounts.authority.key().as_ref(),
-                    &[generic_bump_seed],
-                ]],
-            )?;
+            singleTxPda_account.verification_counter = 0;
+
+            msg!(
+                " singleTxPDA Counter: {}",
+                singleTxPda_account.verification_counter
+            );
         }
-
-        emit!(ClaimEvent {
-            amount: amt,
-            claim_counter: user_pda_account.claim_counter,
-            user_validator_address: user_account.key()
-        });
-
-        user_pda_account.claim_counter += 1;
-        msg!(
-            "Now pda counter is increased to: {}",
-            user_pda_account.claim_counter
-        );
 
         Ok(())
     }

@@ -2,13 +2,13 @@
 seeds = false
 skip-lint = false
 [programs.devnet]
-sorolan_bridge = "HADg73vhw376PgZ7UcVU25s7ag8aidbBf1ZLB41d6EC7"
+sorolan_bridge = "iJwTrtis4FHdPmqgGpE8qH5XrbhN6SRpYD5xiX8cEf2"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "Localnet"
 wallet = "./keys/deployer.json"
 
 [scripts]

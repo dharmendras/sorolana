@@ -3,35 +3,55 @@ use anchor_lang::solana_program::sysvar::instructions::ID as IX_ID;
 use anchor_spl::token:: {Mint, Token, TokenAccount};
 use anchor_spl::associated_token::AssociatedToken;
 
-use crate::constants::{USER_SEED_PREFIX, TOKEN_SEED_PREFIX};
-use crate::state::UserPda;
+use crate::constants::{AUTHORITY_SEED_PREFIX, USER_SEED_PREFIX , SIGNATURESTORE_SEED };
+use crate::state::{AuthorityPda, UserPda};
+
+
 
 #[derive(Accounts)]
-// #[instruction(
-//   _token_seed: String
-// )]
-pub struct AccountsForInitToken<'info>{
-  /// CHECK: New Metaplex Account being created
-  #[account(mut)]
-  pub metadata: UncheckedAccount<'info>,
-  #[account(
-      init,
-      seeds = [TOKEN_SEED_PREFIX.as_bytes(),],
-      bump,
-      payer = authority,
-      mint::decimals = 7,
-      mint::authority = mint,
-  )]
-  pub mint: Account<'info, Mint>,
+pub struct AccountsForInitAuthorityPda<'info>{
   #[account(mut)]
   pub authority: Signer<'info>,
-  pub rent: Sysvar<'info, Rent>,
+  #[account(
+    init, 
+    payer = authority, 
+    space = AuthorityPda::LEN + 8,
+    seeds = [
+      AUTHORITY_SEED_PREFIX.as_bytes(),
+      authority.key().as_ref()
+    ],
+    bump
+  )]
+  pub authority_pda: Account<'info, AuthorityPda>,
   pub system_program: Program<'info, System>,
-  pub token_program: Program<'info, Token>,
-  /// CHECK: account constraint checked in account trait
-  #[account(address = mpl_token_metadata::ID)]
-  pub token_metadata_program: UncheckedAccount<'info>,
 }
+#[derive(Accounts)]
+pub struct AccountsInvolvedInInitMintToken<'info> 
+{
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(
+      mut,
+      seeds = [
+        AUTHORITY_SEED_PREFIX.as_bytes(),
+        authority_pda.authority.as_ref(),
+      ],
+      bump = authority_pda.bump,
+    )]
+    pub authority_pda: Account<'info, AuthorityPda>,
+    #[account(
+      init,
+      payer = authority,
+      mint::decimals = 7,
+      mint::authority = authority_pda,
+      mint::freeze_authority = authority_pda,
+    )]
+    pub mint: Account<'info, Mint>,
+    pub rent: Sysvar<'info, Rent>,
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+  }
+
 #[derive(Accounts)]
 pub struct AccountsForDeposit<'info> {
   #[account(mut)]
@@ -78,15 +98,22 @@ pub struct AccountsForDeposit<'info> {
     #[account(mut)]
     pub program_pda: AccountInfo<'info>,
 
-    // #[account(
-    //   mut,
-    //   seeds = [
-    //     AUTHORITY_SEED_PREFIX.as_bytes(),
-    //     authority_pda.authority.as_ref(),
-    //   ],
-    //   bump = authority_pda.bump,
-    // )]
-    // pub authority_pda: Account<'info, AuthorityPda>,            // mint authority, used in mint method
+    #[account(
+      mut,
+      seeds = [
+        AUTHORITY_SEED_PREFIX.as_bytes(),
+        authority_pda.authority.as_ref(),
+      ],
+      bump = authority_pda.bump,
+    )]
+    pub authority_pda: Account<'info, AuthorityPda>,            // mint authority, used in mint method
+
+    #[account(
+      mut,
+      seeds = [SIGNATURESTORE_SEED.as_bytes() , single_tx_pda.owner.as_ref()], // optional seeds for pda
+      bump = single_tx_pda.bump, // bump seed for pda stored in `Counter` account
+  )]
+  pub single_tx_pda: Account<'info, SingleTxPdaData>,
   
     #[account(
       init_if_needed, 
@@ -106,17 +133,46 @@ pub struct AccountsForDeposit<'info> {
     )]
     pub token_account: Account<'info, TokenAccount>,
     /// CHECK: This is the token that we want to mint
-    #[account(mut,
-      seeds = [TOKEN_SEED_PREFIX.as_bytes(),],
-      bump,
-      mint::authority = mint,
-    )]
+    #[account(mut)]
     pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
+
     /// CHECK:` doc comment explaining why no checks through types are necessary
     #[account(address = IX_ID)]
     pub ix_sysvar: AccountInfo<'info>,
-    pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
     }
+
+    #[derive(Accounts)]
+pub struct AccountsInInitializeSingleTxPda<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    // Create and initialize `Counter` account using a PDA as the address
+    #[account(
+        init,
+        seeds = [SIGNATURESTORE_SEED.as_bytes() ,  initializer.key.as_ref()], // optional seeds for pda
+        bump,                 // bump seed for pda
+        payer = user,
+        space =  SingleTxPdaData::MAX_SIZE
+    )]
+    pub singleTxPda: Account<'info, SingleTxPdaData>,
+    #[account(mut)]
+    pub initializer: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+
+    #[account]
+pub struct SingleTxPdaData {
+    pub owner: Pubkey,
+    pub tx_hash: String,
+    pub pubkey: Vec<[u8; 32]>,
+    pub verification_counter: u64,
+    pub signature: Vec<[u8; 64]>,
+    pub bump: u8,
+}
+impl SingleTxPdaData {
+    const MAX_SIZE: usize = 10000;
+}

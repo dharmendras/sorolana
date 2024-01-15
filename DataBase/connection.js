@@ -2,33 +2,35 @@
 const { Client } = require("pg");
 
 const client = new Client({
-   host: "43.205.254.49",
+   host: "localhost",
    user: "postgres",
    port: 5432,
    password: "imentus123",
    database: "sorolanadb",
    ssl: {
       rejectUnauthorized: false, // This option might be needed for self-signed certificates
-    },
+   },
 });
-// const gmpdbclient = new Client({
-//    host: "43.205.254.49",
-//    user: "postgres",
-//    port: 5432,
-//    password: "imentus123",
-//    database: "gmpdb"
- 
-// });
 const gmpdbclient = new Client({
-   host: "65.2.160.56",
+   //   host: "35.154.90.180",
+
+   host: "localhost",
    user: "postgres",
    port: 5432,
    password: "imentus123",
    database: "gmpdb"
- 
-});
 
-module.exports =  gmpdbclient;
+});
+// gmpdbclient.connect()
+
+//    .then(() => {
+//       console.log("Connected to PostgreSQL database");
+//    })
+//    .catch((err) => {
+//       console.error("Error connecting to PostgreSQL database:", err);
+//    });
+
+module.exports = gmpdbclient;
 
 
 
