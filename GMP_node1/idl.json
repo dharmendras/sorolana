@@ -230,10 +230,6 @@
         {
           "name": "bump",
           "type": "u8"
-        },
-        {
-          "name": "totalSignature",
-          "type": "u64"
         }
       ]
     },
@@ -503,6 +499,6 @@
     }
   ],
   "metadata": {
-    "address": "iJwTrtis4FHdPmqgGpE8qH5XrbhN6SRpYD5xiX8cEf2"
+    "address": "EjBudpF98VVNGiSdkDEatKeeT8S6uxRWYzV6kRFcxmhY"
   }
 }

@@ -136,6 +136,7 @@ app.app.get("/gmp/message_queue", (req, res) => {
     console.log(error);
   }
 });
+// queue id
 
 // Delet request for the table message_queue, which includes counter of claimed msg
 app.app.delete("/gmp/message_queue/:receiver", (req, res) => {
@@ -163,6 +164,42 @@ app.app.delete("/gmp/message_queue/:receiver", (req, res) => {
       }
       console.log("🚀 ~ file: message.js:106 ~ app.app.get ~ err:", err);
     });
+  } catch (error) {
+    console.error("Error", error);
+    res.status(500).send({
+      message: "something went wrong",
+    });
+  }
+});
+// get pending
+app.app.get("/gmp/CheckIsPending/:receiver", (req, res) => {
+  let receiver = req.params.receiver;
+  console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", receiver);
+  try {
+    let qry = `SELECT * FROM message_queue WHERE receiver = '${receiver}'`;
+    console.log("🚀 ~ file: message.js:103 ~ app.app.get ~ qry:", qry);
+    gmpdbclient.query(qry, (err, result) => {
+      if (!err) {
+        let rows = result.rows;
+        console.log(
+          "🚀 ~ file: message.js:105 ~ gmpdbclient.query ~ rows:",
+          rows.length
+        );
+        if (rows.length > 0) {
+          res.status(200).json(rows);
+        } 
+        else {
+          res.status(200).json(rows.length);
+        }
+      }
+      console.log("🚀 ~ file: message.js:106 ~ app.app.get ~ err:", err);
+    });
+    // const { rows } = gmpdbclient.query(
+    //   `SELECT counters FROM message_queue WHERE userpda = ${userPda}`
+    // );
+    // res.status(201).send({
+    //   message: "Message updated successfully!",
+    // });
   } catch (error) {
     console.error("Error", error);
     res.status(500).send({
@@ -205,7 +242,44 @@ app.app.get("/gmp/message_queue/:receiver", (req, res) => {
     });
   }
 });
+// queue_id 
+app.app.get("/gmp/CheckQueue_IdInmessage_queue/:receiver", (req, res) => {
+  let receiver = req.params.receiver;
+  console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", receiver);
+  try {
+    let qry = `SELECT queue_id FROM message_queue WHERE receiver = '${receiver}'`;
+    console.log("🚀 ~ file: message.js:103 ~ app.app.get ~ qry:", qry);
+    gmpdbclient.query(qry, (err, result) => {
+      if (!err) {
+        let rows = result.rows;
+        console.log(
+          "🚀 ~ file: message.js:105 ~ gmpdbclient.query ~ rows:",
+          rows.length
+        );
+        if (rows.length > 0) {
+          //isqueue_id_response.data[0].queue_id
+         // console.log("🚀 ~ gmpdbclient.query ~ rows:", rows)
 
+          res.status(200).json(rows);
+        } else {
+          res.status(200).json({ data: 0 });
+        }
+      }
+      console.log("🚀 ~ file: message.js:106 ~ app.app.get ~ err:", err);
+    });
+    // const { rows } = gmpdbclient.query(
+    //   `SELECT counters FROM message_queue WHERE userpda = ${userPda}`
+    // );
+    // res.status(201).send({
+    //   message: "Message updated successfully!",
+    // });
+  } catch (error) {
+    console.error("Error", error);
+    res.status(500).send({
+      message: "something went wrong",
+    });
+  }
+});
 // Insert new user details into the user_counters table
 app.app.post("/gmp/userCounter", async (req, res) => {
   const { receiver, queue_id } = req.body;
@@ -215,7 +289,7 @@ app.app.post("/gmp/userCounter", async (req, res) => {
       `INSERT INTO user_counters (receiver, queue_id) VALUES ($1, $2)`,
       [receiver, queue_id]
     );
-    console.log("🚀 ~ file: message.js:140 ~ app.app.post ~ _query:", _query);
+   // console.log("🚀 ~ file: message.js:140 ~ app.app.post ~ _query:", _query);
     res.status(201).send({
       message: "receiver details added successfully!",
     });
@@ -225,7 +299,53 @@ app.app.post("/gmp/userCounter", async (req, res) => {
     });
   }
 });
+app.app.get("/gmp/CheckTransactionHashInMessage_queue/:transaction_id", (req, res) => {
+  let transaction_id = req.params.transaction_id;
+  console.log("🚀 ~ app.app.get ~ transaction_id:", transaction_id)
 
+
+  let query = `SELECT * FROM message_queue WHERE transaction_hash = '${transaction_id}'`;  
+  gmpdbclient.query(query, (err, result) => {
+    if (err) {
+
+      console.error('Error executing query', err);
+    } else {
+      let rows = result.rows;
+
+      res.status(200).json(rows);
+
+      //res.status(200).json(result.rows)
+      //console.log('Query result:', rows);
+    }
+
+    // Disconnect the client
+    // gmpdbclient.end();
+  });
+})
+app.app.get("/gmp/CheckTransactionHashInMessage/:transaction_id", (req, res) => {
+  let transaction_id = req.params.transaction_id;
+  console.log("🚀 ~ app.app.get ~ transaction_id:", transaction_id)
+
+
+  let query = `SELECT * FROM message WHERE transaction_hash = '${transaction_id}'`;  
+  gmpdbclient.query(query, (err, result) => {
+    if (err) {
+      res.status(200).json(0);
+
+      console.error('Error executing query', err);
+    } else {
+      let rows = result.rows;
+
+      res.status(200).json(rows);
+
+      //res.status(200).json(result.rows)
+      //console.log('Query result:', rows);
+    }
+
+    // Disconnect the client
+    // gmpdbclient.end();
+  });
+})
 // Get request for the table message_queue, which includes counter
 app.app.get("/gmp/userCounter/:receiver_pda", (req, res) => {
   let receiverPda = req.params.receiver_pda;
@@ -255,7 +375,35 @@ app.app.get("/gmp/userCounter/:receiver_pda", (req, res) => {
     });
   }
 });
-
+// get message id base in counter
+app.app.get("/gmp/getMessageIDFromMessage/:userCounter", (req, res) => {
+  let userCounter = req.params.userCounter;
+  console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", userCounter);
+  try {
+    let qry = `SELECT id FROM message WHERE queue_id = '${userCounter}'`;
+    console.log("🚀 ~ file: message.js:103 ~ app.app.get ~ qry:", qry);
+    gmpdbclient.query(qry, (err, result) => {
+      if (!err) {
+        let rows = result.rows;
+        console.log(
+          "🚀 ~ file: message.js:160 ~ gmpdbclient.query ~ rows:",
+          rows
+        );
+        res.status(200).json(rows);
+      } else if (err == `error: column "receiver" does not exist`) {
+        res.status(502).send({
+          message: "Receiver not found",
+        });
+      } else {
+        console.log("🚀 ~ file: message.js:106 ~ app.app.get ~ err:", err);
+      }
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: "something went wrong",
+    });
+  }
+});
 app.app.put("/gmp/userCounter/:receiver", (req, res) => {
   let receiverPda = req.params.receiver;
   const { queue_id } = req.body;
@@ -289,7 +437,25 @@ app.app.get("/gmp/Message", (req, res) => {
     console.log(error);
   }
 });
-
+app.app.get("/gmp/CheckIsClaimedInMessage/:userAddress", (req, res) => {
+  let accountAddress = req.params.userAddress;
+  try {
+    gmpdbclient.query(
+      `SELECT is_claimed FROM message WHERE toaddress = '${accountAddress}' and is_claimed = 'NO'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+          res.status(200).json(result.rows);
+        }
+        console.log("error", err);
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+  console.log("accountAddress4--->", accountAddress);
+});
 app.app.get("/gmp/Message/:userAddress", (req, res) => {
   let accountAddress = req.params.userAddress;
   try {
@@ -308,6 +474,25 @@ app.app.get("/gmp/Message/:userAddress", (req, res) => {
     console.log(error);
   }
   console.log("accountAddress4--->", accountAddress);
+});
+// get queue_id 
+app.app.get("/gmp/GetQueue_Id_Message/:queue_id", (req, res) => {
+  let queue_id = req.params.queue_id;
+  try {
+    gmpdbclient.query(
+      `SELECT * FROM message WHERE queue_id = '${queue_id}'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+          res.status(200).json(result.rows);
+        }
+        console.log("error", err);
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 app.app.put("/gmp/Message/:receiver", (req, res) => {
@@ -329,6 +514,39 @@ app.app.put("/gmp/Message/:receiver", (req, res) => {
     });
   }
 });
+app.app.put("/gmp/AppendSignature", async (req, res) => {
+  try {
+    const { validator_sig, validator_pkey, message_id } = req.body;
+    console.log("🚀 ~ app.app.put ~ message_id:", message_id);
+    console.log("🚀 ~ app.app.put ~ validator_pkey:", validator_pkey[0]);
+    console.log("🚀 ~ app.app.put ~ validator_sig:", validator_sig[0]);
+
+    const query = `
+      UPDATE signature 
+      SET 
+        validator_sign = ARRAY_APPEND(validator_sign, $1),
+        public_key = ARRAY_APPEND(public_key, $2)
+      WHERE message_id = $3
+      RETURNING *;
+    `;
+
+    const values = [validator_sig[0], validator_pkey[0], message_id];
+
+    const { rows } = await gmpdbclient.query(query, values);
+    console.log("🚀 ~ app.app.put ~ rows:", rows);
+
+    res.status(201).send({
+      message: "Message updated successfully!",
+    });
+
+  } catch (error) {
+    console.error("Error", error);
+    res.status(500).send({
+      message: "Something went wrong",
+    });
+  }
+});
+
 
 // Post req to add signatures and the pubkey into the signature table
 app.app.post("/gmp/Signature", (req, res) => {

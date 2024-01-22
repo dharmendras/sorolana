@@ -60,10 +60,10 @@ let sorolanaTokenParams = {
 };
 
 let db_msg = {
-  counter: 3,
+  counter: 0,
   tokenAddress: "CDILU5GSXZLRM6JTYTGDKBTIPJD43GEBJVSECE6DKNJ4I7KBN2Z4EKAS",
   tokenChain: 456,
-  to: "2NEijqdfBX6DuBHGht9CaqjfnZsATpfEzbPoDYdFh5Pc",
+  to: "4ubRFnu8fNE5jz42bQ9ipDxb2zietTHFEv9YbvnPqsYQ",
   toChain: 123,
   fee: 100,
   method: "Deposit",
@@ -90,7 +90,7 @@ let user_kp_pubkey = new PublicKey(
 //   "Y959mtt5U4SRzLnXUtPvQDR5RRfX5vYwZJisrftWckC"
 // );
 let Withdraw_msg = {
-  counter: 3,
+  counter: 0,
   tokenAddress: "CB5ABZGAAFXZXB7XHAQT6SRT6JXH2TLIDVVHJVBEJEGD2CQAWNFD7D2U",
   tokenChain: 123,
   to: "GGPud2eDjZ4QNrCrriLcppB617BEAKPXcyPGYsFrxeeP",
@@ -168,7 +168,7 @@ describe("sorolan_bridge", () => {
     return ata;
   };
 
-  it("Can initialize a authority pda: ", async () => {
+  it.only("Can initialize a authority pda: ", async () => {
     // if (!isRunTestCase) {
     const [authorityPda, authorityBump] =
       web3.PublicKey.findProgramAddressSync(
@@ -194,7 +194,7 @@ describe("sorolan_bridge", () => {
     // }
   });
 
-  it(" AccountsInInitializeSingleTxPda !", async () => {
+  it.only(" AccountsInInitializeSingleTxPda !", async () => {
 
 
     try {
@@ -213,7 +213,7 @@ describe("sorolan_bridge", () => {
     }
   });
 
-  it("Authority can initialize the mint account: ", async () => {
+  it.only("Authority can initialize the mint account: ", async () => {
     //  if (!isRunTestCase) {
 
     try {
@@ -306,7 +306,7 @@ describe("sorolan_bridge", () => {
     // }
   });
 
-  it("Verfiy and mint method: ", async () => {
+  it.only("Verfiy and mint method: ", async () => {
     if (isRunTestCase) {
       const message = JSON.stringify(db_msg);
       console.log("🚀 ~ file: sorolan_bridge.ts:234 ~ it ~ message:", message);
@@ -474,7 +474,7 @@ describe("sorolan_bridge", () => {
   //   }
   // });
 
-  it.only("release the funds into the user's wallet: ", async () => {
+  it("release the funds into the user's wallet: ", async () => {
 
     if (isRunTestCase) {
       const message = JSON.stringify(Withdraw_msg);

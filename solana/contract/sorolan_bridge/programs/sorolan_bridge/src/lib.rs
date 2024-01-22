@@ -18,7 +18,7 @@ use constants::AUTHORITY;
 
 use ins::*;
 use state::{ClaimEvent, CustomErrorCode, DepositEvent, WithdrawEvent};
-declare_id!("iJwTrtis4FHdPmqgGpE8qH5XrbhN6SRpYD5xiX8cEf2");
+declare_id!("EjBudpF98VVNGiSdkDEatKeeT8S6uxRWYzV6kRFcxmhY");
 
 #[program]
 pub mod sorolan_bridge {

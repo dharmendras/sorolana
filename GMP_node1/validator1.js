@@ -54,7 +54,7 @@ const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 
 let validator_kp = Keypair.fromSecretKey(
   new Uint8Array(
-    JSON.parse(fs.readFileSync("solana_validators/validator1.json").toString())
+    JSON.parse(fs.readFileSync("solana_validators/validator3.json").toString())
   )
 );
 
@@ -79,7 +79,8 @@ program.addEventListener("WithdrawEvent", (event, slot, transaction_id) => {
   solanaWithdrawEventHandle(event, slot, transaction_id);
 });
 program.addEventListener("ClaimEvent", (event, slot, transaction_id) => {
-  solanaClaim(event, slot, transaction_id);
+  console.log("🚀 ~ program.addEventListener ~ event:", event)
+ solanaClaim(event, slot, transaction_id);
 });
 
 
@@ -186,8 +187,8 @@ async function pollSorobanDepositEvents() {
 
     console.log("🚀 ~ file: depositEvent.js:122 ~ pollSorobanDepositEvents ~ converted_value:", converted_value)
 
-    let soroban_deposit_random_transaction_hash = "e4eb26470ad1f19f900b1e943d8bd5edf71bc1e8c3fd6ca9b39b93fbf4936b40" // TODO: Triggering Event should give tx hash
-
+    let soroban_deposit_random_transaction_hash = "0xc1a6e8d7b3f8a1e2c0a6e9b4f8d3c2a9e0d7b6f1c8e9d2a6b7f8d9c1a2e5f9" // TODO: Triggering Event should give tx hash
+    
     // Event data will be inserted to Postgres DB in below function
     await solanaDeposit(converted_value, 0, soroban_deposit_random_transaction_hash)
     // console.log("🚀 ~ fyile: depositEvent.js:129 ~ pollSorobanDepositEvents ~ converted_value:", converted_value)
@@ -405,4 +406,4 @@ cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
 // Start listening on port 3000
 
 
-app.listen(3000, () => console.log("Server is listening on port 3000."));
+app.listen(3001, () => console.log("Server is listening on port 3002."));

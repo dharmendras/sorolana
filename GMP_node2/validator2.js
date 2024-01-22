@@ -10,7 +10,7 @@ const bs58 = require("bs58");
 const StellarSdk = require("stellar-sdk");
 const util = require("tweetnacl-util");
 const idl = require("./idl.json");
-// const Message = require("../DataBase/message.js");
+//const Message = require("../DataBase/message.js");
 const nacl = require("tweetnacl");
 const { anchor } = require("@coral-xyz/anchor");
 const axios = require("axios");
@@ -22,8 +22,8 @@ const cron = require("node-cron");
 const stellar_sdk = require('stellar-sdk')
 // const Message = require("../DataBase/message.js");
 // const Message = require("../DataBase/message.js");
-const { solanaDeposit } = require('./SolanaEventsFunctions/depositEvent.js')
-const { solanaWithdraw } = require('./SolanaEventsFunctions/withdrawEvent.js')
+const { solanaDeposit } = require('./SolanaEventsFunctions/depositEvent')
+const { solanaWithdraw } = require('./SolanaEventsFunctions/withdrawEvent')
 const { SorobanClaimEventHandle } = require('./SorobanEventsFunctions/sorobanclaimEventHandle.js')
 const app = express();
 
@@ -54,7 +54,7 @@ const USER_SEED_PREFIX = "prevent_duplicate_claimV1";
 
 let validator_kp = Keypair.fromSecretKey(
   new Uint8Array(
-    JSON.parse(fs.readFileSync("solana_validators/validator1.json").toString())
+    JSON.parse(fs.readFileSync("solana_validators/validator3.json").toString())
   )
 );
 
@@ -79,7 +79,8 @@ program.addEventListener("WithdrawEvent", (event, slot, transaction_id) => {
   solanaWithdrawEventHandle(event, slot, transaction_id);
 });
 program.addEventListener("ClaimEvent", (event, slot, transaction_id) => {
-  solanaClaim(event, slot, transaction_id);
+  console.log("🚀 ~ program.addEventListener ~ event:", event)
+ solanaClaim(event, slot, transaction_id);
 });
 
 
@@ -186,7 +187,7 @@ async function pollSorobanDepositEvents() {
 
     console.log("🚀 ~ file: depositEvent.js:122 ~ pollSorobanDepositEvents ~ converted_value:", converted_value)
 
-    let soroban_deposit_random_transaction_hash = "e4eb26470ad1f19f900b1e943d8bd5edf71bc1e8c3fd6ca9b39b93fbf4936b40" // TODO: Triggering Event should give tx hash
+    let soroban_deposit_random_transaction_hash = "0xc1a6e8d7b3f8a1e2c0a6e9b4f8d3c2a9e0d7b6f1c8e9d2a6b7f8d9c1a2e5f9" // TODO: Triggering Event should give tx hash
     
     // Event data will be inserted to Postgres DB in below function
     await solanaDeposit(converted_value, 0, soroban_deposit_random_transaction_hash)
@@ -283,7 +284,7 @@ async function pollSorobanClaimEvents() {
     let converted_value = stellar_sdk.scValToNative(scVal)
     console.log("🚀 ~ file: depositEvent.js:108 ~ pollSorobanEvents ~ converted_value:", converted_value);
 
-    let soroban_deposit_random_transaction_hash = "e4eb26470ad1f19f900b1e943d8bd5edf71bc1e8c3fd6ca9b39b93fbf4936b40" // TODO: Triggering Event should give tx hash
+    let soroban_deposit_random_transaction_hash = "0x7f1e0d9b4f8d3c2a9e0d7b6f1c8a2e9b0d4c1a6e8d7b3f8a1e2c0" // TODO: Triggering Event should give tx hash
 
     // Event data will be inserted to Postgres DB in below function
     await SorobanClaimEventHandle(converted_value, 0, soroban_deposit_random_transaction_hash);
@@ -399,10 +400,10 @@ async function pollSorobanWithdrawEvents() {
 
 // Schedule a cron job to run every 15 seconds and call pollSorobanEvents
 // cron.schedule("*/1 * * * *", pollSorobanEvents);
-cron.schedule("*/15 * * * * *", pollSorobanDepositEvents);
-cron.schedule("*/15 * * * * *", pollSorobanWithdrawEvents);
-cron.schedule("*/15 * * * * *", pollSorobanClaimEvents);
+cron.schedule("*/16 * * * * *", pollSorobanDepositEvents);
+cron.schedule("*/16 * * * * *", pollSorobanWithdrawEvents);
+cron.schedule("*/16 * * * * *", pollSorobanClaimEvents);
 // Start listening on port 3000
 
 
-app.listen(3001, () => console.log("Server is listening on port 3001."));
+app.listen(3002, () => console.log("Server is listening on port 3002."));
