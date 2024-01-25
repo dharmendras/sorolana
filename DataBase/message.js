@@ -437,6 +437,89 @@ app.app.get("/gmp/Message", (req, res) => {
     console.log(error);
   }
 });
+// check is claimed yes
+app.app.get("/gmp/CheckIsClaimedIsYesInMessage/:userAddress", (req, res) => {
+  let accountAddress = req.params.userAddress;
+  try {
+    gmpdbclient.query(
+      `SELECT is_claimed FROM message WHERE toaddress = '${accountAddress}' and is_claimed = 'YES'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+        //  res.status(200).json(result.rows);
+         // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
+         console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
+
+         if (result.rows.length === 0) {
+          res.status(200).json('NO');
+        } else {
+          res.status(200).json('YES');
+        }
+        }
+        console.log("error", err);
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+});
+//get transaction for repeating event's
+app.app.get("/gmp/CheckTxHashForRepeatingEvents/:txHash", (req, res) => {
+  let txHash = req.params.txHash;
+  console.log("🚀 ~ app.app.get ~ txHash:", txHash)
+  try {
+    gmpdbclient.query(
+      `SELECT transaction_hash FROM message WHERE transaction_hash = '${txHash}'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+        //  res.status(200).json(result.rows);
+         // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
+         console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
+
+         if (result.rows.length === 0) {
+          res.status(200).json('NO');
+        } else {
+          res.status(200).json('YES');
+        }
+        }
+        console.log("error", err);
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+});
+//get transaction for repeating event's from message_queue
+app.app.get("/gmp/CheckTxHashForRepeatingEventsInMessageQueue/:txHash", (req, res) => {
+  let txHash = req.params.txHash;
+  console.log("🚀 ~ app.app.get ~ txHash:", txHash)
+  try {
+    gmpdbclient.query(
+      `SELECT transaction_hash FROM message_queue WHERE transaction_hash = '${txHash}'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+        //  res.status(200).json(result.rows);
+         // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
+         console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
+
+         if (result.rows.length === 0) {
+          res.status(200).json('NO');
+        } else {
+          res.status(200).json('YES');
+        }
+        }
+        console.log("error", err);
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+});
 app.app.get("/gmp/CheckIsClaimedInMessage/:userAddress", (req, res) => {
   let accountAddress = req.params.userAddress;
   try {

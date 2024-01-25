@@ -7,7 +7,6 @@ const { PublicKey } = require("@solana/web3.js");
 const { Keypair } = require("@solana/web3.js");
 const { EventParser, BorshCoder, web3 } = require("@coral-xyz/anchor");
 const bs58 = require("bs58");
-const StellarSdk = require("stellar-sdk");
 const util = require("tweetnacl-util");
 const idl = require("./idl.json");
 const Message = require("../DataBase/message.js");
@@ -80,7 +79,7 @@ program.addEventListener("WithdrawEvent", (event, slot, transaction_id) => {
 });
 program.addEventListener("ClaimEvent", (event, slot, transaction_id) => {
   console.log("🚀 ~ program.addEventListener ~ event:", event)
- solanaClaim(event, slot, transaction_id);
+  solanaClaim(event, slot, transaction_id);
 });
 
 
@@ -104,7 +103,9 @@ async function pollSorobanDepositEvents() {
   try {
     // // One time use only
     if (lastLedger == null) {
-      const SOROBAN_RPC_URL = "https://rpc-futurenet.stellar.org:443/"; // TODO: fetch from ENV instead
+      //https://soroban-testnet.stellar.org:443  for testnet
+      //https://rpc-futurenet.stellar.org:443/   for fururenet
+      const SOROBAN_RPC_URL = "https://soroban-testnet.stellar.org:443/"; // TODO: fetch from ENV instead
 
       const server = new stellar_sdk.SorobanRpc.Server(SOROBAN_RPC_URL, { allowHttp: true })
       startTimeLedger = (await server.getLatestLedger()).sequence;
@@ -145,8 +146,11 @@ async function pollSorobanDepositEvents() {
     // Make an HTTP POST request to the Soroban RPC endpoint
     //https://rpc-futurenet.stellar.org:443
     //https://soroban-testnet.stellar.org
+    //http://ec2-16-170-242-7.eu-north-1.compute.amazonaws.com:3030/
+   // const url = 'http://ec2-16-170-242-7.eu-north-1.compute.amazonaws.com:3030/';
+    const url = 'https://soroban-testnet.stellar.org';
     let res = await axios.post(
-      "https://rpc-futurenet.stellar.org:443",
+      url,
       requestObject
     );
     //  console.log("🚀 ~ file: test.js:55 ~ pollSorobanEvents ~ res:", res)
@@ -187,10 +191,10 @@ async function pollSorobanDepositEvents() {
 
     console.log("🚀 ~ file: depositEvent.js:122 ~ pollSorobanDepositEvents ~ converted_value:", converted_value)
 
-    let soroban_deposit_random_transaction_hash = "0xc1a6e8d7b3f8a1e2c0a6e9b4f8d3c2a9e0d7b6f1c8e9d2a6b7f8d9c1a2e5f9" // TODO: Triggering Event should give tx hash
-    
+    let soroban_deposit_random_transaction_hash = "0xa6e9b4f8d3c2a9e0d7b6f1c8e9d2a6b7f8d9c1a2e5f9d3b7c8a2e9b0d4c1a6" // TODO: Triggering Event should give tx hash
+
     // Event data will be inserted to Postgres DB in below function
-    await solanaDeposit(converted_value, 0, soroban_deposit_random_transaction_hash)
+    //  await solanaDeposit(converted_value, 0, soroban_deposit_random_transaction_hash)
     // console.log("🚀 ~ fyile: depositEvent.js:129 ~ pollSorobanDepositEvents ~ converted_value:", converted_value)
 
   } catch (error) {

@@ -44,6 +44,7 @@ const getUserPda = async (user) => {
 };
 
 async function solanaDeposit(event, slot, transaction_id) {
+  console.log("🚀 ~ solanaDeposit ~ transaction_id:", transaction_id)
   // console.log(
   //   "🚀 ~ file: depositEvent.js:36 ~ solanaDeposit ~ event.receiver_address:",
   //   event
@@ -66,7 +67,7 @@ async function solanaDeposit(event, slot, transaction_id) {
 
   const isclaimed_response = await axios.get(`${base_url}/gmp/CheckIsClaimedInMessage/${userAddress}`);
   console.log("🚀 ~ solanaDeposit ~ isclaimed_response:", isclaimed_response.data.length)
-  // No similar transaction hash in data base 
+  // No similar transactiaxioson hash in data base 
   if (message_response.data.length == 0 && message_queue_response.data.length == 0) {
     console.log(" There is no  similar transaction hash in data base")
 
