@@ -187,7 +187,7 @@ app.app.get("/gmp/CheckIsPending/:receiver", (req, res) => {
         );
         if (rows.length > 0) {
           res.status(200).json(rows);
-        } 
+        }
         else {
           res.status(200).json(rows.length);
         }
@@ -258,7 +258,7 @@ app.app.get("/gmp/CheckQueue_IdInmessage_queue/:receiver", (req, res) => {
         );
         if (rows.length > 0) {
           //isqueue_id_response.data[0].queue_id
-         // console.log("🚀 ~ gmpdbclient.query ~ rows:", rows)
+          // console.log("🚀 ~ gmpdbclient.query ~ rows:", rows)
 
           res.status(200).json(rows);
         } else {
@@ -289,7 +289,7 @@ app.app.post("/gmp/userCounter", async (req, res) => {
       `INSERT INTO user_counters (receiver, queue_id) VALUES ($1, $2)`,
       [receiver, queue_id]
     );
-   // console.log("🚀 ~ file: message.js:140 ~ app.app.post ~ _query:", _query);
+    // console.log("🚀 ~ file: message.js:140 ~ app.app.post ~ _query:", _query);
     res.status(201).send({
       message: "receiver details added successfully!",
     });
@@ -304,7 +304,7 @@ app.app.get("/gmp/CheckTransactionHashInMessage_queue/:transaction_id", (req, re
   console.log("🚀 ~ app.app.get ~ transaction_id:", transaction_id)
 
 
-  let query = `SELECT * FROM message_queue WHERE transaction_hash = '${transaction_id}'`;  
+  let query = `SELECT * FROM message_queue WHERE transaction_hash = '${transaction_id}'`;
   gmpdbclient.query(query, (err, result) => {
     if (err) {
 
@@ -327,7 +327,7 @@ app.app.get("/gmp/CheckTransactionHashInMessage/:transaction_id", (req, res) => 
   console.log("🚀 ~ app.app.get ~ transaction_id:", transaction_id)
 
 
-  let query = `SELECT * FROM message WHERE transaction_hash = '${transaction_id}'`;  
+  let query = `SELECT * FROM message WHERE transaction_hash = '${transaction_id}'`;
   gmpdbclient.query(query, (err, result) => {
     if (err) {
       res.status(200).json(0);
@@ -447,15 +447,15 @@ app.app.get("/gmp/CheckIsClaimedIsYesInMessage/:userAddress", (req, res) => {
         if (!err) {
           let _data = JSON.stringify(result.rows);
           let _transactions = JSON.parse(_data);
-        //  res.status(200).json(result.rows);
-         // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
-         console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
+          //  res.status(200).json(result.rows);
+          // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
+          console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
 
-         if (result.rows.length === 0) {
-          res.status(200).json('NO');
-        } else {
-          res.status(200).json('YES');
-        }
+          if (result.rows.length === 0) {
+            res.status(200).json('NO');
+          } else {
+            res.status(200).json('YES');
+          }
         }
         console.log("error", err);
       }
@@ -467,7 +467,7 @@ app.app.get("/gmp/CheckIsClaimedIsYesInMessage/:userAddress", (req, res) => {
 //get transaction for repeating event's
 app.app.get("/gmp/CheckTxHashForRepeatingEvents/:txHash", (req, res) => {
   let txHash = req.params.txHash;
-  console.log("🚀 ~ app.app.get ~ txHash:", txHash)
+  //console.log("🚀 ~ app.app.get ~ txHash:", txHash)
   try {
     gmpdbclient.query(
       `SELECT transaction_hash FROM message WHERE transaction_hash = '${txHash}'`,
@@ -475,15 +475,15 @@ app.app.get("/gmp/CheckTxHashForRepeatingEvents/:txHash", (req, res) => {
         if (!err) {
           let _data = JSON.stringify(result.rows);
           let _transactions = JSON.parse(_data);
-        //  res.status(200).json(result.rows);
-         // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
-         console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
+          //  res.status(200).json(result.rows);
+          // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
+          //  console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
 
-         if (result.rows.length === 0) {
-          res.status(200).json('NO');
-        } else {
-          res.status(200).json('YES');
-        }
+          if (result.rows.length === 0) {
+            res.status(200).json('NO');
+          } else {
+            res.status(200).json('YES');
+          }
         }
         console.log("error", err);
       }
@@ -503,15 +503,15 @@ app.app.get("/gmp/CheckTxHashForRepeatingEventsInMessageQueue/:txHash", (req, re
         if (!err) {
           let _data = JSON.stringify(result.rows);
           let _transactions = JSON.parse(_data);
-        //  res.status(200).json(result.rows);
-         // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
-         console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
+          //  res.status(200).json(result.rows);
+          // console.log("🚀 ~ app.app.get ~ result:", result.rows[0].is_claimed)
+          // console.log("🚀 ~ app.app.get ~ result length:", result.rows.length);
 
-         if (result.rows.length === 0) {
-          res.status(200).json('NO');
-        } else {
-          res.status(200).json('YES');
-        }
+          if (result.rows.length === 0) {
+            res.status(200).json('NO');
+          } else {
+            res.status(200).json('YES');
+          }
         }
         console.log("error", err);
       }
@@ -695,5 +695,44 @@ app.app.get("/gmp/Signature/:mid", async (req, res) => {
     console.log("====>Error<=====", error);
   }
 });
-
+//get mid with transaction hash txHash
+app.app.get("/gmp/Id_Message/:txHash", (req, res) => {
+  let txHash = req.params.txHash;
+  console.log("🚀 ~ app.get ~ txHash:", txHash);
+  try {
+    gmpdbclient.query(
+      `SELECT * FROM message WHERE transaction_hash = '${txHash}'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+          res.status(200).json(result.rows);
+        }
+        console.log("error", err);
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+});
+//GET public from signature table
+app.app.get("/gmp/getPubkeyFromSignature/:id", (req, res) => {
+  let id = req.params.id;
+  console.log("🚀 ~ app.app.get ~ id:", id)
+  try {
+    gmpdbclient.query(
+      `SELECT * FROM signature WHERE message_id = '${id}'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+          res.status(200).json(result.rows);
+        }
+        console.log("error", err);
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+});
 //module.exports = { saveMessage, saveSignature}

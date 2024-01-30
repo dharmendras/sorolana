@@ -71,6 +71,7 @@ async function solanaDeposit(event, slot, transaction_id) {
   if (message_response.data.length == 0 && message_queue_response.data.length == 0) {
     console.log(" There is no  similar transaction hash in data base")
 
+   try {
     if (isclaimed_response.data.length == 0) {
       console.log("user come first time or is_claimed is clear")
       await axios
@@ -339,17 +340,18 @@ async function solanaDeposit(event, slot, transaction_id) {
       }
 
     }
+   } catch (error) {
+    console.log("🚀 ~ solanaDeposit ~ error:", error)
+    
+   }
 
   }
   else {
 
     console.log(" Yup there is a  transaction hash")
-    console.log("🚀 ~ solanaDeposit ~ transaction_id:", transaction_id)
+    console.log(" append sign")
     const message_response = await axios.get(`${base_url}/gmp/CheckTransactionHashInMessage/${transaction_id}`);
-
-    //  console.log("🚀 ~ solanaDeposit ~ message_response:", message_response.data[0].is_claimed)
-    console.log("message_response length:", message_response.data.length);
-
+  
     if (message_response.data.length == 1) {
       console.log(" sign the signature")
 
@@ -395,19 +397,6 @@ async function solanaDeposit(event, slot, transaction_id) {
     else {
       console.log("dont sign the signature")
     }
-    // let receiver = event.receiver_address
-    // const isqueue_id_response = await axios.get(`${base_url}/gmp/CheckQueue_IdInmessage_queue/${receiver}`);
-
-    // console.log("🚀 ~ solanaDeposit ~ isqueue_id_response:", isqueue_id_response)
-    // const isclaimed_response = await axios.get(`${base_url}/gmp/CheckIsClaimedInMessage/${userAddress}`);
-    // if (isclaimed_response.data.length == 0) {
-    // console.log(" ====> 340 <====")
-    // }
-    // else {
-
-    //   console.log("🚀 ~ isclaimed_response:", isclaimed_response.data.length)
-
-    // }
   }
 
 
