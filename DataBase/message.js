@@ -15,7 +15,7 @@ app.app.use(bodyParser.urlencoded({ extended: false }));
 app.app.use(bodyParser.json());
 
 app.app.post("/gmp/Message", async (req, res) => {
-  console.log("🚀 ~ file: message.js:19 ~ app.app.post ~ res:", res);
+  //  console.log("🚀 ~ file: message.js:19 ~ app.app.post ~ res:", res);
   console.log("message id ", req.body);
   const {
     amount,
@@ -150,6 +150,39 @@ app.app.delete("/gmp/message_queue/:receiver", (req, res) => {
   try {
     // let qry = `SELECT queue_id FROM message_queue WHERE receiver_pda = '${receiverPda}'`;
     let qry = `DELETE FROM message_queue WHERE receiver = '${receiver}' and queue_id = '${queue_id}'`;
+    console.log("🚀 ~ file: message.js:103 ~ app.app.get ~ qry:", qry);
+    gmpdbclient.query(qry, (err, result) => {
+      if (!err) {
+        let rows = result;
+        console.log(
+          "🚀 ~ file: message.js:105 ~ gmpdbclient.query ~ rows:",
+          rows
+        );
+        res
+          .status(200)
+          .json({ message: "Message deleted from the table successfully!!" });
+      }
+      console.log("🚀 ~ file: message.js:106 ~ app.app.get ~ err:", err);
+    });
+  } catch (error) {
+    console.error("Error", error);
+    res.status(500).send({
+      message: "something went wrong",
+    });
+  }
+});
+//delete  request for the table message_queue table using transaction hash
+app.app.delete("/gmp/delete_Data_from_message_queue/:transaction_hash", (req, res) => {
+  let transaction_hash = req.params.transaction_hash;
+  const { queue_id } = req.body;
+  console.log(
+    "🚀 ~ file: message.js:102 ~ app.app.delete ~ req.body:",
+    req.body
+  );
+  console.log("🚀 ~ file: message.js:99 ~ app.app.get ~ userPda:", transaction_hash);
+  try {
+    // let qry = `SELECT queue_id FROM message_queue WHERE receiver_pda = '${receiverPda}'`;
+    let qry = `DELETE FROM message_queue WHERE transaction_hash = '${transaction_hash}'`;
     console.log("🚀 ~ file: message.js:103 ~ app.app.get ~ qry:", qry);
     gmpdbclient.query(qry, (err, result) => {
       if (!err) {
@@ -520,16 +553,30 @@ app.app.get("/gmp/CheckTxHashForRepeatingEventsInMessageQueue/:txHash", (req, re
     console.log(error);
   }
 });
+//get check is_claimed
 app.app.get("/gmp/CheckIsClaimedInMessage/:userAddress", (req, res) => {
   let accountAddress = req.params.userAddress;
+  const queue_id = req.query.queue_id;
+  console.log("🚀 ~ app.app.get ~ queue_id:", queue_id);
   try {
     gmpdbclient.query(
-      `SELECT is_claimed FROM message WHERE toaddress = '${accountAddress}' and is_claimed = 'NO'`,
+      // `SELECT is_claimed FROM message WHERE toaddress = '${accountAddress}' and is_claimed = 'YES' and queue_id = '${queue_id}'`,
+      `SELECT is_claimed FROM message WHERE toaddress = '${accountAddress}' and is_claimed = 'YES'`,
       (err, result) => {
         if (!err) {
           let _data = JSON.stringify(result.rows);
           let _transactions = JSON.parse(_data);
-          res.status(200).json(result.rows);
+          console.log("result.rows.length", result.rows.length)
+          if (result.rows.length === 0) {
+            console.log("NO")
+            res.status(200).json('NO');
+
+          }
+          else {
+            console.log("YES")
+            res.status(200).json('YES');
+          }
+          //res.status(200).json(result.rows);
         }
         console.log("error", err);
       }
@@ -539,6 +586,8 @@ app.app.get("/gmp/CheckIsClaimedInMessage/:userAddress", (req, res) => {
   }
   console.log("accountAddress4--->", accountAddress);
 });
+
+
 app.app.get("/gmp/Message/:userAddress", (req, res) => {
   let accountAddress = req.params.userAddress;
   try {
@@ -733,6 +782,30 @@ app.app.get("/gmp/getPubkeyFromSignature/:id", (req, res) => {
     );
   } catch (error) {
     console.log(error);
+  }
+});
+
+//get queue_id from user
+app.app.get("/gmp/get_queue_idFrom_Message/:userAddress", (req, res) => {
+  let accountAddress = req.params.userAddress;
+  console.log("🚀 ~ app.app.get ~ accountAddress:", accountAddress)
+  try {
+    gmpdbclient.query(
+      `SELECT * FROM message WHERE toaddress = '${accountAddress}' AND is_claimed = 'NO'`,
+      (err, result) => {
+        if (!err) {
+          let _data = JSON.stringify(result.rows);
+          let _transactions = JSON.parse(_data);
+          res.status(200).json({ data: _transactions });
+        } else {
+          console.log("error", err);
+          res.status(500).json({ error: 'Internal Server Error' });
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 //module.exports = { saveMessage, saveSignature}

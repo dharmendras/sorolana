@@ -18,7 +18,7 @@ async function pollSorobanDepositEvents() {
   //  GraphQL query
   const query = gql`
 query GetEvents {
-  eventByContractId(searchedContractId: "CBHO36ESJS3BXXXBFITIYIJFBIHKFGWZ4722RS26REJZALEGFWKHEA35") {
+  eventByContractId(searchedContractId: "CBIIWXA6HUJCHRMQ2KJIVVXAU6UJ365C64LSI252KDWZHSNYAQZHO5QY") {
     edges {
       node {
         data
